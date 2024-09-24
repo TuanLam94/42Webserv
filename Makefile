@@ -2,11 +2,12 @@ NAME = webserv
 
 CC = c++
 
-CFFAGS = -Wall -Werror -Wextra -std=c=+98
+CFFAGS = -Wall -Werror -Wextra -std=c=+98 -g3
 
-SRC = ./srcs/*.cpp
+SRC = $(wildcard ./srcs/*.cpp)
 
-OBJ = $(SRC:.cpp=.o)
+OBJ_DIR = obj
+OBJ = $(patsubst ./srcs/%.cpp,$(OBJ_DIR)/%.o,$(SRC))
 
 RM = rm -rf
 
@@ -15,7 +16,7 @@ $(NAME) : $(OBJ)
 
 all : $(NAME)
 
-%.o: %.cpp
+$(OBJ_DIR)/%.o: ./srcs/%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean :

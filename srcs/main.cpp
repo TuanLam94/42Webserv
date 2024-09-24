@@ -1,4 +1,5 @@
 #include <iostream>
+#include "../headers/server.hpp"
 
 int main(int argc, char **argv)
 {
@@ -7,5 +8,11 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    
+    std::string config(argv[1]);
+
+    Server Server(config);
+
+    Server.printServer();
+
+    return 0;
 }
