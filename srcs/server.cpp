@@ -30,10 +30,10 @@ void Server::parseConfigFile(std::ifstream& input)
             _error_log = trim(line.substr(pos));
         
         else if (line.substr(0, pos) == "routes")
-            parseRoutes(line.substr(0, pos));
+            parseRoutes(trim(line.substr(pos)));
 
         else if (line.substr(0, pos) == "errors")
-            parseErrors(line.substr(0, pos));
+            parseErrors(trim(line.substr(pos)));
     }
 }
 
@@ -113,6 +113,14 @@ std::vector<std::string> Server::getErrors()
 }
 
 //----------------------------------UTILS------------------------------//
+
+std::ostream& operator << (std::ostream& os, const std::vector<std::string>& vec)
+{
+    for (size_t i = 0; i < vec.size(); i++) {
+        os << "vector [" << i << "] " << vec[i] << std::endl;
+    }
+    return os;
+}
 
 void Server::printServer()
 {

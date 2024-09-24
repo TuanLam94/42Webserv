@@ -14,11 +14,3 @@ std::string trim(std::string str)
 
 	return (str.substr(start, end - start));
 }
-
-std::ostream& operator << (std::ostream& os, const std::vector<std::string>& vec)
-{
-    for (size_t i = 0; i < vec.size(); i++) {
-        os << "vector [" << i << "] " << vec[i] << std::endl;
-    }
-    return os;
-}

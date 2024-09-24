@@ -1,3 +1,6 @@
+#ifndef SERVER_HPP
+#define SERVER_HPP
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -37,7 +40,8 @@ class Server
         void printServer();
 };
 
-
 //------------------------utils-------------------//
 
 std::string trim(std::string str);
+
+#endif
