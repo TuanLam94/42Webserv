@@ -105,8 +105,6 @@ void	Server::start()
             exit (1);
         }
 
-        std::cout << "\n +event.data.fd = " << _event.data.fd << std::endl;
-        std::cout << "server_fd = " << _server_fd << std::endl;
         if (_event.data.fd == _server_fd)
         {
             socklen_t addrlen = sizeof(_address);
@@ -138,25 +136,31 @@ void	Server::start()
         }
         else
         {
-            // Handle data from an existing client
             char buffer[1024];
-            int bytes = read(_event.data.fd, buffer, sizeof(buffer));
+            int bytes = recv(_event.data.fd, buffer, sizeof(buffer), 0);
             if (bytes < 0)
             {
                 std::cerr << "Read error\n";
                 close(_event.data.fd);
                 epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
+                continue;
             }
             else if (bytes == 0)
             {
                 std::cout << "Client disconnected\n";
                 close(_event.data.fd);
                 epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
+                continue;
             }
             else
             {
                 // Process client data (for example, HTTP requests)
-                std::cout << "Received from client: " << buffer << std::endl;
+                std::cout << "Received from client: \n\n" << buffer << "\nEND\n" << std::endl;
+                std::string response = "HTTP/1.1 200 O\r\nContent-Length: 13\r\n\r\nHello, world!";
+                write(_event.data.fd, response.c_str(), response.size());
+
+                close(_event.data.fd);
+                epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
             }
         }
     }
@@ -170,6 +174,13 @@ void    Server::socketInit()
 		std::cerr << "socket failed\n";
 		exit (1);
 	}
+
+    const int trueFlag = 1;
+    if (setsockopt(_server_fd, SOL_SOCKET, SO_REUSEADDR, &trueFlag, sizeof(int)) < 0)
+    {
+        std::cerr << "setsockopt failed\n";
+        exit(1);
+    }
 }
 
 void    Server::nonBlockingSocket()
@@ -198,7 +209,7 @@ void    Server::bindInit()
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	if (bind(_server_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
 	{
-		std::cerr << "bind failed\n";
+		std::cerr << "bind failed\n" << "errno :" << errno << std::endl;
 		exit (1);
 	}
 }
