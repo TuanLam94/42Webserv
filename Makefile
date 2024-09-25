@@ -2,9 +2,9 @@ SRC = srcs/main.cpp srcs/server.cpp srcs/utils.cpp
 OBJ = $(SRC:.cpp=.o) 
 CXX = c++
 RM = rm -f
-CXXFLAGS = -std=c++98 #-Wall -Wextra -Werror
+CXXFLAGS = -std=c++98 -Wall -Wextra -Werror
 
-NAME = server
+NAME = webserv
 
 all: $(NAME)
 

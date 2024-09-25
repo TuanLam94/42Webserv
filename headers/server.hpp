@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <sys/epoll.h>
 #include <cstring>
+#include <unistd.h>
 
 class Server
 {

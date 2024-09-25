@@ -104,13 +104,60 @@ void	Server::start()
             std::cerr << "aucune connexion en attente\n";
             exit (1);
         }
+
+        std::cout << "\n +event.data.fd = " << _event.data.fd << std::endl;
+        std::cout << "server_fd = " << _server_fd << std::endl;
+        if (_event.data.fd == _server_fd)
+        {
+            socklen_t addrlen = sizeof(_address);
+            int client_fd = accept(_server_fd, (struct sockaddr*)&_address, &addrlen);
+            if (client_fd < 0)
+            {
+                std::cerr << "accept failed\n";
+                continue;
+            }
+
+            int flags = fcntl(client_fd, F_GETFL, 0);
+            if (flags < 0 || fcntl(client_fd, F_SETFL, flags | O_NONBLOCK) < 0)
+            {
+                std::cerr << "Failed to set client socket to non-blocking\n";
+                close(client_fd);
+                continue;
+            }
+
+            _event.data.fd = client_fd;
+            _event.events = EPOLLIN;
+            if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, client_fd, &_event) < 0)
+            {
+                std::cerr << "epoll_ctl failed for client\n";
+                close(client_fd);
+                continue;
+            }
+
+            std::cout << "New client connected\n";
+        }
         else
         {
-            // if (_server_fd == _epoll_fd)
-            // {
-                std::cout << "test\n";
-                // break ;
-            // }
+            // Handle data from an existing client
+            char buffer[1024];
+            int bytes = read(_event.data.fd, buffer, sizeof(buffer));
+            if (bytes < 0)
+            {
+                std::cerr << "Read error\n";
+                close(_event.data.fd);
+                epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
+            }
+            else if (bytes == 0)
+            {
+                std::cout << "Client disconnected\n";
+                close(_event.data.fd);
+                epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
+            }
+            else
+            {
+                // Process client data (for example, HTTP requests)
+                std::cout << "Received from client: " << buffer << std::endl;
+            }
         }
     }
 }
@@ -185,7 +232,7 @@ void    Server::epollInit()
         exit (1);
     }
     _event.events = EPOLLIN;
-    _event.data.fd = 0;
+    _event.data.fd = _server_fd;
     if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, _server_fd, &_event)) // surveille le fd de socket, la socket principale, mais doit surveiller aussi tous les connexions entrantes avec accept je supppose
     {
         std::cerr << "epoll_ctl failed\n";
