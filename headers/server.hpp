@@ -13,12 +13,15 @@
 #include <cstdlib>
 #include <fcntl.h>
 #include <sys/epoll.h>
+#include <cstring>
 
 class Server
 {
     private:
         int _server_fd;
+        int _epoll_fd;
         struct sockaddr_in _address;
+        struct epoll_event _event;
         std::string _host;
         int _port;
         int _timeout;

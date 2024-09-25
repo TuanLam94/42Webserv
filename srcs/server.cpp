@@ -84,19 +84,35 @@ void Server::parseErrors(std::string path)
 
 void	Server::start()
 {
-    int new_socket;
+    int fd_number;
+    int value = 1;
 
     socketInit();
     nonBlockingSocket();
     bindInit();
     listenInit();
-    acceptInit();
-    // initialisation de epoll() pour surveiller les sockets ouvert
-    // epollInit();
-    // while (1)
-    // {
-    //     // reception des requetes + traitement 
-    // }
+    // acceptInit();
+    epollInit();
+    // debut de la surveillance des connexions entrantes dans une boucle i guess
+    // utiliser epoll_wait() --> cf note_server.txt
+    while (value)
+    {
+        // reception des requetes + traitement 
+        fd_number = epoll_wait(_epoll_fd, &_event, 1, -1);
+        if (fd_number <= 0)
+        {
+            std::cerr << "aucune connexion en attente\n";
+            exit (1);
+        }
+        else
+        {
+            // if (_server_fd == _epoll_fd)
+            // {
+                std::cout << "test\n";
+                // break ;
+            // }
+        }
+    }
 }
 
 void    Server::socketInit()
@@ -125,12 +141,11 @@ void    Server::nonBlockingSocket()
         std::cerr << "fcntl failed\n";
         exit (1);
     }
-
 }
 
 void    Server::bindInit()
 {
-    // memset sur la structure en theorie
+    memset(&_address, 0, sizeof(_address));
 	_address.sin_family = AF_INET;
 	_address.sin_port = htons(_port);
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -155,31 +170,27 @@ void    Server::acceptInit()
     socklen_t   addrlen = sizeof(_address);
 	if (accept(_server_fd, (struct sockaddr *)&_address, &addrlen) < 0)
 	{
-		std::cerr << "bind failed\n";
+		std::cerr << "accept failed\n";
 		exit (1);
 	}
 }
 
 void    Server::epollInit()
 {
-    int epoll_fd;
-    struct epoll_event  event;
-    epoll_fd = epoll_create(0); // epoll_create1() preferable car possibilite de specifier des flags mais sujet autorise pas ?
-    if (epoll_fd < 0)
+    _epoll_fd = epoll_create(1); // epoll_create() preferable car possibilite de specifier des flags mais sujet autorise pas ?
+    if (_epoll_fd < 0)
     {
+        std::cout << strerror(errno) << std::endl;
         std::cerr << "epoll create1 failed\n";
         exit (1);
     }
-    event.events = EPOLLIN;
-    event.data.fd = 0;
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _server_fd, &event)) // surveille le fd de socket, la socket principale, mais doit surveiller aussi tous les connexions entrantes avec accept je supppose
-
+    _event.events = EPOLLIN;
+    _event.data.fd = 0;
+    if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, _server_fd, &_event)) // surveille le fd de socket, la socket principale, mais doit surveiller aussi tous les connexions entrantes avec accept je supppose
     {
         std::cerr << "epoll_ctl failed\n";
         exit (1);
     }
-    // debut de la surveillance des connexions entrantes dans une boucle i guess
-    // utiliser epoll_wait() --> cf note_server.txt
 }
 
 //-----------------------------GETTERS-----------------------------//

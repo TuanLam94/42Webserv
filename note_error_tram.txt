@@ -1,0 +1,4 @@
+		
+- Si 1ere utilisation de accept en mode non-bloquant --> fail car aucune connexion entrante
+	- donc on tente de mettre le mode non bloquant apres avoir lier le socket au port.
+	- accept doit attendre qu une connexion soit faites et bloque, donc peut etre vaut il mieux dappeler epoll_wait() avant et de mettre le accept dans cette boucle

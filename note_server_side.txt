@@ -33,5 +33,8 @@ Lecture/ecriture sur Descripteur de fichier :
 		- une fois appele -> se met en attente jusqu'a recevoir des entrees/sorties prets a etre traites
 		- retourne un le nbr de fd pret a etre traite -> ensuite on peut parcourir le tableau devenements afin de gerer tous les evenements signaler
 		
+- Si 1ere utilisation de accept en mode non-bloquant --> fail car aucune connexion entrante
+	- donc on tente de mettre le mode non bloquant apres avoir lier le socket au port.
+	
 	
 	
