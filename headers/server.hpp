@@ -11,6 +11,8 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <cstdlib>
+#include <fcntl.h>
+#include <sys/epoll.h>
 
 class Server
 {
@@ -23,7 +25,7 @@ class Server
         std::string _error_log;
         std::vector<std::string> _routes;
         std::vector<std::string> _errors;
-
+        // std::vector<int>    fds;
         void parseConfigFile(std::ifstream& input);
         void parseRoutes(std::string path);
         void parseErrors(std::string path);
@@ -38,6 +40,13 @@ class Server
         std::vector<std::string> getRoutes();
         std::vector<std::string> getErrors();
         void printServer();
+        void start();
+        void socketInit();
+        void bindInit();
+        void listenInit();
+        void acceptInit();
+        void nonBlockingSocket();
+        void epollInit();
 };
 
 //------------------------utils-------------------//

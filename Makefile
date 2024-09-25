@@ -1,28 +1,22 @@
-NAME = webserv
+SRC = srcs/main.cpp srcs/server.cpp srcs/utils.cpp
+OBJ = $(SRC:.cpp=.o) 
+CXX = c++
+RM = rm -f
+CXXFLAGS = -std=c++98 #-Wall -Wextra -Werror
 
-CC = c++
+NAME = server
 
-CFFAGS = -Wall -Werror -Wextra -std=c=+98 -g3
+all: $(NAME)
 
-SRC = $(wildcard ./srcs/*.cpp)
+$(NAME): $(OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
 
-OBJ_DIR = obj
-OBJ = $(patsubst ./srcs/%.cpp,$(OBJ_DIR)/%.o,$(SRC))
-
-RM = rm -rf
-
-$(NAME) : $(OBJ)
-		$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
-
-all : $(NAME)
-
-$(OBJ_DIR)/%.o: ./srcs/%.cpp
-	$(CC) $(CFLAGS) -c $< -o $@
-
-clean :
+clean:
 	$(RM) $(OBJ)
 
-fclean : clean
+fclean: clean
 	$(RM) $(NAME)
 
-re : fclean all
+re: fclean all
+
+.PHONY: all clean fclean re

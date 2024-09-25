@@ -75,6 +75,113 @@ void Server::parseErrors(std::string path)
     closedir(dir);
 }
 
+//-----------------------Lancement-serveur------------------------//
+
+/*
+	- htonl = convertir un long int en representation reseau
+	- htons = convertir un short en representation reseau
+*/
+
+void	Server::start()
+{
+    int new_socket;
+
+    socketInit();
+    nonBlockingSocket();
+    bindInit();
+    listenInit();
+    acceptInit();
+    // initialisation de epoll() pour surveiller les sockets ouvert
+    // epollInit();
+    // while (1)
+    // {
+    //     // reception des requetes + traitement 
+    // }
+}
+
+void    Server::socketInit()
+{
+    _server_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_server_fd < 0)
+	{
+		std::cerr << "socket failed\n";
+		exit (1);
+	}
+}
+
+void    Server::nonBlockingSocket()
+{
+    int flags;    
+
+    flags = fcntl(_server_fd, F_GETFL, 0);
+    if (flags < 0)
+    {
+        std::cerr << "fcntl failed\n";
+        exit (1);
+    }
+    flags = fcntl(_server_fd, F_SETFL, O_NONBLOCK);
+    if (flags < 0)
+    {
+        std::cerr << "fcntl failed\n";
+        exit (1);
+    }
+
+}
+
+void    Server::bindInit()
+{
+    // memset sur la structure en theorie
+	_address.sin_family = AF_INET;
+	_address.sin_port = htons(_port);
+	_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	if (bind(_server_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
+	{
+		std::cerr << "bind failed\n";
+		exit (1);
+	}
+}
+
+void    Server::listenInit()
+{
+    if (listen(_server_fd, 10) < 0)
+    {
+        std::cerr << "liste failed\n";
+        exit (1);
+    }
+}
+
+void    Server::acceptInit()
+{
+    socklen_t   addrlen = sizeof(_address);
+	if (accept(_server_fd, (struct sockaddr *)&_address, &addrlen) < 0)
+	{
+		std::cerr << "bind failed\n";
+		exit (1);
+	}
+}
+
+void    Server::epollInit()
+{
+    int epoll_fd;
+    struct epoll_event  event;
+    epoll_fd = epoll_create(0); // epoll_create1() preferable car possibilite de specifier des flags mais sujet autorise pas ?
+    if (epoll_fd < 0)
+    {
+        std::cerr << "epoll create1 failed\n";
+        exit (1);
+    }
+    event.events = EPOLLIN;
+    event.data.fd = 0;
+    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _server_fd, &event)) // surveille le fd de socket, la socket principale, mais doit surveiller aussi tous les connexions entrantes avec accept je supppose
+
+    {
+        std::cerr << "epoll_ctl failed\n";
+        exit (1);
+    }
+    // debut de la surveillance des connexions entrantes dans une boucle i guess
+    // utiliser epoll_wait() --> cf note_server.txt
+}
+
 //-----------------------------GETTERS-----------------------------//
 
 int Server::getServerFd()
