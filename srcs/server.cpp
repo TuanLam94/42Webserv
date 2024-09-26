@@ -1,4 +1,5 @@
 #include "../headers/server.hpp"
+#include "../headers/request.hpp"
 
 Server::Server(const std::string config)
 {
@@ -98,7 +99,7 @@ void	Server::start()
     while (value)
     {
         // reception des requetes + traitement 
-        fd_number = epoll_wait(_epoll_fd, &_event, 1, -1);
+        fd_number = epoll_wait(_epoll_fd, &_event, 3, -1);
         if (fd_number <= 0)
         {
             std::cerr << "aucune connexion en attente\n";
@@ -155,10 +156,19 @@ void	Server::start()
             else
             {
                 // Process client data (for example, HTTP requests)
-                std::cout << "Received from client: \n\n" << buffer << "\nEND\n" << std::endl;
-                std::string response = "HTTP/1.1 200 O\r\nContent-Length: 13\r\n\r\nHello, world!";
-                write(_event.data.fd, response.c_str(), response.size());
-
+                // try
+                // {
+                    Request test1;
+                    std::string test;
+                    test1.open_file_GET(*this, buffer);
+                    test = test1.GET_method();
+                    write(_event.data.fd, test.c_str(), test.size());
+                    // test.find_request();
+                // }
+                // catch(...)
+                // {
+                //     exit (1);
+                // }
                 close(_event.data.fd);
                 epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
             }
