@@ -42,6 +42,21 @@ void	Request::open_file_GET(Server i, const std::string& buffer)
 	}
 }
 
+std::string	Request::GET_method()
+{
+	std::string	response;
+	std::string	line;
+	std::string	file;
+
+	while (std::getline(_input, line))
+	{
+		file += line;
+		file += "\n";
+	}
+	response = build_response(file, "\0");
+	return (response);
+}
+
 void	Request::find_request()
 {
 	if (_method == "GET")
@@ -52,21 +67,6 @@ void	Request::find_request()
 	// 	DELETE_method();
 	// else
 	// 	throw 405_Method_Not_Allowed();
-}
-
-std::string	Request::GET_method()
-{
-	std::string	response;
-	std::string	line;
-	std::string	file;
-
-	while (std::getline(_input, line))
-	{
-		file += line;		
-		file += "\n";
-	}
-	response = build_response(file, "\0");
-	return (response);
 }
 
 // void	Request::POST_method()
