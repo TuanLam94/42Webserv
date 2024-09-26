@@ -29,11 +29,15 @@ void Server::parseConfigFile(std::ifstream& input)
         else if (line.substr(0, pos) == "error_log")
             _error_log = trim(line.substr(pos));
         
-        else if (line.substr(0, pos) == "routes")
+        else if (line.substr(0, pos) == "routes") {
+			_routes_path = trim(line.substr(pos));
             parseRoutes(trim(line.substr(pos)));
+		}
 
-        else if (line.substr(0, pos) == "errors")
+        else if (line.substr(0, pos) == "errors") {
+			_errors_path = trim(line.substr(pos));
             parseErrors(trim(line.substr(pos)));
+		}
     }
 }
 

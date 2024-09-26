@@ -28,7 +28,9 @@ class Server
         int _timeout;
         std::string _error_log;
         std::vector<std::string> _routes;
+		std::string _routes_path;
         std::vector<std::string> _errors;
+		std::string _errors_path;
         // std::vector<int>    fds;
         void parseConfigFile(std::ifstream& input);
         void parseRoutes(std::string path);
