@@ -15,7 +15,7 @@ void Server::parseConfigFile(std::ifstream& input)
     std::string line;
     while (std::getline(input, line)) {
         line = trim(line);
-        size_t pos = line.find(" ");
+        size_t pos = findWhiteSpace(line);
 
         if (line.substr(0, pos) == "host")
             _host = trim(line.substr(pos));
@@ -33,11 +33,20 @@ void Server::parseConfigFile(std::ifstream& input)
 			_routes_path = trim(line.substr(pos));
             parseRoutes(trim(line.substr(pos)));
 		}
-
         else if (line.substr(0, pos) == "errors") {
 			_errors_path = trim(line.substr(pos));
             parseErrors(trim(line.substr(pos)));
 		}
+		else if (line.substr(0, pos) == "server_name")
+			_server_name = trim(line.substr(pos));
+		else if (line.substr(0, pos) == "methods")
+			parseMethods(trim(line.substr(pos)));
+		else if (line.substr(0, pos) == "upload_dir")
+			_upload_dir = trim(line.substr(pos));
+		else if (line.substr(0, pos) == "redirection")
+			_redirection = trim(line.substr(pos));
+		else if (line.substr(0, pos) == "max_client_body_size")
+			_max_client_body_size = std::atoi(line.substr(pos).c_str());
     }
 }
 
@@ -79,6 +88,16 @@ void Server::parseErrors(std::string path)
     closedir(dir);
 }
 
+void Server::parseMethods(std::string input)
+{
+	std::istringstream ss(input);
+	std::string word;
+
+	while (!ss.eof()) {
+		getline(ss, word, ' ');
+		_methods.push_back(word);
+	}
+}
 //-----------------------Lancement-serveur------------------------//
 
 /*
@@ -99,6 +118,7 @@ void	Server::start()
     epollInit();
     // debut de la surveillance des connexions entrantes dans une boucle i guess
     // utiliser epoll_wait() --> cf note_server.txt
+	printServer();
     while (value)
     {
         // reception des requetes + traitement 
@@ -255,6 +275,38 @@ void    Server::epollInit()
     }
 }
 
+//----------------------------------UTILS------------------------------//
+
+std::ostream& operator << (std::ostream& os, const std::vector<std::string>& vec)
+{
+    for (size_t i = 0; i < vec.size(); i++) {
+        os << "vector [" << i << "] " << vec[i] << std::endl;
+    }
+    return os;
+}
+
+void Server::printServer()
+{
+	std::cout << "----SERVER----" << std::endl;
+
+    std::cout << "Server fd = " << getServerFd() << std::endl;
+    std::cout << "Host = " << getHost() << std::endl;
+    std::cout << "Port = " << getPort() << std::endl;
+    std::cout << "Timeout = " << getTimeout() << std::endl;
+    std::cout << "Error Log = " << getErrorLog() << std::endl;
+	std::cout << "Routes Path = " << getRoutesPath() << std::endl;
+    std::cout << "Routes = " << getRoutes();
+	std::cout << "Errors Path = " << getErrorsPath() << std::endl;
+    std::cout << "Errors = " << getErrors();
+	std::cout << "Server Name = " << getServerName() << std::endl;
+	std::cout << "Upload directory = " << getUploadDir() << std::endl;
+	std::cout << "Path to redirect = " << getRedirection() << std::endl;
+	std::cout << "Max client body size = " << getMaxBodySize() << std::endl;
+	std::cout << "Methods = " << getMethods();
+
+	std::cout << "----SERVER END----" << std::endl;
+}
+
 //-----------------------------GETTERS-----------------------------//
 
 int Server::getServerFd()
@@ -262,7 +314,7 @@ int Server::getServerFd()
     return _server_fd;
 }
 
-std::string Server::getHost()
+const std::string& Server::getHost()
 {
     return _host;
 }
@@ -277,38 +329,52 @@ int Server::getTimeout()
     return _timeout;
 }
 
-std::string Server::getErrorLog()
+const std::string& Server::getErrorLog()
 {
     return _error_log;
 }
 
-std::vector<std::string> Server::getRoutes()
+const std::string& Server::getRoutesPath()
+{
+	return _routes_path;
+}
+
+const std::string& Server::getErrorsPath()
+{
+	return _errors_path;
+}
+
+const std::string& Server::getServerName()
+{
+	return _server_name;
+}
+
+const std::string& Server::getUploadDir()
+{
+	return _upload_dir;
+}
+
+const std::string& Server::getRedirection()
+{
+	return _redirection;
+}
+
+const std::vector<std::string>& Server::getRoutes()
 {
     return _routes;
 }
 
-std::vector<std::string> Server::getErrors()
+const std::vector<std::string>& Server::getErrors()
 {
     return _errors;
 }
 
-//----------------------------------UTILS------------------------------//
-
-std::ostream& operator << (std::ostream& os, const std::vector<std::string>& vec)
+int Server::getMaxBodySize()
 {
-    for (size_t i = 0; i < vec.size(); i++) {
-        os << "vector [" << i << "] " << vec[i] << std::endl;
-    }
-    return os;
+	return _max_client_body_size;
 }
 
-void Server::printServer()
+const std::vector<std::string>& Server::getMethods()
 {
-    std::cout << "Server fd = " << getServerFd() << std::endl;
-    std::cout << "Host = " << getHost() << std::endl;
-    std::cout << "Port = " << getPort() << std::endl;
-    std::cout << "Timeout = " << getTimeout() << std::endl;
-    std::cout << "Error Log = " << getErrorLog() << std::endl;
-    std::cout << "Routes = " << getRoutes() << std::endl;
-    std::cout << "Errors = " << getErrors() << std::endl;
+	return _methods;
 }

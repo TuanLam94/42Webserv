@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 
     Server Server(config);
 
-    Server.printServer();
+    // Server.printServer();
     Server.start();
     return 0;
 }
