@@ -1,6 +1,11 @@
-host        127.0.0.1
-port        8080
-timeout     30
-error_log   config/error_log.txt
-routes      config/routes
-errors      config/errors
+server_name             webserv.tlamshelal42.fr
+host                    127.0.0.1
+port                    8080
+timeout                 30
+error_log               config/error_log.txt
+errors                  config/errors
+routes                  config/routes
+methods                 GET POST PUT
+upload_dir			    config/uploads
+redirection			    webserv.tlal42.fr
+max_client_body_size    1,048,576

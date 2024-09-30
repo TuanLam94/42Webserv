@@ -15,6 +15,7 @@
 #include <sys/epoll.h>
 #include <cstring>
 #include <unistd.h>
+#include <sstream>
 
 class Server
 {
@@ -30,21 +31,34 @@ class Server
         std::vector<std::string> _routes;
 		std::string _routes_path;
         std::vector<std::string> _errors;
+
 		std::string _errors_path;
+		std::string _server_name;
+		std::string _upload_dir;
+		std::string _redirection;
+		int	_max_client_body_size;
+		std::vector<std::string> _methods;
         // std::vector<int>    fds;
         void parseConfigFile(std::ifstream& input);
         void parseRoutes(std::string path);
         void parseErrors(std::string path);
-
+		void parseMethods(std::string input);
     public:
         Server(const std::string config);
         int getServerFd();
-        std::string getHost();
         int getPort();
         int getTimeout();
-        std::string getErrorLog();
-        std::vector<std::string> getRoutes();
-        std::vector<std::string> getErrors();
+        const std::string& getHost();
+        const std::string& getErrorLog();
+		const std::string& getRoutesPath();
+		const std::string& getErrorsPath();
+		const std::string& getServerName();
+		const std::string& getUploadDir();
+		const std::string& getRedirection();
+		int	getMaxBodySize();
+        const std::vector<std::string>& getRoutes();
+        const std::vector<std::string>& getErrors();
+		const std::vector<std::string>& getMethods();
         void printServer();
         void start();
         void socketInit();
@@ -58,5 +72,6 @@ class Server
 //------------------------utils-------------------//
 
 std::string trim(std::string str);
+size_t findWhiteSpace(std::string line);
 
 #endif

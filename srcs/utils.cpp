@@ -14,3 +14,12 @@ std::string trim(std::string str)
 
 	return (str.substr(start, end - start));
 }
+
+size_t findWhiteSpace(std::string line)
+{
+	int i = 0;
+	while (!isspace(line[i])) {
+		i++;
+	}
+	return i;
+}
