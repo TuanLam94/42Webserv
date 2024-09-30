@@ -5,7 +5,7 @@ timeout                 30
 error_log               config/error_log.txt
 errors                  config/errors
 routes                  config/routes
-methods                 GET POST PUT
+methods                 GET POST PUT DELETE
 upload_dir			    config/uploads
 redirection			    webserv.tlal42.fr
 max_client_body_size    1,048,576
