@@ -176,6 +176,7 @@ std::string	Request::GET_method()
 		file += line;
 		file += "\n";
 	}
+	_body = file;
 	response = build_response(file, "\0");
 	return (response);
 }
@@ -200,17 +201,51 @@ void	Request::find_request()
 
 //-----------------------------GETTERS-----------------------------//
 
-std::string	Request::getMethod()
+Request::Request(const Request& copy)
+{
+	*this = copy;
+}
+
+Request& Request::operator=(const Request& other)
+{
+	if (this != &other) {
+		_method = other.getMethod();
+		_path = other.getPath();
+		_version = other.getVersion();
+		_response = other.getResponse();
+		_body = other.getBody();
+		_contentType = other.getContentType();
+	}
+	return *this;
+}
+
+std::string	Request::getMethod() const
 {
 	return (_method);
 }
 
-std::string	Request::getPath()
+std::string	Request::getPath() const
 {
 	return (_path);
 }
 
-std::string	Request::getVersion()
+std::string	Request::getVersion() const
 {
 	return (_version);
 }
+
+std::string Request::getBody() const
+{
+	return (_body);
+}
+
+std::string Request::getContentType() const
+{
+	return (_contentType);
+}
+
+std::string Request::getResponse() const
+{
+	return (_response);
+}
+

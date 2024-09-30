@@ -17,6 +17,8 @@
 #include <unistd.h>
 #include "../headers/server.hpp"
 
+class Server;
+
 class	Request
 {
 	private: 
@@ -25,6 +27,8 @@ class	Request
 	std::string _path;
 	std::string _version;
 	std::string _response;
+	std::string	_body;
+	std::string _contentType;
 	// int	_client_fd;
 
 	// attributs GET
@@ -35,6 +39,8 @@ class	Request
 	std::vector<std::pair<std::string, std::string> >	_headersHttp;
 	public:
 	Request() {};
+	Request(const Request& copy);
+	Request& operator=(const Request& other);
 	~Request() {};
 	// Request(int client_fd);
 	void	parsRequest(Server i, const std::string& buffer);
@@ -47,9 +53,12 @@ class	Request
 	// void	POST_method();
 	// void	DELETE_method();
 	std::string	build_response(const std::string& body, const std::string& content_type);
-	std::string	getMethod();
-	std::string	getPath();
-	std::string	getVersion();
+	std::string	getMethod() const;
+	std::string	getPath() const;
+	std::string	getVersion() const;
+	std::string	getBody() const;
+	std::string getContentType() const;
+	std::string getResponse() const;
 };
 
 #endif

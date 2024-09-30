@@ -16,34 +16,85 @@
 #include <cstring>
 #include <unistd.h>
 #include "../headers/server.hpp"
+#include "request.hpp"
+#include <sys/stat.h>
 
-class	Response
+class Request;
+class Server;
+
+class Response
 {
-	private: 
-	// attributs remplis apres parsing de la requete 
-	std::string _method;
-	std::string _path;
-	std::string _version;
-	std::string _response;
-	// int	_client_fd;
-
-	// attributs GET
-	std::fstream	_input;
-
-
+	private:
+		std::string _method;
+		std::string _path;
+		std::string _version;
+		Request		_request;
+		std::string	_status_code;
+		std::stringstream _response;
+		std::string	_response_str;
 	public:
-	Response() {};
-	~Response() {};
-	// Request(int client_fd);
-	void	open_file_GET(Server i, const std::string& buffer);
-	void	find_request();
-	std::string	GET_method();
-	// void	POST_method();
-	// void	DELETE_method();
-	std::string	build_response(const std::string& body, const std::string& content_type);
-	std::string	getMethod();
-	std::string	getPath();
-	std::string	getVersion();
+		Response(Request request);
+		Response(const Response& copy);
+		Response& operator=(const Response& other);
+		~Response() {};
+		//request handling
+		void	handleRequest();
+		void	handleGetRequest();
+		bool	fileExistsAndReadable();
+		void	handlePostRequest();
+		void	handleDeleteRequest();
+		void	handlePutRequest();
+		//response build
+		std::string buildResponse();
+		void buildGetResponse();
+		void buildPostResponse();
+		void buildDeleteResponse();
+		void buildPutResponse();
+		void sendResponse(int fd);
+		//getters
+		std::string getMethod() const;
+		std::string getPath() const;
+		std::string getVersion() const;
+		std::string getStatusCode() const;
+		std::string getResponseStr() const;
+		Request getRequest() const;
+		//utils
+		void printResponse();
+
 };
+
+// class	Response
+// {
+// 	private: 
+// 	// attributs remplis apres parsing de la requete 
+// 	std::string _method;
+// 	std::string _path;
+// 	std::string _version;
+// 	std::string _response;
+// 	Request	_request;
+// 	std::string	_status_code;
+
+// 	// int	_client_fd;
+
+// 	// attributs GET
+// 	std::fstream	_input;
+
+
+// 	public:
+// 	Response(Request request);
+// 	~Response() {};
+// 	// Request(int client_fd);
+// 	void	open_file_GET(Server i, const std::string& buffer);
+// 	void	find_request();
+// 	std::string	GET_method();
+// 	// void	POST_method();
+// 	// void	DELETE_method();
+// 	std::string	build_response(const std::string& body, const std::string& content_type);
+// 	std::string	getMethod();
+// 	std::string	getPath();
+// 	std::string	getVersion();
+// 	std::string getStatusCode();
+
+// };
 
 #endif

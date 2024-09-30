@@ -1,5 +1,6 @@
 #include "../headers/server.hpp"
 #include "../headers/request.hpp"
+#include "../headers/response.hpp"
 
 Server::Server(const std::string config)
 {
@@ -181,6 +182,7 @@ void	Server::start()
                     Request request;
                     std::string test;
                     request.parsRequest(*this, buffer);
+                    Response response(request);
                     test = request.GET_method();
                     write(_event.data.fd, test.c_str(), test.size());
                     // test.find_request();
