@@ -162,10 +162,10 @@ void	Server::start()
                 // Process client data (for example, HTTP requests)
                 // try
                 // {
-                    Request test1;
+                    Request request;
                     std::string test;
-                    test1.open_file_GET(*this, buffer);
-                    test = test1.GET_method();
+                    request.parsRequest(*this, buffer);
+                    test = request.GET_method();
                     write(_event.data.fd, test.c_str(), test.size());
                     // test.find_request();
                 // }

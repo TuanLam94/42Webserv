@@ -29,13 +29,19 @@ class	Request
 
 	// attributs GET
 	std::fstream	_input;
-
-
+	// std::map<std::string, std::string>	_queryParameter;
+	// std::map<std::string, std::string>	_headersHttp;/
+	std::vector<std::pair<std::string, std::string> >	_queryParameter;
+	std::vector<std::pair<std::string, std::string> >	_headersHttp;
 	public:
 	Request() {};
 	~Request() {};
 	// Request(int client_fd);
-	void	open_file_GET(Server i, const std::string& buffer);
+	void	parsRequest(Server i, const std::string& buffer);
+	void	parsParamPath();
+	void	parsPath(Server obj);
+	void	checkPath();
+	void	parsHeaders(const std::string& buff);
 	void	find_request();
 	std::string	GET_method();
 	// void	POST_method();
