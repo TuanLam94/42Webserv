@@ -232,3 +232,13 @@ std::string Request::getResponse() const
 	return (_response);
 }
 
+void Request::printRequest() const
+{
+    std::cout << "----REQUEST----" << std::endl;
+    std::cout << "Method = " << getMethod() << std::endl;
+    std::cout << "Path = " << getPath() << std::endl;
+    std::cout << "Version = " << getVersion() << std::endl;
+	std::cout << "Response = " << getResponse() << std::endl;
+	std::cout << "Body = " << getBody() << std::endl;
+	std::cout << "Content Type = " << getContentType() << std::endl;
+}

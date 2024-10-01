@@ -56,6 +56,8 @@ class	Request
 	std::string	getBody() const;
 	std::string getContentType() const;
 	std::string getResponse() const;
+	//Utils
+	void printRequest() const;
 };
 
 #endif

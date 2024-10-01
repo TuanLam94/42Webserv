@@ -42,12 +42,14 @@ class Response
 		//request handling
 		void	handleRequest();
 		void	handleGetRequest();
-		bool	fileExistsAndReadable();
+		int		GET_CheckFile();
+		bool	fileIsReg();
 		void	handlePostRequest();
 		void	handleDeleteRequest();
 		void	handlePutRequest();
 		//response build
 		std::string buildResponse();
+		std::string loadErrorPage(const std::string& errorPage);
 		void buildGetResponse();
 		void buildPostResponse();
 		void buildDeleteResponse();

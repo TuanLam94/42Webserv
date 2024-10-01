@@ -116,7 +116,7 @@ void	Server::start()
     epollInit();
     // debut de la surveillance des connexions entrantes dans une boucle i guess
     // utiliser epoll_wait() --> cf note_server.txt
-	printServer();
+	// printServer();
     while (value)
     {
         // reception des requetes + traitement 
