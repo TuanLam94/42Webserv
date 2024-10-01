@@ -183,8 +183,11 @@ void	Server::start()
                     std::string test;
                     request.parsRequest(*this, buffer);
                     Response response(request);
-                    test = request.GET_method();
-                    write(_event.data.fd, test.c_str(), test.size());
+                    response.handleRequest();
+                    response.sendResponse(_event.data.fd);
+                    // response.sendResponse(_event.data.fd);
+                    // test = request.GET_method();
+                    // write(_event.data.fd, test.c_str(), test.size());
                     // test.find_request();
                 // }
                 // catch(...)

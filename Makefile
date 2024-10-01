@@ -1,4 +1,4 @@
-SRC = srcs/main.cpp srcs/server.cpp srcs/utils.cpp srcs/request.cpp
+SRC = srcs/main.cpp srcs/server.cpp srcs/utils.cpp srcs/request.cpp srcs/response.cpp
 OBJ = $(SRC:.cpp=.o) 
 CXX = c++
 RM = rm -f

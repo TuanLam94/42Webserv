@@ -1,6 +1,7 @@
 #include "../headers/response.hpp"
+// #include "../headers/request.hpp"
 
-Response::Response(Request request)
+Response::Response(const Request& request)
 {
     _method = request.getMethod();
     _path = request.getPath();
@@ -26,7 +27,8 @@ void Response::handleGetRequest()
     if (fileExistsAndReadable())
         _status_code = "200 OK";
     else
-        _status_code = "404 NOT FOUND";
+        _status_code = "404 NOT FOUND"; // pas plus derreur a gerer ?
+    // _request.find_request();
     buildGetResponse();
 }
 
@@ -45,13 +47,12 @@ bool Response::fileExistsAndReadable()
 
 void Response::buildGetResponse()
 {
-    _response << "HTTP/1.1" << _status_code << std::endl;
+    _response << "HTTP/1.1 " << _status_code << std::endl;
     _response << "Content-Length: " << _request.getBody().size() << "\r\n";
     // _response << "Content-Type: " << _request.getContentType() << "\r\n";
     _response << "Content-Type: " << "\0" << "\r\n";
     _response << "\r\n";
     _response << _request.getBody();
-
     _response_str = _response.str();
 }
 

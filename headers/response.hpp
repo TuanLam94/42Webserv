@@ -16,11 +16,12 @@
 #include <cstring>
 #include <unistd.h>
 #include "../headers/server.hpp"
-#include "request.hpp"
+#include "../headers/request.hpp"
 #include <sys/stat.h>
 
-class Request;
+
 class Server;
+class Request;
 
 class Response
 {
@@ -33,7 +34,8 @@ class Response
 		std::stringstream _response;
 		std::string	_response_str;
 	public:
-		Response(Request request);
+		// Response() {};
+		Response(const Request& request);
 		Response(const Response& copy);
 		Response& operator=(const Response& other);
 		~Response() {};

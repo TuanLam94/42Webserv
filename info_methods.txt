@@ -32,21 +32,6 @@ Differents code de statut pour le retour (a voir au fur et a mesure)
 
 Exemple format reponse HTTP from server to client : 
 
-std::string build_response(const std::string& body, const std::string& content_type)
-{
-    std::stringstream response;
-    
-    // En-têtes HTTP
-    response << "HTTP/1.1 200 OK\r\n";
-    response << "Content-Length: " << body.size() << "\r\n";
-    response << "Content-Type: " << content_type << "\r\n";
-    response << "\r\n";  // Séparateur entre les en-têtes et le corps
-    
-    // Corps de la réponse (contenu du fichier)
-    response << body;
-    
-    return response.str();
-}
 
 1) Extraire les informations de la requete client
 2) Trouver le path jusqu'a la ressource demande (root + path_requete)
@@ -74,3 +59,12 @@ Utilisation de GET :
 	- Mise en cache basique (304 not modified)
 	- Gestion des chemins et securite
 	- Supplement : Pagination et filtrage + Support de fichiers binaires
+	
+Exemple Requete POST : 
+
+Ligned de requete : 
+	
+	POST /api/users HTTP/1.1
+	
+	
+	

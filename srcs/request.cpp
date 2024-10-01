@@ -1,25 +1,6 @@
 #include "../headers/request.hpp"
 #include <sstream>
 
-// void	Request::Request(int client_fd)
-// {
-// 	_client_fd = client_fd;
-// }
-
-std::string	Request::build_response(const std::string& body, const std::string& content_type)
-{
-    std::stringstream response;
-    
-    response << "HTTP/1.1 200 OK\r\n";
-    response << "Content-Length: " << body.size() << "\r\n";
-    response << "Content-Type: " << content_type << "\r\n";
-    response << "\r\n";
-    
-    response << body;
-
-    return response.str();
-}
-
 void	Request::parsParamPath()
 {
 	std::string	key;
@@ -82,7 +63,7 @@ void	Request::parsPath(Server obj)
 		if (index == true)
 			_path = path + "/" + routes[j];
 		else
-			_path = path + "/index.html";
+			_path = "./config/errors/404.html";
 	}
 }
 
@@ -113,12 +94,12 @@ void	Request::parsHeaders(const std::string& buff)
 	i++;
 	while (i < buff.size())
 	{
-		while (buff[i] != 10)
+		while (i < buff.size() && buff[i] != 10)
 		{
 			if (buff[i] == 58)
 			{
 				index = false;
-				i++;
+				i+=2;
 			}
 			if (index == true)
 				key += buff[i];
@@ -126,78 +107,80 @@ void	Request::parsHeaders(const std::string& buff)
 				value += buff[i];
 			i++;
 		}
+		i++;
+		if (key[0] < 32 || value[0] < 32)
+		{
+			while (i < buff.size() && buff[i] != 10)
+			{
+				_body += buff[i];
+				// std::cout << buff[i] << std::endl;
+				i++;
+			}
+			// std::cout << _body << std::endl;
+			return ;
+		}
 		_headersHttp.push_back(std::pair<std::string, std::string>(key, value));
 		key.clear();
 		value.clear();
 		index = true;
-		i++;
 	}
-	// std::vector<std::pair<std::string, std::string> >::iterator	it;
-	// std::vector<std::pair<std::string, std::string> >::iterator	ite;
-	// it = _headersHttp.begin();
-	// ite = _headersHttp.end();
-	// while (it != ite)
-	// {
-	// 	std::cout << it->first << " " << it->second << std::endl;
-	// 	it++;
-	// }
 }
 
-void	Request::parsRequest(Server i, const std::string& buffer)
+void	Request::parsingGET(Server i, const std::string& buffer)
 {
-	std::stringstream ss(buffer);
-
-	// std::cout << buffer << std::endl;
-	ss >> _method >> _path >> _version;
-	// std::cout << _method << "\n" << _path << "\n" << _version << std::endl; 
 	if (_path.find("?") > 0)
 		parsParamPath();
 	parsPath(i);
 	checkPath();
 	parsHeaders(buffer);
+
 	_input.open(_path.c_str());
 	if (!_input.is_open())
 	{
 		std::cerr << "Can't open input\n";
 		exit (1);
 	}
-}
-
-// partie reponse --> recuperation de la page et ecriture dans le FD
-
-std::string	Request::GET_method()
-{
-	std::string	response;
 	std::string	line;
-	std::string	file;
 
 	while (std::getline(_input, line))
 	{
-		file += line;
-		file += "\n";
+		_body += line;
+		_body += "\n";
 	}
-	_body = file;
-	response = build_response(file, "\0");
-	return (response);
 }
 
-void	Request::find_request()
+void	Request::parsingPOST(const std::string& buffer)
 {
-	if (_method == "GET")
-		GET_method();
-	// else if (_method == "POST")
-	// 	POST_method();
-	// else if (_method == "DELETE")
-	// 	DELETE_method();
-	// else
-	// 	throw 405_Method_Not_Allowed();
+	std::vector<std::pair<std::string, std::string> >::iterator it;
+	std::vector<std::pair<std::string, std::string> >::iterator ite;
+	parsHeaders(buffer);
+	it = _headersHttp.begin();
+	ite = _headersHttp.end();
+	while (it != ite)
+	{
+		if (it->first == "Content-Type") // je narrive pas comparer le it->second --> "application/json" --> mystere ?
+			
+		it++;
+	}
+	// std::cout << _body << std::endl;
 }
 
-// void	Request::POST_method()
-// {
-// 	std::cout <<  "POST" << std::endl;
-// 	return ;
-// }
+void	Request::parsRequest(Server i, const std::string& buffer)
+{
+	std::stringstream ss(buffer);
+
+	ss >> _method >> _path >> _version;
+	// std::cout << "\n\n\n" << buffer << "\n\n\n";
+	// std::cout << _method << std::endl;
+	// std::cout << _path << std::endl;
+	// std::cout << _version << std::endl;
+	if (_method == "GET")
+		parsingGET(i, buffer);
+	else if(_method == "POST")
+		parsingPOST(buffer);
+	// else if (_method == "DELETE")
+		// parsingDELETE();
+}
 
 //-----------------------------GETTERS-----------------------------//
 

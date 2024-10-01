@@ -15,14 +15,16 @@
 #include <sys/epoll.h>
 #include <cstring>
 #include <unistd.h>
+// #include "response.hpp"
 #include "../headers/server.hpp"
 
 class Server;
+class Response;
 
 class	Request
 {
 	private: 
-	// attributs remplis apres parsing de la requete 
+	// attributs remplis apres parsing de la requete --> GET pour l'instant
 	std::string _method;
 	std::string _path;
 	std::string _version;
@@ -33,8 +35,6 @@ class	Request
 
 	// attributs GET
 	std::fstream	_input;
-	// std::map<std::string, std::string>	_queryParameter;
-	// std::map<std::string, std::string>	_headersHttp;/
 	std::vector<std::pair<std::string, std::string> >	_queryParameter;
 	std::vector<std::pair<std::string, std::string> >	_headersHttp;
 	public:
@@ -42,17 +42,14 @@ class	Request
 	Request(const Request& copy);
 	Request& operator=(const Request& other);
 	~Request() {};
-	// Request(int client_fd);
 	void	parsRequest(Server i, const std::string& buffer);
 	void	parsParamPath();
 	void	parsPath(Server obj);
 	void	checkPath();
 	void	parsHeaders(const std::string& buff);
-	void	find_request();
-	std::string	GET_method();
-	// void	POST_method();
-	// void	DELETE_method();
-	std::string	build_response(const std::string& body, const std::string& content_type);
+	void	parsingGET(Server i, const std::string& buffer);
+	void	parsingPOST(const std::string& buffer);
+	// --------- GETTERS -------------
 	std::string	getMethod() const;
 	std::string	getPath() const;
 	std::string	getVersion() const;
