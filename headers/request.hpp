@@ -24,7 +24,7 @@ class Response;
 class	Request
 {
 	private: 
-	// attributs remplis apres parsing de la requete --> GET pour l'instant
+	// attributs GET, POST
 	std::string _method;
 	std::string _path;
 	std::string _version;
@@ -37,6 +37,9 @@ class	Request
 	std::fstream	_input;
 	std::vector<std::pair<std::string, std::string> >	_queryParameter;
 	std::vector<std::pair<std::string, std::string> >	_headersHttp;
+	// attributs POST
+	std::map<std::string, std::string>	_jsonParam;
+	
 	public:
 	Request() {};
 	Request(const Request& copy);
@@ -49,6 +52,7 @@ class	Request
 	void	parsHeaders(const std::string& buff);
 	void	parsingGET(Server i, const std::string& buffer);
 	void	parsingPOST(const std::string& buffer);
+	void	parserJson();
 	// --------- GETTERS -------------
 	std::string	getMethod() const;
 	std::string	getPath() const;

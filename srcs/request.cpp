@@ -149,6 +149,53 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 	}
 }
 
+void	Request::parserJson()
+{
+	std::string	key;
+	std::string	value;
+	unsigned long int	i = 0;
+	
+	while (i < _body.size())
+	{
+		while (i < _body.size() && !((_body[i] >= 65 && _body[i] <= 90)
+			|| (_body[i] >= 97 && _body[i] <= 122)
+			|| (_body[i] >= 48 && _body[i] <= 57)))
+			i++;
+		while (i < _body.size() && ((_body[i] >= 65 && _body[i] <= 90)
+			|| (_body[i] >= 97 && _body[i] <= 122)
+			|| (_body[i] >= 48 && _body[i] <= 57)))
+		{
+			key += _body[i];
+			i++;
+		}
+		while (i < _body.size() && !((_body[i] >= 65 && _body[i] <= 90)
+			|| (_body[i] >= 97 && _body[i] <= 122)
+			|| (_body[i] >= 48 && _body[i] <= 57)))
+			i++;
+		while (i < _body.size() && ((_body[i] >= 65 && _body[i] <= 90)
+			|| (_body[i] >= 97 && _body[i] <= 122)
+			|| (_body[i] >= 48 && _body[i] <= 57)))
+		{
+			value += _body[i];
+			i++;
+		}
+		_jsonParam.insert(std::pair<std::string, std::string>(key, value));
+		key.clear();
+		value.clear();
+		i++;
+	}
+	// std::map<std::string, std::string>::iterator	it;
+	// std::map<std::string, std::string>::iterator	ite;
+	// it = _jsonParam.begin();
+	// ite = _jsonParam.end();
+	// while (it != ite)
+	// {
+	// 	std::cout << it->first << std::endl;
+	// 	std::cout << it->second << std::endl;
+	// 	it++;
+	// }
+}
+
 void	Request::parsingPOST(const std::string& buffer)
 {
 	std::vector<std::pair<std::string, std::string> >::iterator it;
@@ -158,11 +205,16 @@ void	Request::parsingPOST(const std::string& buffer)
 	ite = _headersHttp.end();
 	while (it != ite)
 	{
-		if (it->first == "Content-Type") // je narrive pas comparer le it->second --> "application/json" --> mystere ?
-			
+		// if (it->second.find("application/json") != std::string::npos) // je narrive pas comparer le it->second --> "application/json" --> mystere ?
+		// 	std::cout << it->first << std::endl;
+		// if (it->first == "Content-Type") // je narrive pas comparer le it->second --> "application/json" --> mystere ?
+		// 	std::cerr << it->second << std::endl;
+		if (trim(it->second) == "application/json") // json utiliser pour la creation de ressource
+			parserJson();
+			// std::cout << it->first << std::endl;
 		it++;
 	}
-	// std::cout << _body << std::endl;
+	std::cout << _body << std::endl;
 }
 
 void	Request::parsRequest(Server i, const std::string& buffer)
