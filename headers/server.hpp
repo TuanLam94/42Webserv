@@ -16,8 +16,6 @@
 #include <cstring>
 #include <unistd.h>
 #include <sstream>
-// #include "request.hpp"
-// #include "response.hpp"
 
 class Server
 {
@@ -41,7 +39,6 @@ class Server
 		int	_max_client_body_size;
 		std::vector<std::string> _methods;
         // std::vector<int>    fds;
-        void parseConfigFile(std::ifstream& input);
         void parseRoutes(std::string path);
         void parseErrors(std::string path);
 		void parseMethods(std::string input);
@@ -75,5 +72,7 @@ class Server
 
 std::string trim(std::string str);
 size_t findWhiteSpace(std::string line);
+std::vector<std::string> parseConfig(std::string config);
+std::vector<std::string> parseConfigFile(std::ifstream& input);
 
 #endif

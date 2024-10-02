@@ -2,20 +2,12 @@
 #include "../headers/request.hpp"
 #include "../headers/response.hpp"
 
-Server::Server(const std::string config)
+Server::Server(const std::string input)
 {
-    std::ifstream input(config.c_str());
-    if (!input.is_open()) {
-        std::cerr << "Can't open " << config << std::endl;
-        exit(-1);
-    }
-    parseConfigFile(input);
-}
-
-void Server::parseConfigFile(std::ifstream& input)
-{
+    std::istringstream stream(input);
     std::string line;
-    while (std::getline(input, line)) {
+
+    while (std::getline(stream, line)) {
         line = trim(line);
         size_t pos = findWhiteSpace(line);
 

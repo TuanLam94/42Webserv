@@ -50,18 +50,12 @@ void Response::handleGetRequest()
 
 int Response::GET_CheckFile()
 {
-    // First, check if the file exists
-    if (access(_path.c_str(), F_OK) != 0) {
+    if (access(_path.c_str(), F_OK) != 0)
         return -1; // file does not exist
-    }
-    // Then, check if it is a regular file
-    if (!fileIsReg()) {
+    if (!fileIsReg())
         return -2; // file is not a regular file
-    }
-    // Finally, check if it has read permissions
-    if (access(_path.c_str(), R_OK) != 0) {
+    if (access(_path.c_str(), R_OK) != 0)
         return -2; // file exists but no read permission
-    }
     return 0; // file exists, is a regular file and has permission
 }
 
