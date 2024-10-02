@@ -17,6 +17,7 @@
 #include <unistd.h>
 // #include "response.hpp"
 #include "../headers/server.hpp"
+#include <sstream>
 
 class Server;
 class Response;
@@ -35,11 +36,13 @@ class	Request
 
 	// attributs GET
 	std::fstream	_input;
-	std::vector<std::pair<std::string, std::string> >	_queryParameter;
 	std::vector<std::pair<std::string, std::string> >	_headersHttp;
+	std::map<std::string, std::string>	_queryParameter;
 	// attributs POST
-	std::map<std::string, std::string>	_jsonParam;
-	
+	std::map<std::string, std::string>	_jsonParam; // application/json
+	std::map<std::string, std::string>	_urlParam; // application/x-www-form-urlencoded
+	std::string	_boundary;
+
 	public:
 	Request() {};
 	Request(const Request& copy);
@@ -47,12 +50,16 @@ class	Request
 	~Request() {};
 	void	parsRequest(Server i, const std::string& buffer);
 	void	parsParamPath();
+	std::string	parsParamPath_bis(std::string str);
 	void	parsPath(Server obj);
-	void	checkPath();
+	// void	checkPath();
 	void	parsHeaders(const std::string& buff);
 	void	parsingGET(Server i, const std::string& buffer);
 	void	parsingPOST(const std::string& buffer);
 	void	parserJson();
+	void	parserUrlencoded();
+	void	parserUrlencoded_bis(std::string new_body);
+	std::string	parserFormData(std::string second);
 	// --------- GETTERS -------------
 	std::string	getMethod() const;
 	std::string	getPath() const;

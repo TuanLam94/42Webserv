@@ -1,16 +1,56 @@
 #include "../headers/request.hpp"
-#include <sstream>
+
+/*
+	Revoir que thom a dit sur le traitement du chemin
+		- pas a moi de faire les verifs ni de traiter les erreurs --> se focus sur les erreurs de parsing
+*/
+
+std::string	Request::parsParamPath_bis(std::string str)
+{
+	std::string	hexa_help;
+	std::string	new_str;
+	char	*end;
+	int	hexa;
+	unsigned long int	i = 0;
+
+	while (i < str.size())
+	{
+		if (str[i] == 37) // %
+		{
+			hexa_help += str[i + 1];
+			hexa_help += str[i + 2];
+			hexa = strtol(hexa_help.c_str(), &end, 16);
+			hexa_help.clear();
+			new_str += hexa;
+			i += 2;
+		}
+		else if (str[i] == 43) // +
+			new_str += 32;
+		else
+			new_str += str[i];
+		i++;
+	}
+	str.clear();
+	str = new_str;
+	return (str);
+}
 
 void	Request::parsParamPath()
 {
+	std::string	new_path;
+	std::string	final_path;
 	std::string	key;
 	std::string	value;
 	unsigned long int	i = 0;
 	int	index = false;
 
 	while (i < _path.size() && _path[i] != 63) // "?"
+	{
+		final_path += _path[i];	
 		i++;
+	}
 	i++;
+	// new_path = final_path + "?";
 	while (i < _path.size())
 	{
 		if (_path[i] == 61) // "="
@@ -21,7 +61,10 @@ void	Request::parsParamPath()
 		if (_path[i] == 38) //"&"
 		{
 			index = false;
-			_queryParameter.push_back(std::pair<std::string, std::string>(key, value));
+			key = parsParamPath_bis(key);
+			value = parsParamPath_bis(value);
+			// new_path += key + "=" + value + "&";
+			_queryParameter.insert(std::pair<std::string, std::string>(key, value));
 			key.clear();
 			value.clear();
 			i++;
@@ -32,53 +75,24 @@ void	Request::parsParamPath()
 			value += _path[i];
 		i++;
 	}
-	_queryParameter.push_back(std::pair<std::string, std::string>(key, value));
+	key = parsParamPath_bis(key);
+	value = parsParamPath_bis(value);
+	// new_path += key + "=" + value;
+	_path.clear();
+	_path = final_path;
+	_queryParameter.insert(std::pair<std::string, std::string>(key, value));
 }
+
+// est ce que le path de len tete de la requete est un chemin absolu --> quel chemin absolu prendre
+// 
 
 void	Request::parsPath(Server obj)
 {
-	std::vector<std::string> routes;
-	std::string	path = "./config/routes";
-	int	index = false;
-	int	j  = 0;
-
-	if (_path.size() == 1)
-	{
-		_path.clear();
-		_path += "./config/errors/404.html";
-	}
-	else
-	{
-		routes = obj.getRoutes();
-		while (j < 3)
-		{
-			if (_path == "/" + routes[j])
-			{
-				index = true;
-				break ;
-			}
-			j++;
-		}
-		_path.clear();
-		if (index == true)
-			_path = path + "/" + routes[j];
-		else
-			_path = "./config/errors/404.html";
-	}
-}
-
-void	Request::checkPath()
-{
-	if (access(_path.c_str(), F_OK) < 0)
-	{
-		std::cerr << "Error: Missing files\n";
-		exit (1);
-	}
-	if (access(_path.c_str(), R_OK | W_OK) < 0)
-	{
-		std::cerr << "Error: Permission denied\n";
-		exit (1);
-	}
+	std::string	new_path;
+	
+	new_path = obj.getRoutesPath() + _path;
+	_path.clear();
+	_path = new_path;
 }
 
 void	Request::parsHeaders(const std::string& buff)
@@ -96,7 +110,7 @@ void	Request::parsHeaders(const std::string& buff)
 	{
 		while (i < buff.size() && buff[i] != 10)
 		{
-			if (buff[i] == 58)
+			if (index == true && buff[i] == 58)
 			{
 				index = false;
 				i+=2;
@@ -113,10 +127,8 @@ void	Request::parsHeaders(const std::string& buff)
 			while (i < buff.size() && buff[i] != 10)
 			{
 				_body += buff[i];
-				// std::cout << buff[i] << std::endl;
 				i++;
 			}
-			// std::cout << _body << std::endl;
 			return ;
 		}
 		_headersHttp.push_back(std::pair<std::string, std::string>(key, value));
@@ -128,12 +140,22 @@ void	Request::parsHeaders(const std::string& buff)
 
 void	Request::parsingGET(Server i, const std::string& buffer)
 {
-	if (_path.find("?") > 0)
+	size_t	pos = _path.find("?");
+	if (pos != std::string::npos)
 		parsParamPath();
 	parsPath(i);
-	checkPath();
 	parsHeaders(buffer);
-
+	std::cout << _path << std::endl;
+	// std::map<std::string, std::string>::iterator	it;
+	// std::map<std::string, std::string>::iterator	ite;
+	// it = _queryParameter.begin();
+	// ite = _queryParameter.end();
+	// while (it != ite)
+	// {
+	// 	std::cout << it->first << std::endl;
+	// 	std::cout << it->second << std::endl;
+	// 	it++;
+	// }
 	_input.open(_path.c_str());
 	if (!_input.is_open())
 	{
@@ -184,37 +206,129 @@ void	Request::parserJson()
 		value.clear();
 		i++;
 	}
-	// std::map<std::string, std::string>::iterator	it;
-	// std::map<std::string, std::string>::iterator	ite;
-	// it = _jsonParam.begin();
-	// ite = _jsonParam.end();
-	// while (it != ite)
-	// {
-	// 	std::cout << it->first << std::endl;
-	// 	std::cout << it->second << std::endl;
-	// 	it++;
-	// }
+}
+
+
+void	Request::parserUrlencoded_bis(std::string new_body)
+{
+	std::string	hexa_help;
+	std::string	key;
+	std::string	value;
+	char	*end;
+	int	hexa;
+	bool	index = false;
+	unsigned long int	i = 0;
+
+	while (i < new_body.size())
+	{
+		if (new_body[i] == 61)
+		{
+			index = true;
+			i++;
+		}
+		if (index == false)
+		{
+			if (new_body[i] == 37) // %
+			{
+				hexa_help += new_body[i + 1];
+				hexa_help += new_body[i + 2];
+				hexa = strtol(hexa_help.c_str(), &end, 16);
+				hexa_help.clear();
+				key += hexa;
+				i += 2;
+			}
+			else if (new_body[i] == 43) // +
+				key += 32;
+			else
+				key += new_body[i];
+		}
+		else // index == true
+		{
+			if (new_body[i] == 37) // %
+			{		
+				hexa_help += new_body[i + 1];
+				hexa_help += new_body[i + 2];
+				hexa = strtol(hexa_help.c_str(), &end, 16);
+				hexa_help.clear();
+				value += hexa;
+				i += 2;
+			}
+			else if (new_body[i] == 43) // +
+				value += 32;
+			else
+				value += new_body[i];
+		}
+		i++;
+	}
+	_urlParam.insert(std::pair<std::string, std::string>(key, value));
+}
+
+void	Request::parserUrlencoded()
+{
+	std::string	new_body;
+	unsigned long int	i = 0;
+	
+	while (i < _body.size())
+	{
+		if (_body[i] == 38) // &
+		{
+			parserUrlencoded_bis(new_body);
+			new_body.clear();
+		}
+		else
+			new_body += _body[i];
+		i++;
+	}
+	parserUrlencoded_bis(new_body);
+}
+
+std::string	Request::parserFormData(std::string second)
+{
+	std::string	new_second;
+	unsigned long int	i = 0;
+
+	while (i < second.size() && second[i] != 59)
+	{
+		new_second += second[i];
+		i++;
+	}
+	i++;
+	std::cout << std::endl;
+	while (i < second.size() && second[i] != 45)
+		i++;
+	while (i < second.size())
+	{
+		_boundary += second[i];
+		i++;
+	}
+	std::cout << _boundary << std::endl;
+	return (new_second);
 }
 
 void	Request::parsingPOST(const std::string& buffer)
 {
 	std::vector<std::pair<std::string, std::string> >::iterator it;
 	std::vector<std::pair<std::string, std::string> >::iterator ite;
+
 	parsHeaders(buffer);
+
 	it = _headersHttp.begin();
 	ite = _headersHttp.end();
+
 	while (it != ite)
 	{
-		// if (it->second.find("application/json") != std::string::npos) // je narrive pas comparer le it->second --> "application/json" --> mystere ?
-		// 	std::cout << it->first << std::endl;
-		// if (it->first == "Content-Type") // je narrive pas comparer le it->second --> "application/json" --> mystere ?
-		// 	std::cerr << it->second << std::endl;
 		if (trim(it->second) == "application/json") // json utiliser pour la creation de ressource
 			parserJson();
-			// std::cout << it->first << std::endl;
+		else if (trim(it->second) == "application/x-www-form-urlencoded")
+			parserUrlencoded();
+		else
+		{
+			size_t pos = it->second.std::string::find("multipart/form-data");
+			if (pos == 0)
+				it->second = parserFormData(it->second);
+		}
 		it++;
 	}
-	std::cout << _body << std::endl;
 }
 
 void	Request::parsRequest(Server i, const std::string& buffer)
@@ -222,7 +336,7 @@ void	Request::parsRequest(Server i, const std::string& buffer)
 	std::stringstream ss(buffer);
 
 	ss >> _method >> _path >> _version;
-	// std::cout << "\n\n\n" << buffer << "\n\n\n";
+	std::cout << "\n\n\n" << buffer << "\n\n\n";
 	// std::cout << _method << std::endl;
 	// std::cout << _path << std::endl;
 	// std::cout << _version << std::endl;
