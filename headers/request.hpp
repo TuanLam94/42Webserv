@@ -49,10 +49,15 @@ class	Request
 	Request& operator=(const Request& other);
 	~Request() {};
 	void	parsRequest(Server i, const std::string& buffer);
+	void	parsRequestLine(std::string buff);
+	void	checkMethod();
+	void	checkVersion();
+	void	checkHeaderName();
+	// void	checkKey(std::string key);
+	// void	checkValue(std::string value);
 	void	parsParamPath();
 	std::string	parsParamPath_bis(std::string str);
 	void	parsPath(Server obj);
-	// void	checkPath();
 	void	parsHeaders(const std::string& buff);
 	void	parsingGET(Server i, const std::string& buffer);
 	void	parsingPOST(const std::string& buffer);
@@ -65,8 +70,8 @@ class	Request
 	std::string	getPath() const;
 	std::string	getVersion() const;
 	std::string	getBody() const;
-	std::string getContentType() const;
-	std::string getResponse() const;
+	std::string	getContentType() const;
+	std::string	getResponse() const;
 };
 
 #endif
