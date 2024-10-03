@@ -193,6 +193,7 @@ void	Server::handleRequest(int client_fd)
 	char buffer[1024];
 	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
 	if (bytes < 0) {
+		std::cerr << "Read error: " << strerror(errno) << "\n";  // Print the actual error message
 		std::cerr << "Read error\n";
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);

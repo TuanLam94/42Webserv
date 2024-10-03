@@ -12,6 +12,10 @@ Webserv::Webserv(std::string config)
 	serversInit();
 }
 
+//TODO :	CHECK SERVERSINIT ORDER OF EXECUTION
+//			CHECK IF THEIR SERVER FD ARE CORRECTLY BOUND
+// 			CHECK _EVENTS SEE IF THEY ARE EPOLLIN OR ATLEAST SET
+
 void Webserv::parseConfigFile(std::ifstream& input)
 {
 	std::vector<std::string> configVec;
@@ -54,6 +58,8 @@ void Webserv::epollInit()
 		std::cerr << "epoll created failed\n";
 		exit (-1);
 	}
+
+	_events.resize(_servers.size());
 
 	for (size_t i = 0; i < _servers.size(); i++) {
 		_servers[i].setEvent(_events[i]);
