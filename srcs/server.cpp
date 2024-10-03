@@ -175,7 +175,7 @@ void	Server::start()
                     std::string test;
                     request.parsRequest(*this, buffer);
                     Response response(request);
-                    response.handleRequest();
+                    response.handleRequest();s
                     response.sendResponse(_event.data.fd);
                     // response.sendResponse(_event.data.fd);
                     // test = request.GET_method();
@@ -193,18 +193,25 @@ void	Server::start()
     }
 }
 
+void	Server::initAll()
+{
+	socketInit();
+	nonBlockingSocket();
+	bindInit();
+	listenInit();
+}
+
+
 void    Server::socketInit()
 {
     _server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_server_fd < 0)
-	{
+	if (_server_fd < 0) {
 		std::cerr << "socket failed\n";
 		exit (1);
 	}
 
     const int trueFlag = 1;
-    if (setsockopt(_server_fd, SOL_SOCKET, SO_REUSEADDR, &trueFlag, sizeof(int)) < 0)
-    {
+    if (setsockopt(_server_fd, SOL_SOCKET, SO_REUSEADDR, &trueFlag, sizeof(int)) < 0) {
         std::cerr << "setsockopt failed\n";
         exit(1);
     }
@@ -215,14 +222,12 @@ void    Server::nonBlockingSocket()
     int flags;    
 
     flags = fcntl(_server_fd, F_GETFL, 0);
-    if (flags < 0)
-    {
+    if (flags < 0) {
         std::cerr << "fcntl failed\n";
         exit (1);
     }
     flags = fcntl(_server_fd, F_SETFL, O_NONBLOCK);
-    if (flags < 0)
-    {
+    if (flags < 0) {
         std::cerr << "fcntl failed\n";
         exit (1);
     }
@@ -233,9 +238,8 @@ void    Server::bindInit()
     memset(&_address, 0, sizeof(_address));
 	_address.sin_family = AF_INET;
 	_address.sin_port = htons(_port);
-	_address.sin_addr.s_addr = htonl(INADDR_ANY);
-	if (bind(_server_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
-	{
+	_address.sin_addr.s_addr = inet_addr(_host.c_str());
+	if (bind(_server_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0) {
 		std::cerr << "bind failed\n" << "errno :" << errno << std::endl;
 		exit (1);
 	}
@@ -243,9 +247,8 @@ void    Server::bindInit()
 
 void    Server::listenInit()
 {
-    if (listen(_server_fd, 10) < 0)
-    {
-        std::cerr << "liste failed\n";
+    if (listen(_server_fd, 10) < 0) {
+        std::cerr << "listen failed\n";
         exit (1);
     }
 }

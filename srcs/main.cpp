@@ -19,6 +19,12 @@ int main(int argc, char **argv)
         serverVec.push_back(server);
     }
 
+	for (size_t i = 0; i < configVec.size(); i++) {
+		serverVec[i].initAll();
+	}
+
+
+
     printServerVector(serverVec);
 
     // Server Server(config);
