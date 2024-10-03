@@ -1,4 +1,4 @@
-#include "Webserv.hpp"
+#include "../headers/Webserv.hpp"
 
 Webserv::Webserv(std::string config)
 {
@@ -15,6 +15,7 @@ Webserv::Webserv(std::string config)
 void Webserv::parseConfigFile(std::ifstream& input)
 {
 	std::vector<std::string> configVec;
+	std::string line;
 
 	    while (std::getline(input, line)) {
         std::string newConfig;
@@ -40,6 +41,12 @@ void Webserv::serversInit()
 	}
 }
 
+void Webserv::run()
+{
+	epollInit();
+	eventLoop();
+}
+
 void Webserv::epollInit()
 {
 	_epoll_fd = epoll_create(1);
@@ -49,6 +56,7 @@ void Webserv::epollInit()
 	}
 
 	for (size_t i = 0; i < _servers.size(); i++) {
+		_servers[i].setEvent(_events[i]);
 		_servers[i].epollInit(_epoll_fd);
 	}
 }
@@ -56,22 +64,46 @@ void Webserv::epollInit()
 void Webserv::eventLoop() {
 	int maxEvents = 10;
 	while (true) {
-		int numEvents = epoll_wait(_epoll_fd, _events, maxEvents, -1);
-		if (numEvents < 0) {
+		int fd_number = epoll_wait(_epoll_fd, _events.data(), maxEvents, _servers[0].getTimeout());
+		if (fd_number < 0) {
 			std::cerr << "epoll_wait failed\n";
 			exit (-1);
 		}
-	}
 
-	for (int i = 0; i < numEvents; i++) {
-		
+		for (int i = 0; i < fd_number; i++) {
+			int event_fd = _events[i].data.fd;
+
+			for (size_t j = 0; j < _servers.size(); j++) {
+				if (_servers[j].getServerFd() == event_fd) {
+					_servers[j].handleNewConnection();
+					break;
+				}
+			}
+		}
 	}
 }
 
 Webserv::~Webserv()
 {
 	close(_epoll_fd);
-	for (size_t i = 0; i < _servers.size(); i++) {
-		_servers[i].closeServer(); //tocode
-	}
+	// for (size_t i = 0; i < _servers.size(); i++) {
+	// 	_servers[i].closeServer(); //tocode
+	// }
+}
+
+//-------------------------------------Getters-------------------------------------
+
+int Webserv::getServerFd()
+{
+	return _server_fd;
+}
+
+int Webserv::getEpollFd()
+{
+	return _epoll_fd;
+}
+
+std::vector<Server> Webserv::getServers()
+{
+	return _servers;
 }

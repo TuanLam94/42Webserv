@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../headers/server.hpp"
+#include "../headers/Webserv.hpp"
 #include "../headers/utils.hpp"
 
 int main(int argc, char **argv)
@@ -11,21 +12,10 @@ int main(int argc, char **argv)
 
     std::string config(argv[1]);
 
-    std::vector<std::string> configVec = parseConfig(config);
+	Webserv Webserv(config);
+	Webserv.run();
 
-    std::vector<Server> serverVec;
-    for (size_t i = 0; i < configVec.size(); i++) {
-        Server server(configVec[i]);
-        serverVec.push_back(server);
-    }
-
-	for (size_t i = 0; i < configVec.size(); i++) {
-		serverVec[i].initAll();
-	}
-
-
-
-    printServerVector(serverVec);
+    printServerVector(Webserv.getServers());
 
     // Server Server(config);
 

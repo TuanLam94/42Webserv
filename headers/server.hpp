@@ -17,33 +17,47 @@
 #include <unistd.h>
 #include <sstream>
 
+//first host then server_name;
+
 class Server
 {
     private:
-        int _server_fd; //
+        int _server_fd;
         int _epoll_fd;
-        struct sockaddr_in _address; //
+        struct sockaddr_in _address;
         struct epoll_event _event;
-        std::string _host; //
-        int _port; //
-        int _timeout; // 
-        std::string _error_log; //
-        std::vector<std::string> _routes; //
-		std::string _routes_path; //
-        std::vector<std::string> _errors; //
+        std::string _host;
+        int _port;
+        int _timeout;
+        std::string _error_log;
+        std::vector<std::string> _routes;
+		std::string _routes_path;
+        std::vector<std::string> _errors;
 
-		std::string _errors_path; //
-		std::string _server_name; //
-		std::string _upload_dir; //
-		std::string _redirection; //
-		int	_max_client_body_size; //
-		std::vector<std::string> _methods; //
+		std::string _errors_path;
+		std::string _server_name;
+		std::string _upload_dir;
+		std::string _redirection;
+		int	_max_client_body_size;
+		std::vector<std::string> _methods;
         // std::vector<int>    fds;
         void parseRoutes(std::string path);
         void parseErrors(std::string path);
 		void parseMethods(std::string input);
     public:
         Server(const std::string config);
+        void printServer();
+        void start();
+		void initAll();
+        void socketInit();
+        void bindInit();
+        void listenInit();
+        void acceptInit();
+        void nonBlockingSocket();
+        void epollInit(int epoll_fd);
+		void handleNewConnection();
+		void handleRequest(int client_fd);
+		//getters
         int getServerFd();
         int getPort();
         int getTimeout();
@@ -58,17 +72,9 @@ class Server
         const std::vector<std::string>& getRoutes();
         const std::vector<std::string>& getErrors();
 		const std::vector<std::string>& getMethods();
-        void printServer();
+		//setters
+		void setEvent(struct epoll_event& event);
 
-		void initAll();
-
-        void start();
-        void socketInit();
-        void bindInit();
-        void listenInit();
-        void acceptInit();
-        void nonBlockingSocket();
-        void epollInit();
 };
 
 //------------------------utils-------------------//
