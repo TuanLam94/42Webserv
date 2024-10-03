@@ -20,24 +20,24 @@
 class Server
 {
     private:
-        int _server_fd;
+        int _server_fd; //
         int _epoll_fd;
-        struct sockaddr_in _address;
+        struct sockaddr_in _address; //
         struct epoll_event _event;
-        std::string _host;
-        int _port;
-        int _timeout;
-        std::string _error_log;
-        std::vector<std::string> _routes;
-		std::string _routes_path;
-        std::vector<std::string> _errors;
+        std::string _host; //
+        int _port; //
+        int _timeout; // 
+        std::string _error_log; //
+        std::vector<std::string> _routes; //
+		std::string _routes_path; //
+        std::vector<std::string> _errors; //
 
-		std::string _errors_path;
-		std::string _server_name;
-		std::string _upload_dir;
-		std::string _redirection;
-		int	_max_client_body_size;
-		std::vector<std::string> _methods;
+		std::string _errors_path; //
+		std::string _server_name; //
+		std::string _upload_dir; //
+		std::string _redirection; //
+		int	_max_client_body_size; //
+		std::vector<std::string> _methods; //
         // std::vector<int>    fds;
         void parseRoutes(std::string path);
         void parseErrors(std::string path);
@@ -59,6 +59,9 @@ class Server
         const std::vector<std::string>& getErrors();
 		const std::vector<std::string>& getMethods();
         void printServer();
+
+		void initAll();
+
         void start();
         void socketInit();
         void bindInit();
