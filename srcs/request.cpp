@@ -65,6 +65,8 @@ void	Request::parsParamPath()
 			value = parsParamPath_bis(value);
 			// new_path += key + "=" + value + "&";
 			_queryParameter.insert(std::pair<std::string, std::string>(key, value));
+			// std::cout << key << std::endl;
+			// std::cout << value << std::endl;
 			key.clear();
 			value.clear();
 			i++;
@@ -77,8 +79,8 @@ void	Request::parsParamPath()
 	}
 	key = parsParamPath_bis(key);
 	value = parsParamPath_bis(value);
-	std::cout << key << std::endl;
-	std::cout << value << std::endl;
+	// std::cout << key << std::endl;
+	// std::cout << value << std::endl;
 	if (trim(key).empty() == true || trim(value).empty() == true)
 	{
 		std::cout << "parsParamPath Error 400: Bad Request\n";
@@ -110,13 +112,19 @@ void	Request::parsHeaders(const std::string& buff)
 	unsigned long int	i = 0;
 	bool	index = true;
 
-	while (buff[i] != 10)
+	// std::cout << buff.size() << std::endl;
+	while (i < buff.size() && buff[i] != 10)
+	{
+		// std::cout << buff[i];
 		i++;
+	}
 	i++;
+	// std::cout << std::endl;
 	while (i < buff.size())
 	{
 		while (i < buff.size() && buff[i] != 10)
 		{
+			// std::cout << buff[i];
 			if (index == true && buff[i] == 58)
 			{
 				index = false;
@@ -131,9 +139,11 @@ void	Request::parsHeaders(const std::string& buff)
 				value += buff[i];
 			i++;
 		}
+		// std::cout << std::endl;
+		// exit(1);
 		i++;
-		// std::cout << "key :" << key << std::endl;
-		// std::cout << "   value : " << value << std::endl;
+		// std::cout << "key :" << key;
+		// std::cout << "    value : " << value << std::endl;
 		if (key[0] < 32 && value[0] < 32)
 		{
 			while (i < buff.size() && buff[i] != 10)
@@ -143,14 +153,15 @@ void	Request::parsHeaders(const std::string& buff)
 			}
 			return ;
 		}
-		// std::cout << "key : " << key << "   value : " << value << std::endl;
-		_headersHttp.push_back(std::pair<std::string, std::string>(key, value));
 		// std::cout << key << std::endl;
 		// std::cout << value << std::endl;
+		// std::cout << "key : " << key << "   value : " << value << std::endl;
+		_headersHttp.push_back(std::pair<std::string, std::string>(key, value));
 		key.clear();
 		value.clear();
 		index = true;
 	}
+	exit (1);
 }
 
 void	checkKey(std::string key)
@@ -204,8 +215,10 @@ void	Request::checkHeaderName()
 	ite = _headersHttp.end();
 	while (it != ite)
 	{
+		it->first = trim(it->first);
 		std::cout << it->first << std::endl;
-		if (trim(it->first) == "Host:")
+		std::cout << it->second << std::endl;
+		if (it->first == "Host:")
 			host++;
 		checkKey(it->first);
 		checkValue(it->second);
@@ -221,7 +234,6 @@ void	Request::checkHeaderName()
 		std::cerr << "checkHeaderName Error 400: Bad Request\n";
 		exit (1);
 	}
-	exit (1);
 }
 
 void	Request::parsingGET(Server i, const std::string& buffer)
@@ -232,7 +244,6 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 	parsPath(i);
 	parsHeaders(buffer);
 	checkHeaderName();	
-	// exit (1);
 	_input.open(_path.c_str());
 	if (!_input.is_open())
 	{
@@ -240,16 +251,11 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 		exit (1);
 	}
 	std::string	line;
-	// std::cout << buffer << std::endl;
-	// unsigned long int i  = 0;
-	// while (i < buffer.size())
-	// {
-		
-	// }
+
 	// std::cout << "ceci est mon body\n" << _body << std::endl;
 	while (std::getline(_input, line))
 	{
-		std::cout << line << std::endl;
+		// std::cout << line << std::endl;
 		_body += line;
 		_body += "\n";
 	}
@@ -465,27 +471,49 @@ void	Request::checkMethod()
 
 void	Request::checkVersion()
 {
-	if (_version != trim("HTTP/1.1"))
+	std::string vs = "HTTP/1.1";
+	std::string version;
+	int i = 0;
+	while (_version[i] > 32)
 	{
-		std::cout << _version << std::endl;
+		version += _version[i];
+		i++;
+	}
+	// std::cout << version << std::endl; 
+	if (version != "HTTP/1.1")
+	{
+		// std::cout << _version << std::endl;
+		// std::cout << _version[_version.size() - 1] << std::endl;
+		// for (unsigned long int i = 0; i < _version.size(); i++)
+		// 	std::cerr << _version[i] << std::endl;;
 		std::cerr << "Error 505: HTTP Version Not Supported\n";
 		exit (1);
 	}
 }
 
+/*
+	- parfois certans bugs --> message non recu dans sa totalite 
+		--> verifier le retour de recv et etre sur que tout la chaine a ete transmise
+
+	- trimmer les chaines avant dextraire les infos -> permet deviter les erreurs de formatage
+*/
+
 void	Request::parsRequest(Server i, const std::string& buffer)
 {
+	std::string	buff;
 	std::stringstream ss(buffer);
 	// ss >> _method >> _path >> _version;
-	// std::cout << "\n\n\n" << buffer << std::endl;
-
-	parsRequestLine(buffer);
-	checkMethod();
+	buff = trim(buffer);
+	std::cout << "\n\n\n" << buffer << "\n\n\n\n";
+	for (unsigned long int i = 0; i < buffer.size(); i++)
+		std::cout << buffer[i];
+	// parsRequestLine(buffer);
+	// checkMethod();
 	// checkVersion();// pb -> rentre quand meme dans le if ?
 	if (_method == "GET")
 		parsingGET(i, buffer);
-	else if(_method == "POST")
-		parsingPOST(buffer);
+	// else if(_method == "POST")
+	// 	parsingPOST(buffer);
 	// else if (_method == "DELETE")
 		// parsingDELETE();
 	// std::cout << _path << std::endl;
