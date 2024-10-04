@@ -13,9 +13,9 @@ int main(int argc, char **argv)
     std::string config(argv[1]);
 
 	Webserv Webserv(config);
+    printServerVector(Webserv.getServers());
 	Webserv.run();
 
-    printServerVector(Webserv.getServers());
 
     // Server Server(config);
 

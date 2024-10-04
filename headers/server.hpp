@@ -56,7 +56,7 @@ class Server
         void nonBlockingSocket();
         void epollInit(int epoll_fd);
 		void handleNewConnection();
-		void handleRequest(int client_fd);
+		void handleRequest(/*int client_fd*/);
 		//getters
         int getServerFd();
         int getPort();
@@ -68,6 +68,8 @@ class Server
 		const std::string& getServerName();
 		const std::string& getUploadDir();
 		const std::string& getRedirection();
+		struct epoll_event& getEvent();
+		struct sockaddr_in& getAddress();
 		int	getMaxBodySize();
         const std::vector<std::string>& getRoutes();
         const std::vector<std::string>& getErrors();

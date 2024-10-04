@@ -13,8 +13,11 @@ Webserv::Webserv(std::string config)
 }
 
 //TODO :	CHECK SERVERSINIT ORDER OF EXECUTION
+//			ACCEPT ?
+//			_EVENTS.DATA() ? 
 //			CHECK IF THEIR SERVER FD ARE CORRECTLY BOUND
 // 			CHECK _EVENTS SEE IF THEY ARE EPOLLIN OR ATLEAST SET
+//			REPUT CLIENT FD
 
 void Webserv::parseConfigFile(std::ifstream& input)
 {
@@ -84,6 +87,8 @@ void Webserv::eventLoop() {
 					_servers[j].handleNewConnection();
 					break;
 				}
+				else
+					_servers[j].handleRequest();
 			}
 		}
 	}

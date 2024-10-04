@@ -2,8 +2,23 @@
 #define WEBSERV_HPP
 
 #include "server.hpp"
-#include <arpa/inet.h>
+// #include <arpa/inet.h>
+// #include <netinet/in.h>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <map>
+#include <vector>
+#include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <cstdlib>
+#include <fcntl.h>
+#include <sys/epoll.h>
+#include <cstring>
+#include <unistd.h>
+#include <sstream>
 
 class Webserv
 {

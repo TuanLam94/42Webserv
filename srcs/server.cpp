@@ -165,6 +165,8 @@ void    Server::epollInit(int epoll_fd)
 {
     _event.events = EPOLLIN;
     _event.data.fd = _server_fd;
+	_epoll_fd = epoll_fd;
+	std::cout << "server fd = " << _server_fd << " eventfd = " << _event.data.fd << std::endl;
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _server_fd, &_event)) // surveille le fd de socket, la socket principale, mais doit surveiller aussi tous les connexions entrantes avec accept je supppose
     {
         std::cerr << "epoll_ctl failed\n";
@@ -185,23 +187,30 @@ void	Server::handleNewConnection()
 			close(client_fd);
 		}
 
-	handleRequest(client_fd);
+	_event.data.fd = client_fd;													//added
+	_event.events = EPOLLIN;
+	if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, client_fd, &_event) < 0) {
+		std::cerr << "epoll_ctl failed for client" << strerror(errno) << std::endl;
+		close(client_fd);
+	}
+
+	std::cout << "New client connected\n";
 }
 
-void	Server::handleRequest(int client_fd)
+void	Server::handleRequest(/*int client_fd*/)
 {
 	char buffer[1024];
-	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+	int bytes = recv(_event.data.fd, buffer, sizeof(buffer), 0);
 	if (bytes < 0) {
 		std::cerr << "Read error: " << strerror(errno) << "\n";  // Print the actual error message
 		std::cerr << "Read error\n";
-		close(client_fd);
-		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+		close(_event.data.fd);
+		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
 	}
 	else if (bytes == 0) {
 		std::cout << "Nothing to read\n";
-		close(client_fd);
-		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+		close(_event.data.fd);
+		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
 	}
 	else {
 		Request request;
@@ -210,8 +219,8 @@ void	Server::handleRequest(int client_fd)
 		Response response(request);
 		response.handleRequest();
 		response.sendResponse(_event.data.fd);
-		close(_event.data.fd);
-		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
+		// close(_event.data.fd);
+		// epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
 	}
 }
 
@@ -317,6 +326,16 @@ int Server::getMaxBodySize()
 const std::vector<std::string>& Server::getMethods()
 {
 	return _methods;
+}
+
+struct epoll_event& Server::getEvent()
+{
+	return _event;
+}
+
+struct sockaddr_in& Server::getAddress()
+{
+	return _address;
 }
 
 //----------------------------------SETTERS--------------------------------
