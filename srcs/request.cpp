@@ -194,7 +194,10 @@ void	Request::getClientIPPort(int clientfd)
 
 	_host = inet_ntoa(client_addr.sin_addr);
 	int port = ntohs(client_addr.sin_port);
-	_host += ":" += itoa(port);
+
+	std::ostringstream oss;
+	oss << _host << ":" << port;
+	_host = oss.str();
 }
 
 //-----------------------------GETTERS-----------------------------//

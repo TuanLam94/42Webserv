@@ -12,13 +12,6 @@ Webserv::Webserv(std::string config)
 	serversInit();
 }
 
-//TODO :	CHECK SERVERSINIT ORDER OF EXECUTION
-//			ACCEPT ?
-//			_EVENTS.DATA() ? 
-//			CHECK IF THEIR SERVER FD ARE CORRECTLY BOUND
-// 			CHECK _EVENTS SEE IF THEY ARE EPOLLIN OR ATLEAST SET
-//			REPUT CLIENT FD
-
 void Webserv::parseConfigFile(std::ifstream& input)
 {
 	std::vector<std::string> configVec;
@@ -108,7 +101,7 @@ void Webserv::handleClientRequest(int client_fd)
     }
 
     Request request;
-    request.parsRequest(buffer);
+    request.parsRequest(buffer);					//parseServer after correct_server
 	request.getClientIPPort(client_fd);
 
     Server* correct_server = findAppropriateServer(request);
@@ -118,8 +111,9 @@ void Webserv::handleClientRequest(int client_fd)
 		setServer(*correct_server, request, response);
         response.handleRequest();
         response.sendResponse(client_fd);
-    } else
-        sendErrorResponse(client_fd);
+    } 
+	// else
+    //     sendServerErrorResponse(client_fd); //tocode
 }
 
 Server* Webserv::findAppropriateServer(const Request& request)

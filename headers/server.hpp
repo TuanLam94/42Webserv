@@ -27,7 +27,7 @@ class Server
         struct sockaddr_in _address;
         struct epoll_event _event;
         std::string _host;
-        std::string _port;
+        int _port;
         int _timeout;
         std::string _error_log;
         std::vector<std::string> _routes;
@@ -45,6 +45,7 @@ class Server
         void parseErrors(std::string path);
 		void parseMethods(std::string input);
     public:
+        Server() {};
         Server(const std::string config);
         void printServer();
         void start();
