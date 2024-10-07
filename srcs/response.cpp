@@ -143,6 +143,14 @@ Request Response::getRequest() const
     return _request;
 }
 
+//-------------------------------------------SETTERS----------------------------------
+
+void Response::setServer(Server& server)
+{
+    _server = server;
+}
+
+
 //---------------------------------------------UTILS-----------------------------------------------
 
 Response::Response(const Response& copy)

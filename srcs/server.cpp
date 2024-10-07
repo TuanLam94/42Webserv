@@ -15,7 +15,7 @@ Server::Server(const std::string input)
         if (line.substr(0, pos) == "host")
             _host = trim(line.substr(pos));
         else if (line.substr(0, pos) == "port")
-            _port = std::atoi(line.substr(pos).c_str());
+            _port = trim(line.substr(pos).c_str());
         else if (line.substr(0, pos) == "timeout")
             _timeout = std::atoi(line.substr(pos).c_str());
         else if (line.substr(0, pos) == "error_log")
@@ -39,6 +39,10 @@ Server::Server(const std::string input)
 		else if (line.substr(0, pos) == "max_client_body_size")
 			_max_client_body_size = std::atoi(line.substr(pos).c_str());
     }
+	if (!_port.empty()) {
+		_host += ":"; 
+		_host += _port;
+	}
 }
 
 void Server::parseRoutes(std::string path)
@@ -89,6 +93,13 @@ void Server::parseMethods(std::string input)
 		_methods.push_back(word);
 	}
 }
+void Server::endParsing()
+{
+	_host += ":" += _port;
+}
+
+
+
 //-----------------------Lancement-serveur------------------------//
 
 void	Server::initAll()
@@ -166,7 +177,6 @@ void    Server::epollInit(int epoll_fd)
     _event.events = EPOLLIN;
     _event.data.fd = _server_fd;
 	_epoll_fd = epoll_fd;
-	std::cout << "server fd = " << _server_fd << " eventfd = " << _event.data.fd << std::endl;
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _server_fd, &_event)) // surveille le fd de socket, la socket principale, mais doit surveiller aussi tous les connexions entrantes avec accept je supppose
     {
         std::cerr << "epoll_ctl failed\n";

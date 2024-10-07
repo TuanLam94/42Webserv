@@ -182,6 +182,21 @@ void	Request::parsRequest(Server i, const std::string& buffer)
 		// parsingDELETE();
 }
 
+void	Request::getClientIPPort(int clientfd)
+{
+	struct sockaddr_in client_addr;
+	socklen_t addr_len = sizeof(client_addr);
+
+    if (getpeername(clientfd, (struct sockaddr*)&client_addr, &addr_len) == -1) {
+        std::cerr << "Failed to get client address\n";
+        return;
+    }
+
+	_host = inet_ntoa(client_addr.sin_addr);
+	int port = ntohs(client_addr.sin_port);
+	_host += ":" += itoa(port);
+}
+
 //-----------------------------GETTERS-----------------------------//
 
 Request::Request(const Request& copy)
@@ -230,6 +245,21 @@ std::string Request::getContentType() const
 std::string Request::getResponse() const
 {
 	return (_response);
+}
+
+std::string Request::getHost() const
+{
+	return (_host);
+}
+
+std::string Request::getServerName() const
+{
+	return (_serverName);
+}
+
+void Request::setServer(Server& server)
+{
+	_server = server;
 }
 
 void Request::printRequest() const

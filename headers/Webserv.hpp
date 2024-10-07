@@ -19,6 +19,9 @@
 #include <cstring>
 #include <unistd.h>
 #include <sstream>
+#include "request.hpp"
+#include "response.hpp"
+#include "utils.hpp"
 
 class Webserv
 {
@@ -36,6 +39,9 @@ class Webserv
 		Webserv(std::string config);
 		~Webserv();
 		void run();
+		void handleClientRequest(int client_fd);
+		Server* findAppropriateServer(const Request& request);
+		Server* findServerByName(const Request& request);
 		//Getters
 		int getServerFd();
 		int getEpollFd();

@@ -33,6 +33,7 @@ class Response
 		std::string	_status_code;
 		std::stringstream _response;
 		std::string	_response_str;
+		Server		_server;
 	public:
 		// Response() {};
 		Response(const Request& request);
@@ -62,6 +63,8 @@ class Response
 		std::string getStatusCode() const;
 		std::string getResponseStr() const;
 		Request getRequest() const;
+		//setters
+		void setServer(Server& server);
 		//utils
 		void printResponse();
 

@@ -1,4 +1,6 @@
 #include "../headers/server.hpp"
+#include "../headers/response.hpp"
+#include "../headers/request.hpp"
 
 std::string trim(std::string str)
 {
@@ -23,6 +25,13 @@ size_t findWhiteSpace(std::string line)
 	}
 	return i;
 }
+
+void setServer(Server& server, Request& request, Response& response)
+{
+	request.setServer(server);
+	response.setServer(server);
+}
+
 
 void printVector(std::vector<std::string> vector)
 {

@@ -82,17 +82,76 @@ void Webserv::eventLoop() {
 		for (int i = 0; i < fd_number; i++) {
 			int event_fd = _events[i].data.fd;
 
+			bool isServerSocket = false;
 			for (size_t j = 0; j < _servers.size(); j++) {
 				if (_servers[j].getServerFd() == event_fd) {
 					_servers[j].handleNewConnection();
+					isServerSocket = true;
 					break;
 				}
-				else
-					_servers[j].handleRequest();
 			}
+			if (!isServerSocket)
+				handleClientRequest(event_fd);
 		}
 	}
 }
+
+void Webserv::handleClientRequest(int client_fd)
+{
+    char buffer[1024];
+    int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+
+    if (bytes <= 0) {
+        close(client_fd);
+        epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+        return;
+    }
+
+    Request request;
+    request.parsRequest(buffer);
+	request.getClientIPPort(client_fd);
+
+    Server* correct_server = findAppropriateServer(request);
+
+    if (correct_server != NULL) {
+        Response response(request);
+		setServer(*correct_server, request, response);
+        response.handleRequest();
+        response.sendResponse(client_fd);
+    } else
+        sendErrorResponse(client_fd);
+}
+
+Server* Webserv::findAppropriateServer(const Request& request)
+{
+	int count = 0;
+
+	for (size_t i = 0; i < _servers.size(); i++) {
+		if (_servers[i].getHost() == request.getHost());
+			count++;
+	}
+
+	if (count == 1) {
+		for (size_t i = 0; i < _servers.size(); i++) {
+			if (_servers[i].getHost() == request.getHost())
+				return &_servers[i];
+		}
+	}
+	else if (count > 1)
+		return (findServerByName(request));
+	else
+		return NULL;
+}
+
+Server* Webserv::findServerByName(const Request& request)
+{
+	for (size_t i = 0; i < _servers.size(); i++) {
+		if (_servers[i].getServerName() == request.getServerName())
+			return &_servers[i];
+	}
+	return NULL;
+}
+
 
 Webserv::~Webserv()
 {
