@@ -33,6 +33,7 @@ class Response
 		std::string	_status_code;
 		std::stringstream _response;
 		std::string	_response_str;
+		Server		_server;
 	public:
 		// Response() {};
 		Response(const Request& request);
@@ -42,12 +43,14 @@ class Response
 		//request handling
 		void	handleRequest();
 		void	handleGetRequest();
-		bool	fileExistsAndReadable();
+		int		GET_CheckFile();
+		bool	fileIsReg();
 		void	handlePostRequest();
 		void	handleDeleteRequest();
 		void	handlePutRequest();
 		//response build
 		std::string buildResponse();
+		std::string loadErrorPage(const std::string& errorPage);
 		void buildGetResponse();
 		void buildPostResponse();
 		void buildDeleteResponse();
@@ -60,6 +63,8 @@ class Response
 		std::string getStatusCode() const;
 		std::string getResponseStr() const;
 		Request getRequest() const;
+		//setters
+		void setServer(Server& server);
 		//utils
 		void printResponse();
 

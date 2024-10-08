@@ -8,6 +8,8 @@
 #include <vector>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <cstdlib>
@@ -35,6 +37,7 @@ class	Request
 	std::string	_host; // initailsier avec recuperationd des headers --> host == localhost remplacer par adresse ip correspondante
 	std::string	_serverName; // same
 	std::string	_port;
+	Server		_server;
 	// int	_client_fd;
 
 	// attributs GET et POST
@@ -72,14 +75,18 @@ class	Request
 	void	fillVar();
 	int	checkContentType();
 	// --------- GETTERS -------------
-	std::string	getMethod() const;
-	std::string	getPath() const;
-	std::string	getVersion() const;
-	std::string	getBody() const;
-	std::string	getContentType() const;
-	std::string	getResponse() const;
-	std::string	getHost()const;
-	std::string	getServerName()const;
+		std::string	getMethod() const;
+		std::string	getPath() const;
+		std::string	getVersion() const;
+		std::string	getBody() const;
+		std::string getContentType() const;
+		std::string getResponse() const;
+		std::string getHost() const;
+		std::string getServerName() const;
+		//------------SETTERS------------
+		void setServer(Server& server);
+		//Utils
+		void printRequest() const;
 };
 
 bool	checkValidChar(char c);

@@ -1,5 +1,7 @@
 #include <iostream>
 #include "../headers/server.hpp"
+#include "../headers/Webserv.hpp"
+#include "../headers/utils.hpp"
 
 int main(int argc, char **argv)
 {
@@ -10,9 +12,14 @@ int main(int argc, char **argv)
 
     std::string config(argv[1]);
 
-    Server Server(config);
+	Webserv Webserv(config);
+    printServerVector(Webserv.getServers());
+	Webserv.run();
+
+
+    // Server Server(config);
 
     // Server.printServer();
-    Server.start();
+    // Server.start();
     return 0;
 }

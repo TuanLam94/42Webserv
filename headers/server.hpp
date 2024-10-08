@@ -16,8 +16,8 @@
 #include <cstring>
 #include <unistd.h>
 #include <sstream>
-// #include "request.hpp"
-// #include "response.hpp"
+
+//first host then server_name;
 
 class Server
 {
@@ -41,12 +41,24 @@ class Server
 		int	_max_client_body_size;
 		std::vector<std::string> _methods;
         // std::vector<int>    fds;
-        void parseConfigFile(std::ifstream& input);
         void parseRoutes(std::string path);
         void parseErrors(std::string path);
 		void parseMethods(std::string input);
     public:
+        Server() {};
         Server(const std::string config);
+        void printServer();
+        void start();
+		void initAll();
+        void socketInit();
+        void bindInit();
+        void listenInit();
+        void acceptInit();
+        void nonBlockingSocket();
+        void epollInit(int epoll_fd);
+		void handleNewConnection();
+		void handleRequest(/*int client_fd*/);
+		//getters
         int getServerFd();
         int getPort();
         int getTimeout();
@@ -57,23 +69,22 @@ class Server
 		const std::string& getServerName();
 		const std::string& getUploadDir();
 		const std::string& getRedirection();
+		struct epoll_event& getEvent();
+		struct sockaddr_in& getAddress();
 		int	getMaxBodySize();
         const std::vector<std::string>& getRoutes();
         const std::vector<std::string>& getErrors();
 		const std::vector<std::string>& getMethods();
-        void printServer();
-        void start();
-        void socketInit();
-        void bindInit();
-        void listenInit();
-        void acceptInit();
-        void nonBlockingSocket();
-        void epollInit();
+		//setters
+		void setEvent(struct epoll_event& event);
+
 };
 
 //------------------------utils-------------------//
 
 std::string trim(std::string str);
 size_t findWhiteSpace(std::string line);
+std::vector<std::string> parseConfig(std::string config);
+std::vector<std::string> parseConfigFile(std::ifstream& input);
 
 #endif
