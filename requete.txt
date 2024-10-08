@@ -5,3 +5,11 @@ POST : Utilisée pour envoyer des données au serveur, souvent dans le corps de 
 	Utilisation courante pour envoyer des données (écriture).
 	
 Pour toutes les requetes : path ->> indique au serveur quelle ressource doit etre traitee 
+
+Format requete :
+
+	- Ligne de requete fini par \r\n
+	- Chaque ligne den tete separer par \r\n puis finis dune ligne vide 
+	
+ex : echo -e "GET /index.html HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" | nc localhost 8080
+
