@@ -1,6 +1,8 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include "Webserv.hpp"
+
 //utils
 std::string trim(std::string str);
 size_t findWhiteSpace(std::string line);

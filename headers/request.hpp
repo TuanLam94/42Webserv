@@ -74,6 +74,8 @@ class	Request
 	void	parserFormData_bis(const std::string& buff);
 	void	fillVar();
 	int	checkContentType();
+	void	getClientIPPort(int clientfd);
+
 	// --------- GETTERS -------------
 		std::string	getMethod() const;
 		std::string	getPath() const;

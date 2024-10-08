@@ -135,7 +135,7 @@ bool	checkValidHeader(char c)
 		&& c != 61)
 	{
 		std::cerr << "checkValidHeader Error 400: Bad Request.\n";
-		exit (1);
+		// exit (1);
 	}
 	return (true);
 }
@@ -164,7 +164,7 @@ void	Request::parsHeaders(const std::string& buff)
 				while (i < buff.size() && buff[i] == 32)
 					i++;
 			}
-			if (index == true && checkValidHeader(buff[i]) == true)
+			if (index == true/* && checkValidHeader(buff[i]) == true*/)
 				key += buff[i];
 			else if (checkValidHeader(buff[i]) == true)
 				value += buff[i];
