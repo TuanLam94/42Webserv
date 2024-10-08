@@ -133,17 +133,18 @@ Server* Webserv::findAppropriateServer(const Request& request)
 				return &_servers[i];
 		}
 	}
-	else /*if (count > 1)*/
+	else
 		return (findServerByName(request));
-	return NULL;
 }
 
 Server* Webserv::findServerByName(const Request& request)
 {
 	for (size_t i = 0; i < _servers.size(); i++) {
 		std::cout << "server ServerName = " << _servers[i].getServerName() << "request ServerName = " << request.getServerName() << std::endl;
-		if (_servers[i].getServerName() == request.getServerName())
+		if (_servers[i].getServerName() == request.getServerName()) {
+			std::cout << "returned\n";
 			return &_servers[i];
+		}
 	}
 	return NULL;
 }

@@ -14,7 +14,7 @@ server {
 
 server {
     server_name             webserv.tshelal.fr
-    host                    0.0.0.1
+    host                    127.0.0.1
     port                    8008
     timeout                 30
     error_log               config/error_log.txt
