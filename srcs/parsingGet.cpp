@@ -166,7 +166,7 @@ void	Request::parsHeaders(const std::string& buff)
 			}
 			if (index == true/* && checkValidHeader(buff[i]) == true*/)
 				key += buff[i];
-			else if (checkValidHeader(buff[i]) == true)
+			else /*if (checkValidHeader(buff[i]) == true)*/
 				value += buff[i];
 			i++;
 		}

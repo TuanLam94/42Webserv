@@ -100,20 +100,21 @@ void	Request::parsRequest(Server i, const std::string& buffer)
 
 void	Request::getClientIPPort(int clientfd)
 {
-	struct sockaddr_in client_addr;
-	socklen_t addr_len = sizeof(client_addr);
+	struct sockaddr_in local_addr;
+	socklen_t addr_len = sizeof(local_addr);
 
-    if (getpeername(clientfd, (struct sockaddr*)&client_addr, &addr_len) == -1) {
-        std::cerr << "Failed to get client address\n";
+   	if (getsockname(clientfd, (struct sockaddr*)&local_addr, &addr_len) == -1) {
+        std::cerr << "Failed to get server address\n";
         return;
     }
 
-	_host = inet_ntoa(client_addr.sin_addr);
-	int port = ntohs(client_addr.sin_port);
+	_host = inet_ntoa(local_addr.sin_addr);
+	int port = ntohs(local_addr.sin_port);
 
 	std::ostringstream oss;
 	oss << _host << ":" << port;
 	_host = oss.str();
+	std::cout << "HOST = " << _host << std::endl;
 }
 
 //-----------------------------GETTERS-----------------------------//

@@ -111,9 +111,10 @@ void Webserv::handleClientRequest(int client_fd)
 		setServer(*correct_server, request, response);
         response.handleRequest();
         response.sendResponse(client_fd);
-    } 
-	// else
-    //     sendServerErrorResponse(client_fd); //tocode
+    }
+	else
+		std::cout << "Server error\n";
+        // sendServerErrorResponse(client_fd); //tocode
 }
 
 Server* Webserv::findAppropriateServer(const Request& request)
@@ -121,6 +122,7 @@ Server* Webserv::findAppropriateServer(const Request& request)
 	int count = 0;
 
 	for (size_t i = 0; i < _servers.size(); i++) {
+		std::cout << "server host = " << _servers[i].getHost() << "request host = " << request.getHost() << std::endl;
 		if (_servers[i].getHost() == request.getHost())
 			count++;
 	}
@@ -131,7 +133,7 @@ Server* Webserv::findAppropriateServer(const Request& request)
 				return &_servers[i];
 		}
 	}
-	else if (count > 1)
+	else /*if (count > 1)*/
 		return (findServerByName(request));
 	return NULL;
 }
@@ -139,6 +141,7 @@ Server* Webserv::findAppropriateServer(const Request& request)
 Server* Webserv::findServerByName(const Request& request)
 {
 	for (size_t i = 0; i < _servers.size(); i++) {
+		std::cout << "server ServerName = " << _servers[i].getServerName() << "request ServerName = " << request.getServerName() << std::endl;
 		if (_servers[i].getServerName() == request.getServerName())
 			return &_servers[i];
 	}
