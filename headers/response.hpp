@@ -42,12 +42,10 @@ class Response
 		~Response() {};
 		//request handling
 		void	handleRequest();
-		void	handleGetRequest();
+		void	handleGetResponse();
+		void	handlePostResponse();
 		int		GET_CheckFile();
 		bool	fileIsReg();
-		void	handlePostRequest();
-		void	handleDeleteRequest();
-		void	handlePutRequest();
 		//response build
 		std::string buildResponse();
 		std::string loadErrorPage(const std::string& errorPage);

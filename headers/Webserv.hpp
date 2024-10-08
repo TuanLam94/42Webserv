@@ -40,8 +40,10 @@ class Webserv
 		~Webserv();
 		void run();
 		void handleClientRequest(int client_fd);
-		Server* findAppropriateServer(const Request& request);
+		Server* findAppropriateServer(Request& request);
 		Server* findServerByName(const Request& request);
+		Server* findServerByPort(const Request& request);
+		Server* redirectServer(Request& request);
 		//Getters
 		int getServerFd();
 		int getEpollFd();

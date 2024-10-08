@@ -13,7 +13,7 @@ Response::Response(const Request& request)
 void Response::handleRequest()
 {
     if (_method == "GET")
-        handleGetRequest();
+        handleGetResponse();
     // else if (_method == "POST")
     //     handlePostRequest();
     // else if (_method == "DELETE")
@@ -21,90 +21,6 @@ void Response::handleRequest()
     // else if (_method == "PUT")
     //     handlePutRequest();
 }    
-
-// void Response::handlePostRequest()
-// {
-
-// }
-
-void Response::handleGetRequest()
-{
-    std::cout << "STATUS CODE 0 = " << _status_code << std::endl;
-    std::cout << "PATH = " << _path << std::endl;
-    switch(GET_CheckFile()) {
-        case -1:
-            _status_code = "404 Not found";
-            break;
-        case -2:
-            _status_code = "403 Forbidden";
-            break;
-        case 0:
-            _status_code = "200 OK";
-            break;
-    }
-    std::cout << "STATUS CODE 1 = " << _status_code << std::endl;
-
-    buildGetResponse();
-}
-
-
-int Response::GET_CheckFile()
-{
-    if (access(_path.c_str(), F_OK) != 0)
-        return -1; // file does not exist
-    if (!fileIsReg())
-        return -2; // file is not a regular file
-    if (access(_path.c_str(), R_OK) != 0)
-        return -2; // file exists but no read permission
-    return 0; // file exists, is a regular file and has permission
-}
-
-bool Response::fileIsReg()
-{
-    struct stat fileStat;
-    if (stat(_path.c_str(), &fileStat) == 0) {
-        if (S_ISREG(fileStat.st_mode))
-            return true;
-    }
-    return false;
-}
-
-void Response::buildGetResponse()
-{
-    std::string responseBody;
-
-    std::cout << "STATUS CODE = " << _status_code << std::endl;
-
-    _response << "HTTP/1.1 " << _status_code << std::endl;
-    if (_status_code == "404 Not found") {
-        responseBody = loadErrorPage("404.html");
-        _response << "Content-Type: text/html\r\n"; 
-    } 
-    else if (_status_code == "403 Forbidden") {
-        responseBody = loadErrorPage("403.html");
-        _response << "Content-Type: text/html\r\n";
-    } 
-    else {
-        responseBody = _request.getBody();
-        _response << "Content-Type: " << _request.getContentType() << "\r\n";
-    }
-
-    _response << "Content-Length: " << responseBody.size() << "\r\n";
-    _response << "Connection: close\r\n";
-    _response << "\r\n";
-    _response << responseBody;
-    _response_str = _response.str();
-}
-
-std::string Response::loadErrorPage(const std::string &errorPage)
-{
-    std::ifstream file(errorPage.c_str());
-    if (!file)
-        return "<html><body><h1>Error</h1><p>Could not load error page.</p></body></html>";
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
 
 void Response::sendResponse(int fd)
 {

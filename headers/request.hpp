@@ -36,8 +36,9 @@ class	Request
 	std::string	_contentType;
 	std::string	_host; // initailsier avec recuperationd des headers --> host == localhost remplacer par adresse ip correspondante
 	std::string	_serverName; // same
-	std::string	_port;
+	int	_port;
 	Server		_server;
+	int _status_code;
 	// int	_client_fd;
 
 	// attributs GET et POST
@@ -86,8 +87,11 @@ class	Request
 		std::string getResponse() const;
 		std::string getHost() const;
 		std::string getServerName() const;
+		int getPort() const;
+		int getStatusCode() const;
 		//------------SETTERS------------
 		void setServer(Server& server);
+		void setRequestStatusCode(int status_code);
 		//Utils
 		void printRequest() const;
 };

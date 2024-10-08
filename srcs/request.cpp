@@ -178,9 +178,26 @@ std::string Request::getServerName() const
 	return (_serverName);
 }
 
+int Request::getStatusCode() const
+{
+	return (_status_code);
+}
+
+int Request::getPort() const
+{
+	return (_port);
+}
+
+//-----------------------------------------------------SETTERS--------------------------------------
+
 void Request::setServer(Server& server)
 {
 	_server = server;
+}
+
+void Request::setRequestStatusCode(int status_code)
+{
+	_status_code = status_code;
 }
 
 void Request::printRequest() const
