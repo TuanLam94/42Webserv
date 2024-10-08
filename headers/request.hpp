@@ -72,6 +72,7 @@ class	Request
 	void	parserUrlencoded_bis(std::string new_body);
 	std::string	parserFormData(std::string second, const std::string& buff);
 	void	parserFormData_bis(const std::string& buff);
+	int	parserFormData_ter(const std::string& buff, unsigned long int i);
 	void	fillVar();
 	int	checkContentType();
 	void	getClientIPPort(int clientfd);

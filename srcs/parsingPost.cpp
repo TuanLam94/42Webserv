@@ -110,6 +110,44 @@ void	Request::parserUrlencoded()
 	parserUrlencoded_bis(new_body);
 }
 
+int	Request::parserFormData_ter(const std::string& buff, unsigned long int i)
+{
+	// unsigned long 
+	std::string	new_boundary;
+	std::string	id;
+	std::string	key;
+	std::string	value;
+
+	while (i < buff.size() && (id != "name" && id != "filename"))
+	{
+		id += buff[i];
+		i++;
+	}
+	i += 2;
+	// std::cout << "id : " << id << std::endl;
+	while (i < buff.size() && buff[i] != '"')
+	{
+		key += buff[i];
+		i++;
+	}
+	// std::cout << "key : " << key << std::endl;
+	i += 5;
+	while (i < buff.size() && buff[i] != '\n')
+	{
+		value += buff[i];
+		i++;
+	}
+	i++;
+	new_boundary += "--" + _boundary + "--";
+	
+	// std::cout << "value : " << value << std::endl;
+	std::cout << new_boundary << std::endl;
+	// exit (1);
+	return (i);
+}
+// ------------------------6b340cb33663f49e
+// --------------------------6b340cb33663f49e--
+// --------------------------a5093923fba46d55--
 void	Request::parserFormData_bis(const std::string& buff)
 {
 	size_t	pos_boundary;
@@ -120,20 +158,21 @@ void	Request::parserFormData_bis(const std::string& buff)
 	pos_boundary = buff.find(_boundary);
 	if (pos_boundary != std::string::npos)
 		i = pos_boundary;
-	// exit (1);
 	while (buff[i] != '\n')
 		i++;
 	pos_boundary = buff.find(_boundary, i);
 	i += _boundary.size() + 5;
 	pos_info = buff.find("Content-Disposition: form-data; ");
 	i = pos_info;
-	std::cout << i << std::endl;
-	while (buff[i] != ';')
-		i++;
 	while (i < buff.size())
 	{
-		std::cout << buff[i];
+		while (buff[i] != 32)
+			i++;
 		i++;
+		while (buff[i] != 32)
+			i++;
+		i++;
+		i = parserFormData_ter(buff, i);
 	}
 	exit (1);
 }

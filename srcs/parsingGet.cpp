@@ -146,7 +146,9 @@ void	Request::parsHeaders(const std::string& buff)
 	std::string	value;
 	std::string	line;
 	unsigned long int	i = 0;
+	unsigned long int	j = 0;
 	bool	index = true;
+	size_t	pos;
 
 	while (i < buff.size() && buff[i] != 13 && buff[i + 1] != 10)
 		i++;
@@ -182,6 +184,25 @@ void	Request::parsHeaders(const std::string& buff)
 			return ;
 		}
 		// std::cout << "key : " << key << "   value : " << value << std::endl;
+		if (key == "Host:" || key == "host:" || key == "HOST:")
+		{
+			// std::cout << "key : " << key << std::endl;
+			// std::cout << "value : " << value << std::endl;
+			pos = value.find(":");
+			if (pos != std::string::npos)
+			{
+				line.clear();
+				// std::cout << "value : " << value << std::endl;
+				while (j < value.size() && value[j] != ':')
+				{
+					line += value[j];
+					j++;
+				}
+				value.clear();
+				value = line;
+				// std::cout << "value : " << value << std::endl;
+			}
+		}
 		_headersHttp.push_back(std::pair<std::string, std::string>(key, value));
 		key.clear();
 		value.clear();
@@ -335,7 +356,7 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 	checkHeaderName();
 	fillVar();
 	_input.open(_path.c_str());
-
+	// std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
 		std::cerr << "Can't open input\n";
@@ -346,7 +367,10 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 	{
 		_body += line;
 		_body += "\n";
+		if (line == "  <head>")
+			_body += "    <link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\">\n";
 	}
+	// std::cout << _body << std::endl;
 	// std::map<std::string, std::string>::iterator	it;
 	// std::map<std::string, std::string>::iterator	ite;
 
