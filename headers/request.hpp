@@ -53,7 +53,7 @@ class	Request
 	std::string	_boundary;
 
 	public:
-	Request() {};
+	Request() { _status_code = 0; };
 	Request(const Request& copy);
 	Request& operator=(const Request& other);
 	~Request() {};
@@ -87,6 +87,7 @@ class	Request
 		std::string getResponse() const;
 		std::string getHost() const;
 		std::string getServerName() const;
+		const Server& getServer() const;
 		int getPort() const;
 		int getStatusCode() const;
 		//------------SETTERS------------

@@ -13,7 +13,7 @@ void Response::handleGetResponse()
             _status_code = "200 OK";
             break;
     }
-    std::cout << "STATUS CODE 1 = " << _status_code << std::endl;
+    std::cout << "STATUS CODE GET = " << _status_code << std::endl;
 
     buildGetResponse();
 }
@@ -59,7 +59,7 @@ void Response::buildGetResponse()
     }
 
     _response << "Content-Length: " << responseBody.size() << "\r\n";
-    _response << "Connection: close\r\n";
+    _response << "Connection: close\r\n"; //keep alive ?
     _response << "\r\n";
     _response << responseBody;
     _response_str = _response.str();

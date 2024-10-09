@@ -42,18 +42,24 @@ class Response
 		~Response() {};
 		//request handling
 		void	handleRequest();
+		bool 	isErrorResponse();
+		void	handleErrorResponse();
+		void	sendResponse(int fd);
+		std::string loadErrorPage(const std::string& errorPage);
+		//response build
+			//get
 		void	handleGetResponse();
-		void	handlePostResponse();
 		int		GET_CheckFile();
 		bool	fileIsReg();
-		//response build
-		std::string buildResponse();
-		std::string loadErrorPage(const std::string& errorPage);
-		void buildGetResponse();
-		void buildPostResponse();
-		void buildDeleteResponse();
-		void buildPutResponse();
-		void sendResponse(int fd);
+		void	buildGetResponse();
+			//post
+		void	handlePostResponse();
+		int		Post_Check();
+		void	buildPostResponse();
+		void	createFile();
+
+		void	buildDeleteResponse();
+		void	buildPutResponse();
 		//getters
 		std::string getMethod() const;
 		std::string getPath() const;

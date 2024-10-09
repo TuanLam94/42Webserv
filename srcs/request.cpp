@@ -30,8 +30,7 @@ void	Request::parsRequestLine(std::string buff)
 		|| _path.empty() == true
 		|| _version.empty() == true) // URI mal formule --> ex : GET /index.html URI HTTP/1.1 ou ex : GET HTTP/1.1
 	{
-		std::cerr << "parsRequestLine Error 400: Bad request\n";
-		exit (1);
+		_status_code = 400; //badrequest
 	}
 	// std::cout << _method << std::endl;
 	// std::cout << _path << std::endl;
@@ -44,19 +43,13 @@ void	Request::checkMethod()
 		&& _method != "POST"
 		&& _method != "DELETE"
 		&& _method != "PUT")
-		{
-			std::cerr << "Error 405: Method Not Allowed\n";
-			exit (1); 
-		}
+			_status_code = 405;
 }
 
 void	Request::checkVersion()
 {
 	if (_version != "HTTP/1.1")
-	{
-		std::cerr << "Error 505: HTTP Version Not Supported\n";
-		exit (1);
-	}
+		_status_code = 505;
 }
 
 /*
@@ -186,6 +179,11 @@ int Request::getStatusCode() const
 int Request::getPort() const
 {
 	return (_port);
+}
+
+const Server& Request::getServer() const
+{
+	return (_server);
 }
 
 //-----------------------------------------------------SETTERS--------------------------------------

@@ -7,20 +7,58 @@ Response::Response(const Request& request)
     _path = request.getPath();
     _version = request.getVersion();
     _request = request;
+    _server = request.getServer();
     handleRequest();
 }
 
 void Response::handleRequest()
 {
-    if (_method == "GET")
-        handleGetResponse();
-    // else if (_method == "POST")
-    //     handlePostRequest();
-    // else if (_method == "DELETE")
-    //     handleDeleteRequest();
-    // else if (_method == "PUT")
-    //     handlePutRequest();
+    if (isErrorResponse())
+        handleErrorResponse();
+
+    else {
+        if (_method == "GET")
+            handleGetResponse();
+        // else if (_method == "POST")
+        //     handlePostRequest();
+        // else if (_method == "DELETE")
+        //     handleDeleteRequest();
+        // else if (_method == "PUT")
+        //     handlePutRequest();
+        }
 }    
+
+bool Response::isErrorResponse()
+{
+    if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405 || _request.getStatusCode() == 505)
+        return true;
+    return false;
+}
+
+void Response::handleErrorResponse()
+{
+    std::string responseBody;
+
+    switch(_request.getStatusCode()) {
+        case 400:
+            responseBody = loadErrorPage("400.html");
+            break;
+        case 405:
+            responseBody = loadErrorPage("405.html");
+            break;
+        case 505:
+            responseBody = loadErrorPage("505.html");
+            break;
+    }
+
+    _response << "HTTP/1.1" << _status_code << std::endl;
+    _response << "Content-Type: text/html\r\n";
+    _response << "Content-Length: " << responseBody.size() << "\r\n";
+    _response << "Connection: close\r\n"; //keep alive ?
+    _response << "\r\n";
+    _response << responseBody;
+    _response_str = _response.str();
+}
 
 void Response::sendResponse(int fd)
 {
