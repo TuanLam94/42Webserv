@@ -30,14 +30,26 @@ void Response::handlePostResponse()
 
 int Response::Post_Check()
 {
-    std::string path = _server.getUploadDir() + _request.getPath();
-    std::cout << "POST PATH = " << path << std::endl; //debug
+    std::string dirPath = postParseDirPath();
 
-    if (!access(_server.getUploadDir().c_str(), W_OK)) //no permissions to write
+    if (mkdir(dirPath.c_str(), ))
+
+    if (!access(_server.getUploadDir().c_str(), W_OK) || !access(dirPath.c_str(), W_OK)) //no permissions to write
         return -1;
-    else if (access(path.c_str(), F_OK) == 0) //file already exists
+    else if (access(_request.getPath().c_str(), F_OK) == 0) //file already exists
         return -2;
     return 0;
+}
+
+std::string Response::postParseDirPath()
+{
+    std::string path = _request.getPath();
+    size_t lastSlash = path.find_last_of('/');
+
+    if (lastSlash != std::string::npos)
+        return path.substr(0, lastSlash);
+
+    return "";
 }
 
 void Response::buildPostResponse()

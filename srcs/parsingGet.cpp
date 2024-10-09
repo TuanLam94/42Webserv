@@ -105,7 +105,7 @@ void	Request::parsPath(Server obj)
 {
 	std::string	new_path;
 	
-	new_path = obj.getRoutesPath() + _path;
+	new_path = obj.getUploadDir() + _path;
 	_path.clear();
 	_path = new_path;
 }

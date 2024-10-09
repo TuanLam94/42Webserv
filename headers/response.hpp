@@ -56,6 +56,7 @@ class Response
 		void	handlePostResponse();
 		int		Post_Check();
 		void	buildPostResponse();
+		std::string postParseDirPath();
 		void	createFile();
 
 		void	buildDeleteResponse();
