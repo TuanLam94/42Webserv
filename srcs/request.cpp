@@ -102,10 +102,10 @@ void	Request::getClientIPPort(int clientfd)
     }
 
 	_host = inet_ntoa(local_addr.sin_addr);
-	int port = ntohs(local_addr.sin_port);
+	_port = ntohs(local_addr.sin_port);
 
 	std::ostringstream oss;
-	oss << _host << ":" << port;
+	oss << _host << ":" << _port;
 	_host = oss.str();
 	std::cout << "HOST = " << _host << std::endl;
 }
