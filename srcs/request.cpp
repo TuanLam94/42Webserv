@@ -107,7 +107,6 @@ void	Request::getClientIPPort(int clientfd)
 	std::ostringstream oss;
 	oss << _host << ":" << _port;
 	_host = oss.str();
-	std::cout << "HOST = " << _host << std::endl;
 }
 
 //-----------------------------GETTERS-----------------------------//

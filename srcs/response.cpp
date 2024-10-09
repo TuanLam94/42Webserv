@@ -19,8 +19,8 @@ void Response::handleRequest()
     else {
         if (_method == "GET")
             handleGetResponse();
-        // else if (_method == "POST")
-        //     handlePostRequest();
+        else if (_method == "POST")
+            handlePostResponse();
         // else if (_method == "DELETE")
         //     handleDeleteRequest();
         // else if (_method == "PUT")

@@ -125,8 +125,6 @@ Server* Webserv::findAppropriateServer(Request& request)
 
 
 	for (size_t i = 0; i < _servers.size(); i++) {
-		std::cout << "Server host = " << _servers[i].getHost() << " request host = " << request.getHost() << std::endl;
-		std::cout << "Server Port = " << _servers[i].getPort() << " request Port = " << request.getPort() << std::endl;
 		if (_servers[i].getHost() == request.getHost())
 			count++;
 	}

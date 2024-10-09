@@ -22,10 +22,10 @@ void Response::handlePostResponse()
     // buildPostResponse();
 }
 
-void Response::createFile()
-{
+// void Response::createFile()
+// {
 
-}
+// }
 
 
 int Response::Post_Check()
