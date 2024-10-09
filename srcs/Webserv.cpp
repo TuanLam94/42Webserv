@@ -102,6 +102,7 @@ void Webserv::handleClientRequest(int client_fd)
 
     Request request;
     request.parsRequest(_servers[0], buffer);					//parseServer after correct_server
+	// exit (1);
 	request.getClientIPPort(client_fd);
 
     Server* correct_server = findAppropriateServer(request);
@@ -122,7 +123,6 @@ Server* Webserv::findAppropriateServer(const Request& request)
 	int count = 0;
 
 	for (size_t i = 0; i < _servers.size(); i++) {
-		std::cout << "server host = " << _servers[i].getHost() << "request host = " << request.getHost() << std::endl;
 		if (_servers[i].getHost() == request.getHost())
 			count++;
 	}
@@ -141,7 +141,6 @@ Server* Webserv::findAppropriateServer(const Request& request)
 Server* Webserv::findServerByName(const Request& request)
 {
 	for (size_t i = 0; i < _servers.size(); i++) {
-		std::cout << "server ServerName = " << _servers[i].getServerName() << "request ServerName = " << request.getServerName() << std::endl;
 		if (_servers[i].getServerName() == request.getServerName())
 			return &_servers[i];
 	}

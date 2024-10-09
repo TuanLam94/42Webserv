@@ -17,11 +17,11 @@ void	Request::parsRequestLine(std::string buff)
 	{
 		if (buff[i] == 32)
 			space++;
-		else if (space == 0 && checkValidChar(buff[i]) == true)
+		else if (space == 0 /*&& checkValidChar(buff[i]) == true*/)
 			_method += buff[i];
-		else if (space == 1 && checkValidChar(buff[i]) == true)
+		else if (space == 1 /*&& checkValidChar(buff[i]) == true*/)
 			_path += buff[i];
-		else if (space == 2 && checkValidChar(buff[i]) == true)
+		else if (space == 2 /*&& checkValidChar(buff[i]) == true*/)
 			_version += buff[i];
 		i++;
 	}
@@ -30,12 +30,10 @@ void	Request::parsRequestLine(std::string buff)
 		|| _path.empty() == true
 		|| _version.empty() == true) // URI mal formule --> ex : GET /index.html URI HTTP/1.1 ou ex : GET HTTP/1.1
 	{
+		_status_code = 400;
 		std::cerr << "parsRequestLine Error 400: Bad request\n";
 		exit (1);
 	}
-	// std::cout << _method << std::endl;
-	// std::cout << _path << std::endl;
-	// std::cout << _version << std::endl;
 }
 
 void	Request::checkMethod()
@@ -45,6 +43,7 @@ void	Request::checkMethod()
 		&& _method != "DELETE"
 		&& _method != "PUT")
 		{
+			_status_code = 405;
 			std::cerr << "Error 405: Method Not Allowed\n";
 			exit (1); 
 		}
@@ -54,6 +53,7 @@ void	Request::checkVersion()
 {
 	if (_version != "HTTP/1.1")
 	{
+		_status_code = 505;
 		std::cerr << "Error 505: HTTP Version Not Supported\n";
 		exit (1);
 	}
@@ -79,11 +79,8 @@ void	Request::parsRequest(Server i, const std::string& buffer)
 		parsingGET(i, buffer);
 	else if(_method == "POST")
 		parsingPOST(i, buffer);
-	// std::cout << _port << std::endl;
-	// std::cout << _host << std::endl;
-	// else if (_method == "DELETE")
-		// parsingDELETE();
-	
+	else if (_method == "DELETE")
+		parsingDELETE(i, buffer);
 	// std::cout << _path << std::endl;
 	// std::map<std::string, std::string>::iterator it;
 	// std::map<std::string, std::string>::iterator ite;
@@ -114,7 +111,7 @@ void	Request::getClientIPPort(int clientfd)
 	std::ostringstream oss;
 	oss << _host << ":" << port;
 	_host = oss.str();
-	std::cout << "HOST = " << _host << std::endl;
+	// std::cout << "HOST = " << _host << std::endl;
 }
 
 //-----------------------------GETTERS-----------------------------//

@@ -37,16 +37,19 @@ class	Request
 	std::string	_host; // initailsier avec recuperationd des headers --> host == localhost remplacer par adresse ip correspondante
 	std::string	_serverName; // same
 	std::string	_port;
+	int	_status_code;
 	Server		_server;
+	std::string	_contentLength;
 	// int	_client_fd;
 
 	// attributs GET et POST
 	std::fstream	_input;
 	std::vector<std::pair<std::string, std::string> >	_headersHttp;
 	std::map<std::string, std::string>	_queryParameter;
+	
 	// attributs POST
-	std::map<std::string, std::string>	_FormDataName;
-	std::map<std::string, std::string>	_FormDataFilename;
+	std::map<std::string, std::string>	_FormDataName; // multipart/form-data
+	std::map<std::string, std::string>	_FormDataFilename; // multipart/form-data
 	std::map<std::string, std::string>	_jsonParam; // application/json
 	std::map<std::string, std::string>	_urlParam; // application/x-www-form-urlencoded
 	std::string	_boundary;
@@ -67,7 +70,10 @@ class	Request
 	void	parsHeaders(const std::string& buff);
 	void	parsingGET(Server i, const std::string& buffer);
 	void	parsingPOST(Server i, const std::string& buffer);
+	void	parsingDELETE(Server i, const std::string& buffer);
+	void	parsingPUT(Server i, const std::string& buffer);
 	void	parserJson();
+	void	checkJsonAccolade();
 	void	parserUrlencoded();
 	void	parserUrlencoded_bis(std::string new_body);
 	std::string	parserFormData(std::string second, const std::string& buff);
@@ -76,25 +82,34 @@ class	Request
 	void	fillVar();
 	int	checkContentType();
 	void	getClientIPPort(int clientfd);
+	bool	parserFormData_help(const std::string& buff, unsigned long int i);
 
+	void	checkISS(char c1, char c2);
+	bool	checkValidHeader(char c);
+	bool	checkValidChar(char c);
+	void	checkKey(std::string key);
+	void	checkValue(std::string value);
+	bool	checkContentLength();
+	void	initContentLength();
 	// --------- GETTERS -------------
-		std::string	getMethod() const;
-		std::string	getPath() const;
-		std::string	getVersion() const;
-		std::string	getBody() const;
-		std::string getContentType() const;
-		std::string getResponse() const;
-		std::string getHost() const;
-		std::string getServerName() const;
-		//------------SETTERS------------
-		void setServer(Server& server);
-		//Utils
-		void printRequest() const;
+	std::string	getMethod() const;
+	std::string	getPath() const;
+	std::string	getVersion() const;
+	std::string	getBody() const;
+	std::string	getContentType() const;
+	std::string	getResponse() const;
+	std::string	getHost() const;
+	std::string	getServerName() const;
+	std::string	getCodeStatus() const;
+	//------------SETTERS------------
+	void setServer(Server& server);
+	//Utils
+	void printRequest() const;
 };
 
 bool	checkValidChar(char c);
-void	checkISS(char c1, char c2);
-bool	checkValidHeader(char c);
+// void	checkISS(char c1, char c2);
+// bool	checkValidHeader(char c);
 void	checkKey(std::string key);
 void	checkValue(std::string value);
 
