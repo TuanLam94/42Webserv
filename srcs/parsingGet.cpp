@@ -106,15 +106,8 @@ void	Request::parsParamPath()
 void	Request::parsPath(Server obj)
 {
 	std::string	new_path;
-
-	if (_path.size() == 1)
-	{
-		new_path = obj.getRoutesPath() + _path + "about.html";
-	}	
-	else
-	{
-		new_path = obj.getRoutesPath() + _path;
-	}
+	
+	new_path = obj.getUploadDir() + _path;
 	_path.clear();
 	_path = new_path;
 }
@@ -343,20 +336,7 @@ void	Request::fillVar()
 	while (it != ite)
 	{
 		if (it->first == "host:" || it->first == "Host:" || it->first == "HOST:")
-		{
 			_serverName = it->second;
-			if (checkPort(it->second))
-			{
-				while (it->second[i] != ':')
-					i++;
-				i++;
-				while (i < it->second.size())
-				{
-					_serverName += it->second[i];					
-					i++;
-				}
-			}
-		}
 		it++;
 	}
 }
@@ -376,7 +356,7 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 	if (!_input.is_open())
 	{
 		std::cerr << "Can't open input\n";
-		exit (1);
+		// exit (1);
 	}
 	std::string	line;
 	while (std::getline(_input, line))

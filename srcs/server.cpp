@@ -156,16 +156,6 @@ void    Server::listenInit()
     }
 }
 
-void    Server::acceptInit()
-{
-    socklen_t   addrlen = sizeof(_address);
-	if (accept(_server_fd, (struct sockaddr *)&_address, &addrlen) < 0)
-	{
-		std::cerr << "accept failed\n";
-		exit (1);
-	}
-}
-
 void    Server::epollInit(int epoll_fd)
 {
     _event.events = EPOLLIN;
@@ -201,7 +191,7 @@ void	Server::handleNewConnection()
 	std::cout << "New client connected\n";
 }
 
-void	Server::handleRequest(/*int client_fd*/)
+void	Server::handleRequest()
 {
 	char buffer[1024];
 	int bytes = recv(_event.data.fd, buffer, sizeof(buffer), 0);

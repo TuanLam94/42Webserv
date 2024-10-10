@@ -30,9 +30,7 @@ void	Request::parsRequestLine(std::string buff)
 		|| _path.empty() == true
 		|| _version.empty() == true) // URI mal formule --> ex : GET /index.html URI HTTP/1.1 ou ex : GET HTTP/1.1
 	{
-		_status_code = 400;
-		std::cerr << "parsRequestLine Error 400: Bad request\n";
-		exit (1);
+		_status_code = 400; //badrequest
 	}
 }
 
@@ -42,21 +40,13 @@ void	Request::checkMethod()
 		&& _method != "POST"
 		&& _method != "DELETE"
 		&& _method != "PUT")
-		{
 			_status_code = 405;
-			std::cerr << "Error 405: Method Not Allowed\n";
-			exit (1); 
-		}
 }
 
 void	Request::checkVersion()
 {
 	if (_version != "HTTP/1.1")
-	{
 		_status_code = 505;
-		std::cerr << "Error 505: HTTP Version Not Supported\n";
-		exit (1);
-	}
 }
 
 /*
@@ -106,12 +96,11 @@ void	Request::getClientIPPort(int clientfd)
     }
 
 	_host = inet_ntoa(local_addr.sin_addr);
-	int port = ntohs(local_addr.sin_port);
+	_port = ntohs(local_addr.sin_port);
 
 	std::ostringstream oss;
-	oss << _host << ":" << port;
+	oss << _host << ":" << _port;
 	_host = oss.str();
-	// std::cout << "HOST = " << _host << std::endl;
 }
 
 //-----------------------------GETTERS-----------------------------//
@@ -175,9 +164,31 @@ std::string Request::getServerName() const
 	return (_serverName);
 }
 
+int Request::getStatusCode() const
+{
+	return (_status_code);
+}
+
+int Request::getPort() const
+{
+	return (_port);
+}
+
+const Server& Request::getServer() const
+{
+	return (_server);
+}
+
+//-----------------------------------------------------SETTERS--------------------------------------
+
 void Request::setServer(Server& server)
 {
 	_server = server;
+}
+
+void Request::setRequestStatusCode(int status_code)
+{
+	_status_code = status_code;
 }
 
 void Request::printRequest() const

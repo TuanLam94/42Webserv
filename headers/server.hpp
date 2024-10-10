@@ -33,7 +33,6 @@ class Server
         std::vector<std::string> _routes;
 		std::string _routes_path;
         std::vector<std::string> _errors;
-
 		std::string _errors_path;
 		std::string _server_name;
 		std::string _upload_dir;
@@ -53,11 +52,10 @@ class Server
         void socketInit();
         void bindInit();
         void listenInit();
-        void acceptInit();
         void nonBlockingSocket();
         void epollInit(int epoll_fd);
 		void handleNewConnection();
-		void handleRequest(/*int client_fd*/);
+		void handleRequest();
 		//getters
         int getServerFd();
         int getPort();

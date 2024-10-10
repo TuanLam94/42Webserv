@@ -36,9 +36,9 @@ class	Request
 	std::string	_contentType;
 	std::string	_host; // initailsier avec recuperationd des headers --> host == localhost remplacer par adresse ip correspondante
 	std::string	_serverName; // same
-	std::string	_port;
-	int	_status_code;
+	int	_port;
 	Server		_server;
+	int _status_code;
 	std::string	_contentLength;
 	// int	_client_fd;
 
@@ -55,7 +55,7 @@ class	Request
 	std::string	_boundary;
 
 	public:
-	Request() {};
+	Request() { _status_code = 0; };
 	Request(const Request& copy);
 	Request& operator=(const Request& other);
 	~Request() {};
@@ -92,6 +92,7 @@ class	Request
 	bool	checkContentLength();
 	void	initContentLength();
 	// --------- GETTERS -------------
+<<<<<<< HEAD
 	std::string	getMethod() const;
 	std::string	getPath() const;
 	std::string	getVersion() const;
@@ -105,6 +106,24 @@ class	Request
 	void setServer(Server& server);
 	//Utils
 	void printRequest() const;
+=======
+		std::string	getMethod() const;
+		std::string	getPath() const;
+		std::string	getVersion() const;
+		std::string	getBody() const;
+		std::string getContentType() const;
+		std::string getResponse() const;
+		std::string getHost() const;
+		std::string getServerName() const;
+		const Server& getServer() const;
+		int getPort() const;
+		int getStatusCode() const;
+		//------------SETTERS------------
+		void setServer(Server& server);
+		void setRequestStatusCode(int status_code);
+		//Utils
+		void printRequest() const;
+>>>>>>> f8141b11ccc16231bcd39f52959af02fceffd1bb
 };
 
 bool	checkValidChar(char c);
