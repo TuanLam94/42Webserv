@@ -185,6 +185,11 @@ const Server& Request::getServer() const
 	return (_server);
 }
 
+const std::map<std::string, std::string>& Request::getFormDataName() const
+{
+	return (_FormDataName);
+}
+
 //-----------------------------------------------------SETTERS--------------------------------------
 
 void Request::setServer(Server& server)

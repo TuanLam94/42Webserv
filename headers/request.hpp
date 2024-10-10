@@ -90,6 +90,8 @@ class	Request
 		const Server& getServer() const;
 		int getPort() const;
 		int getStatusCode() const;
+		const std::map<std::string, std::string>& getFormDataName() const;
+
 		//------------SETTERS------------
 		void setServer(Server& server);
 		void setRequestStatusCode(int status_code);

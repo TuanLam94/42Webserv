@@ -32,6 +32,7 @@ class Response
 		Request		_request;
 		std::string	_status_code;
 		std::stringstream _response;
+		std::string _contentType;
 		std::string	_response_str;
 		Server		_server;
 	public:
@@ -56,8 +57,14 @@ class Response
 		void	handlePostResponse();
 		int		Post_Check();
 		void	buildPostResponse();
+		std::string extractExtension(std::string file);
+		std::string extractRequestBody();
 		std::string postParseDirPath();
+		std::string postParseFilePath();
 		void	createFile();
+		bool	createDirectory(const std::string& path);
+		void	createDirectoryRecursive(const std::string& path);
+		std::string postHandleMultipart();
 
 		void	buildDeleteResponse();
 		void	buildPutResponse();

@@ -8,6 +8,7 @@ Response::Response(const Request& request)
     _version = request.getVersion();
     _request = request;
     _server = request.getServer();
+    _contentType = request.getContentType();
     handleRequest();
 }
 
@@ -15,7 +16,8 @@ void Response::handleRequest()
 {
     if (isErrorResponse())
         handleErrorResponse();
-
+    // else if (isCGI())
+    //     handleCGI();
     else {
         if (_method == "GET")
             handleGetResponse();
@@ -26,7 +28,20 @@ void Response::handleRequest()
         // else if (_method == "PUT")
         //     handlePutRequest();
         }
-}    
+}
+
+// void Response::handleCGI()
+// {
+//     pid_t pid = fork();
+
+//     if (pid == 0) {
+//         std::map<std::string, std::string> env = setCGIEnv();
+//         char* args[]
+
+//     }
+// }
+
+// std::map<std::string, std::string> 
 
 bool Response::isErrorResponse()
 {
