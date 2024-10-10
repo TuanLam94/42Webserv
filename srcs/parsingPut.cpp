@@ -1,42 +1,6 @@
 #include "../headers/request.hpp"
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void	Request::initContentLength()
 {
 	std::vector<std::pair<std::string, std::string> >::iterator it;
@@ -47,7 +11,16 @@ void	Request::initContentLength()
 	while (it != ite)
 	{
 		if (it->first == "Content-Length:")
-			_contentLength = it->second;
+		{
+			std::istringstream ss(it->second);
+			ss >> _contentLength;
+			if (_contentLength != _body.size())
+			{
+				_status_code = 400;
+				std::cerr << "initContentLength Error 400: Bad Request\n";
+				exit (1);
+			}
+		}
 		it++;
 	}
 }
@@ -84,16 +57,6 @@ void	Request::parsingPUT(Server i, const std::string& buffer)
 			else if (pos != std::string::npos)
 			{
 				it->second = parserFormData(it->second, buffer);
-				// std::map<std::string, std::string>::iterator it;
-				// std::map<std::string, std::string>::iterator ite;
-				// it = _FormDataName.begin();
-				// ite = _FormDataName.end();
-				// while (it != ite)
-				// {
-				// 	std::cout << it->first << std::endl;
-				// 	std::cout << it->second << std::endl;
-				// 	it++;
-				// }
 			}
 			else
 			{

@@ -32,7 +32,7 @@ int Response::Post_Check()
 {
     std::string dirPath = postParseDirPath();
 
-    if (mkdir(dirPath.c_str(), ))
+    // if (mkdir(dirPath.c_str(), ))
 
     if (!access(_server.getUploadDir().c_str(), W_OK) || !access(dirPath.c_str(), W_OK)) //no permissions to write
         return -1;

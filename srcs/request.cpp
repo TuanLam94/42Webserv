@@ -57,32 +57,17 @@ void	Request::checkVersion()
 void	Request::parsRequest(Server i, const std::string& buffer)
 {
 	std::stringstream ss(buffer);
-	std::cout << "\n\n\n" << buffer << "\n\n\n";
+	// std::cout << "\n\n\n" << buffer << "\n\n\n";
 
 	parsRequestLine(buffer);
 	checkMethod();
 	checkVersion();
-	// std::cout << _method << std::endl;
-	// std::cout << _path << std::endl;
-	// std::cout << _version << std::endl;
 	if (_method == "GET")
 		parsingGET(i, buffer);
 	else if(_method == "POST")
 		parsingPOST(i, buffer);
 	else if (_method == "DELETE")
 		parsingDELETE(i, buffer);
-	// std::cout << _path << std::endl;
-	// std::map<std::string, std::string>::iterator it;
-	// std::map<std::string, std::string>::iterator ite;
-
-	// it = _queryParameter.begin();
-	// ite = _queryParameter.end();
-	// while (it != ite)
-	// {
-	// 	std::cout << it->first << std::endl;
-	// 	std::cout << it->second << std::endl;
-	// 	it++;
-	// }
 }
 
 void	Request::getClientIPPort(int clientfd)

@@ -91,9 +91,8 @@ void Webserv::eventLoop() {
 
 void Webserv::handleClientRequest(int client_fd)
 {
-    char buffer[1024];
+    char buffer[1024] = {0};
     int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-
     if (bytes <= 0) {
         close(client_fd);
         epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);

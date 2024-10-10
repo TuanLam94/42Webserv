@@ -1,42 +1,18 @@
 #include "../headers/request.hpp"
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void	Request::checkJsonAccolade()
 {
 	unsigned long int	i = 0;
 	int	count =  0;
 
-	while (i < _body.size() && _body[i] != '}')
+	while (i < _contentLength && _body[i] != '}')
 	{
 		if (_body[i] == '"')
 			count++;
 		i++;
 	}
-	if (i < _body.size() && (_body[0] != '{' || _body[i] != '}' || (count % 2) != 0))
+	if (_body[0] != '{' || _body[i] != '}' || (count % 2) != 0)
 	{
 		_status_code = 400;
 		std::cerr << "checkJsonFormat Error 400: Bad Request.\n";
@@ -44,17 +20,29 @@ void	Request::checkJsonAccolade()
 	}	
 }
 
+bool	Request::checkMap(std::string key, std::map<std::string,std::string>::iterator it, std::map<std::string, std::string>::iterator ite)
+{
+	while (it != ite)
+	{
+		if (key == it->first)
+			return (true);
+		it++;
+	}
+	return (false);
+}
+
 void	Request::parserJson()
 {
+	int	index = 0;
+	int	index_comma = 0;
 	std::string	key;
 	std::string	value;
 	unsigned long int	i = 1;
 	
 	checkJsonAccolade();
-
-	while (i < _body.size() && _body[i] != '}')
+	while (i < _contentLength && _body[i] != '}')
 	{
-		while (i < _body.size())
+		while (i < _contentLength)
 		{
 			if (_body[i] == '"')
 			{
@@ -65,11 +53,11 @@ void	Request::parserJson()
 			{
 				_status_code = 400;
 				std::cerr << "checkJsonFormat 1 Error 400: Bad Request.\n";
-				exit (1);	
+				exit (1);
 			}
 			i++;
 		}
-		while (i < _body.size() && _body[i] >= 32)
+		while (i < _contentLength && _body[i] >= 32)
 		{
 			if (_body[i] == '"')
 			{
@@ -80,15 +68,16 @@ void	Request::parserJson()
 				key += _body[i];
 			i++;
 		}
-		// std::cout << "key : " << key << std::endl;
-		while (i < _body.size())
+		while (i < _contentLength)
 		{
+			if (_body[i] == ':')
+				index++;
 			if (_body[i] == '"')
 			{
 				i++;
 				break ;
 			}
-			if (_body[i] != 32 && _body[i] != ':')
+			if ((_body[i] != 32 && _body[i] != ':') || index > 1)
 			{
 				_status_code = 400;
 				std::cerr << "checkJsonFormat 2 Error 400: Bad Request.\n";
@@ -96,7 +85,8 @@ void	Request::parserJson()
 			}
 			i++;
 		}
-		while (i < _body.size() && _body[i] >= 32)
+		index = 0;
+		while (i < _contentLength && _body[i] >= 32)
 		{
 			if (_body[i] == '"')
 			{
@@ -107,12 +97,19 @@ void	Request::parserJson()
 				value += _body[i];
 			i++;			
 		}
-		// std::cout << "value : " << value << std::endl;
-		while (i < _body.size())
+		while (i < _contentLength && _body[i] != '"')
 		{
-			if (_body[i] == '"')
-				break ;
-			if (_body[i] != 32 && _body[i] != ',' && _body[i] != '}')
+			if (_body[i] == ',')
+				index_comma++;
+			// if (_body[i] == '"')
+			// 	break ;
+			if (_body[i] == '}' && index_comma == 1)
+			{
+				_status_code = 400;
+				std::cerr << "checkJsonFormat 3 Error 400: Bad Request.\n";
+				exit (1);
+			}
+			if ((_body[i] != 32 && _body[i] != '}') && index_comma != 1)
 			{
 				_status_code = 400;
 				std::cerr << "checkJsonFormat 3 Error 400: Bad Request.\n";
@@ -120,9 +117,53 @@ void	Request::parserJson()
 			}
 			i++;
 		}
-		_jsonParam.insert(std::pair<std::string, std::string>(key, value));
+		index_comma = 0;
+		if (checkMap(key, _jsonParam.begin(), _jsonParam.end()) == false)
+			_jsonParam.insert(std::pair<std::string, std::string>(key, value));
+		else
+		{
+			_status_code = 400;
+			std::cerr << "checkJsonFormat 4 Error 400: Bad Request.\n";
+			exit (1);
+		}
 		key.clear();
 		value.clear();
+	}
+}
+
+void	Request::checkKeyUrl(std::string key)
+{
+	unsigned long int i = 0;
+	// size_t	pos;
+
+	if (key.empty() == true)
+	{
+		_status_code = 400;
+		std::cerr << "checkKey 1 Error 400: Bad Request\n";
+		exit (1);
+	}
+	while (i < key.size())
+	{
+		if ((!(key[i] >= 48 && key[i] <= 57)
+			&& !(key[i] >= 65 && key[i] <= 90)
+			&& !(key[i] >= 97 && key[i] <= 122)
+			&& !(key[i] == 45)))
+		{ 
+			_status_code = 400;
+			std::cerr << "checkKey 2 Error 400: Bad Request\n";
+			exit (1);
+		}
+		i++;
+	}
+}
+
+void	Request::checkValueUrl(std::string value)
+{
+	if (value.empty() == true || value[0] < 32)
+	{
+		_status_code = 400;
+		std::cerr << "chechValue Error 400: Bad Request\n";
+		exit (1);		
 	}
 }
 
@@ -177,7 +218,43 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 		}
 		i++;
 	}
-	_urlParam.insert(std::pair<std::string, std::string>(key, value));
+	checkKeyUrl(key);
+	checkValueUrl(value);
+	if (checkMap(key, _urlParam.begin(), _urlParam.end()))
+		_urlParam.insert(std::pair<std::string, std::string>(key, value));
+	else
+	{
+		_status_code = 400;
+		std::cerr << "chechValue Error 400: Bad Request\n";
+		exit (1);		
+	}	
+}
+
+int	checkUrlEncoded(std::string body)
+{
+	unsigned long int i = 0;
+
+	while (i < body.size())
+	{
+		if ((!(body[i] >= 48 && body[i] <= 57)
+			&& !(body[i] >= 65 && body[i] <= 90)
+			&& !(body[i] >= 97 && body[i] <= 122)
+			&& !(body[i] == 37)
+			&& !(body[i] == 38)
+			&& !(body[i] == 43)
+			&& !(body[i] == 45)
+			&& !(body[i] == 46)
+			&& !(body[i] == 61)
+			&& !(body[i] == 95)
+			&& !(body[i] == 126)))
+		{
+			std::cerr << "checkUrlencoded Error 400: Bad Request.\n";
+			exit (1);
+			return (400);	
+		}
+		i++;
+	}
+	return (0);
 }
 
 void	Request::parserUrlencoded()
@@ -185,6 +262,7 @@ void	Request::parserUrlencoded()
 	std::string	new_body;
 	unsigned long int	i = 0;
 	
+	_status_code = checkUrlEncoded(_body);
 	while (i < _body.size())
 	{
 		if (_body[i] == 38) // &
@@ -244,12 +322,12 @@ int	Request::parserFormData_ter(const std::string& buff, unsigned long int i)
 	if (parserFormData_help(buff, i) == true)
 		return (-1);
 	else
-	{
-		if (id == "name")
-			_FormDataName.insert(std::pair<std::string, std::string>(key, value));
-		else
-			_FormDataFilename.insert(std::pair<std::string, std::string>(key, value));
-	}
+		_FormDataName.insert(std::pair<std::string, std::string>(key, value));
+	// {
+	// 	if (id == "name")
+		// else
+	// 		_FormDataFilename.insert(std::pair<std::string, std::string>(key, value));
+	// }
 	return (i);
 }
 
@@ -347,35 +425,19 @@ void	Request::parsingPOST(Server i, const std::string& buffer)
 		{
 			pos = it->second.std::string::find("multipart/form-data");
 			if (it->second == "application/json") // json utiliser pour la creation de ressource
-			{
 				parserJson();
-				// std::map<std::string, std::string>::iterator it;
-				// std::map<std::string, std::string>::iterator ite;
-				// it = _jsonParam.begin();
-				// ite = _jsonParam.end();
-				// while (it != ite)
-				// {
-				// 	std::cout << it->first << std::endl;
-				// 	std::cout << it->second << std::endl;
-				// 	it++;
-				// }
-			}
 			else if (it->second == "application/x-www-form-urlencoded")
 				parserUrlencoded();
 			else if (pos != std::string::npos)
 			{
 				it->second = parserFormData(it->second, buffer);
-				// std::map<std::string, std::string>::iterator it;
-				// std::map<std::string, std::string>::iterator ite;
-				// it = _FormDataName.begin();
-				// ite = _FormDataName.end();
-				// while (it != ite)
-				// {
-				// 	std::cout << it->first << std::endl;
-				// 	std::cout << it->second << std::endl;
-				// 	it++;
-				// }
+				// checkMap(_FormDataName.begin(), _FormDataName.end());
+				// checkMap(_FormDataFilename.begin(), _FormDataFilename.end());
 			}
+			// else if ("text/plain")
+			// {
+
+			// }
 			else
 			{
 				_status_code = 415;
