@@ -29,8 +29,6 @@ void Response::handleRequest()
             handlePostResponse();
         // else if (_method == "DELETE")
         //     handleDeleteRequest();
-        // else if (_method == "PUT")
-        //     handlePutRequest();
         }
 }
 
@@ -68,10 +66,10 @@ void Response::handleErrorResponse()
             break;
     }
 
-    _response << "HTTP/1.1" << _status_code << std::endl;
+    _response << "HTTP/1.1" << _status_code << "\r\n";
     _response << "Content-Type: text/html\r\n";
     _response << "Content-Length: " << _responseBody.size() << "\r\n";
-    _response << "Connection: close\r\n"; //keep alive ?
+    _response << "Connection: keep-alive\r\n";
     _response << "\r\n";
     _response << _responseBody;
     _response_str = _response.str();

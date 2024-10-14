@@ -6,6 +6,8 @@
     //un upload vers un fichier non existant
     // un upload vers un fichier deja existant
 
+
+//No content type in parsing
 void Response::handlePostResponse()
 {
     if (_contentType == "application/json")                         //json data submission
@@ -16,6 +18,9 @@ void Response::handlePostResponse()
         handleUploads();
     // else if (_contentType == "text/plain")
     //     filePath += ".txt";
+
+
+    std::cout << "Content type is indeed " << _contentType << std::endl;
 
     buildPostResponse();
 }
