@@ -34,7 +34,12 @@ class Response
 		std::stringstream _response;
 		std::string _contentType;
 		std::string	_response_str;
+		std::string _responseBody;
 		Server		_server;
+		std::map<std::string, std::string>	_formDataName;
+		std::map<std::string, std::string>	_formDataFilename;
+		std::map<std::string, std::string>	_jsonParam;
+		std::map<std::string, std::string> _urlParam;
 	public:
 		// Response() {};
 		Response(const Request& request);
@@ -54,17 +59,22 @@ class Response
 		bool	fileIsReg();
 		void	buildGetResponse();
 			//post
-		void	handlePostResponse();
-		int		Post_Check();
-		void	buildPostResponse();
-		std::string extractExtension(std::string file);
-		std::string extractRequestBody();
+		void handlePostResponse();
+		void handleDataSubmission();
+		bool storeJsonData();
+		void handleFormSubmission();
+		bool storeFormData();
+		void handleUploads();
+		int Post_Check_Errors();
+		bool createFile(std::string filename);
+		void buildPostResponse();
+		//NEEDED ONLY IF DIRECTORY IN PATH
 		std::string postParseDirPath();
 		std::string postParseFilePath();
-		void	createFile();
-		bool	createDirectory(const std::string& path);
-		void	createDirectoryRecursive(const std::string& path);
 		std::string postHandleMultipart();
+		std::string extractExtension(std::string file);
+		void createDirectoryRecursive(const std::string& path);
+		bool createDirectory(const std::string& path);
 
 		void	buildDeleteResponse();
 		void	buildPutResponse();

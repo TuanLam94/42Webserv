@@ -42,26 +42,27 @@ bool Response::fileIsReg()
 
 void Response::buildGetResponse()
 {
-    std::string responseBody;
+    _response.str("");
+    _response.clear();
 
-    _response << "HTTP/1.1 " << _status_code << std::endl;
+    _response << "HTTP/1.1 " << _status_code << "\r\n";
     if (_status_code == "404 Not found") {
-        responseBody = loadErrorPage("404.html");
+        _responseBody = loadErrorPage("404.html");
         _response << "Content-Type: text/html\r\n"; 
     } 
     else if (_status_code == "403 Forbidden") {
-        responseBody = loadErrorPage("403.html");
+        _responseBody = loadErrorPage("403.html");
         _response << "Content-Type: text/html\r\n";
     } 
     else {
-        responseBody = _request.getBody();
+        _responseBody = _request.getBody();
         _response << "Content-Type: " << _request.getContentType() << "\r\n";
     }
 
-    _response << "Content-Length: " << responseBody.size() << "\r\n";
-    _response << "Connection: close\r\n"; //keep alive ?
+    _response << "Content-Length: " << _responseBody.size() << "\r\n";
+    _response << "Connection: keep-alive\r\n"; //keep alive ?
     _response << "\r\n";
-    _response << responseBody;
+    _response << _responseBody;
     _response_str = _response.str();
 }
 

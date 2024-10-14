@@ -8,37 +8,162 @@
 
 void Response::handlePostResponse()
 {
-    std::cout << "Request Path = " << _request.getPath() << std::endl;
-    std::cout << "Upload dir Path = " << _server.getUploadDir() << std::endl;
+    if (_contentType == "application/json")                         //json data submission
+        handleDataSubmission();
+    else if (_contentType == "application/x-www-form-urlencoded")   //form submission
+        handleFormSubmission();
+    else if (_contentType == "multipart/form-data")                 //file upload
+        handleUploads();
+    // else if (_contentType == "text/plain")
+    //     filePath += ".txt";
 
-    switch (Post_Check()) {
-        case -1:
-            _status_code = "403 Forbidden";
-            break;
-        case -2:
-            _status_code = "409 Conflict";
-            break;
-        case 0:
-            _status_code = "201 Created";
-            createFile();
-            break;
-    }
-    std::cout << "STATUS CODE POST = " << _status_code << std::endl; //debug
-
-    // buildPostResponse();
+    buildPostResponse();
 }
 
-int Response::Post_Check()
+//what to do with the data now ? 
+void Response::handleDataSubmission()
+{
+    if (!storeJsonData()) {
+        _status_code = "500 Internal Server Error";
+        _responseBody = "Failed to store data";
+        return ;
+    }
+
+    _status_code = "200 OK";
+    _responseBody = "Data received succesfully";
+}
+
+bool Response::storeJsonData()
+{
+    std::ofstream outfile("config/data/data.json", std::ios::app);
+    if (!outfile.is_open())
+        return false;
+
+    outfile << "{\n";
+    for (std::map<std::string, std::string>::const_iterator it = _jsonParam.begin(); it !=_jsonParam.end(); it++) {
+        outfile << " \"" << it->first << "\": \"" << it->second << "\"";
+        if (it != --_jsonParam.end())
+            outfile << ",";
+        outfile << "\n";
+    }
+    outfile << "}\n";
+
+    outfile.close();
+    return true;
+}
+
+void Response::handleFormSubmission()
+{
+    if (!storeFormData()) {
+        _status_code = "500 Internal Server Error";
+        _responseBody = "Failed to store data";
+        return ;
+    }
+
+    _status_code = "200 OK";
+    _responseBody = "Data received succesfully";
+}
+
+bool Response::storeFormData()
+{
+    std::ofstream outfile("config/data/formdata.txt", std::ios::app);
+    if (!outfile.is_open())
+        return false;
+
+    for (std::map<std::string, std::string>::const_iterator it = _urlParam.begin(); it != _urlParam.end(); it++) {
+        outfile << it->first << ": " << it->second << "\n";
+    }
+
+    outfile.close();
+    return true;
+}
+
+//voir avec Sami comment il l'a parse
+//voir si il y a bien un no, de dossier et tout pour le Post Check Errors, sinon l'enlever
+void Response::handleUploads()
+{
+    std::map<std::string, std::string>::const_iterator it = _formDataFilename.begin();
+    
+    while (it != _formDataFilename.end() && it->first != "filename")
+        it++;
+    if (it->first == "filename") {
+        switch(Post_Check_Errors()) {
+            case -1:
+                _status_code = "403 Forbidden";
+                break;
+            case -2:
+                _status_code = "409 Conflict";
+                break;
+            case 0:
+                if (!createFile(it->second)) {
+                    _status_code = "500 Internal Server Error";
+                    _responseBody = "Failed to save file";
+                    break;
+                }
+                else {
+                    _status_code = "201 Created";
+                    _responseBody = "File uploaded succesfully";
+                    break;
+                }
+        }
+    }
+}
+
+int Response::Post_Check_Errors()
 {
     std::string dirPath = postParseDirPath();
 
-    if (access(dirPath.c_str(), F_OK) && !access(dirPath.c_str(), W_OK))
+    if (access(dirPath.c_str(), F_OK) && !access(dirPath.c_str(), W_OK))//no permission to write in subdirectory
         return -1;
-    if (!access(_server.getUploadDir().c_str(), W_OK)) //no permissions to write
+    if (!access(_server.getUploadDir().c_str(), W_OK)) //no permissions to write in directory
         return -1;
     else if (access(_request.getPath().c_str(), F_OK) == 0) //file already exists
         return -2;
     return 0;
+}
+
+// bool Response::createFile(std::string filename) //smaller one
+// {
+//     std::ofstream file(filename.c_str(), std::ios::binary);
+//     if (!file.is_open()) {
+//         std::cerr << "Error creating file " << filename << std::endl;
+//         return false; 
+//     }
+
+//     file << _request.getBody();
+//     if (!file.good()) {
+//         std::cerr << "Error writing to file " << filename << std::endl;
+//         return false;
+//     }
+
+//     file.close();
+//     return true;
+// }
+
+bool Response::createFile(std::string filename)
+{
+    std::string dirPath = postParseDirPath();
+    std::string filePath = postParseFilePath();
+
+    createDirectoryRecursive(dirPath);
+
+    filePath += postHandleMultipart();
+
+    std::ofstream file(filePath.c_str() /*, std::ios::binary*/);
+    if (!file.is_open()) {
+        std::cerr << "Error creating file" << std::endl;
+        return false;
+    }
+
+    //std::string body = extractRequestBody();
+
+    file << _request.getBody();
+
+    if (!file.good())
+        std::cerr << "Error writing to file at path: " << filePath << std::endl;
+
+    file.close();
+    return true;
 }
 
 std::string Response::postParseDirPath()
@@ -62,36 +187,6 @@ std::string Response::postParseFilePath()
     return path;
 }
 
-void Response::createFile()
-{
-    std::string dirPath = postParseDirPath();
-    std::string filePath = postParseFilePath();
-
-    createDirectoryRecursive(dirPath);
-
-    if (_contentType == "application/json")
-        filePath += ".json";
-    else if (_contentType == "text/plain")
-        filePath += ".txt";
-    else if (_contentType == "application/x-www-form-urlencoded")
-        filePath += ".txt";
-    else if (_contentType == "multipart/form-data")
-        filePath += postHandleMultipart();
-
-    std::ofstream file(filePath.c_str());
-    if (!file)
-        std::cerr << "Error creating file" << std::endl;
-
-    // std::string body = extractRequestBody();
-
-    file << _request.getBody();
-
-    if (!file.good())
-        std::cerr << "Error writing to file at path: " << filePath << std::endl;
-
-    file.close();
-}
-
 std::string Response::postHandleMultipart()
 {
     std::map<std::string, std::string> map = _request.getFormDataName();
@@ -109,15 +204,6 @@ std::string Response::extractExtension(std::string file)
     size_t pos = file.find(".");
     return file.substr(pos);
 }
-
-// std::string Response::extractRequestBody()
-// {
-//     size_t pos = _request.getBody().find("\r\n\r\n");
-//     if (pos != std::string::npos)
-//         return _request.getBody().substr(pos + 4);
-
-//     return _request.getBody();
-// }
 
 void Response::createDirectoryRecursive(const std::string& path)
 {
@@ -149,27 +235,29 @@ bool Response::createDirectory(const std::string& path)
     return false;
 }
 
+//TO REDO
 void Response::buildPostResponse()
 {
-    std::string responseBody;
+    _response.str("");
+    _response.clear();
 
-    _response << "HTTP/1.1 " << _status_code << std::endl;
+    _response << "HTTP/1.1 " << _status_code << "\r\n";
     if (_status_code == "409 Conflict") {
-        responseBody = loadErrorPage("409.html");
+        _responseBody = loadErrorPage("409.html");
         _response << "Content-Type: text/html\r\n"; 
     } 
     else if (_status_code == "403 Forbidden") {
-        responseBody = loadErrorPage("403.html");
+        _responseBody = loadErrorPage("403.html");
         _response << "Content-Type: text/html\r\n";
     } 
     else {
-        responseBody = _request.getBody();
+        _responseBody = _request.getBody();
         _response << "Content-Type: " << _request.getContentType() << "\r\n";
     }
 
-    _response << "Content-Length: " << responseBody.size() << "\r\n";
-    _response << "Connection: close\r\n"; //keep alive ?
+    _response << "Content-Length: " << _responseBody.size() << "\r\n";
+    _response << "Connection: keep-alive\r\n"; //keep alive ?
     _response << "\r\n";
-    _response << responseBody;
+    _response << _responseBody;
     _response_str = _response.str();
 }

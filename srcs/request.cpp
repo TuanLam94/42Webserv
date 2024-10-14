@@ -190,6 +190,21 @@ const std::map<std::string, std::string>& Request::getFormDataName() const
 	return (_FormDataName);
 }
 
+const std::map<std::string, std::string>& Request::getFormDataFilename() const
+{
+	return (_FormDataFilename);
+}
+
+const std::map<std::string, std::string>& Request::getJsonParam() const
+{
+	return (_jsonParam);
+}
+
+const std::map<std::string, std::string>& Request::getUrlParam() const
+{
+	return (_urlParam);
+}
+
 //-----------------------------------------------------SETTERS--------------------------------------
 
 void Request::setServer(Server& server)
