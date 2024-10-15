@@ -102,6 +102,7 @@ void Webserv::handleClientRequest(int client_fd)
 
     Request request;
     request.parsRequest(_servers[0], buffer);					//parseServer after correct_server
+	// exit (1);
 	request.getClientIPPort(client_fd);
 
     Server* correct_server = findAppropriateServer(request);

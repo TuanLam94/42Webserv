@@ -1,7 +1,7 @@
 #include "../headers/request.hpp"
 
 
-bool	checkValidChar(char c)
+bool	Request::checkValidChar(char c)
 {
 	// std::cout << c << std::endl;
 	if (!(c >= 48 && c <= 57)
@@ -15,6 +15,7 @@ bool	checkValidChar(char c)
 		&& c != 61
 		&& c != 63)
 	{
+		_status_code = 400;
 		std::cerr << "checkValidChar Error 400: Bad Request.\n";
 		exit (1);
 	}
@@ -93,6 +94,7 @@ void	Request::parsParamPath()
 	value = parsParamPath_bis(value);
 	if (trim(key).empty() == true || trim(value).empty() == true)
 	{
+		_status_code = 400;
 		std::cout << "parsParamPath Error 400: Bad Request\n";
 		exit (1);
 	}
@@ -113,16 +115,17 @@ void	Request::parsPath(Server obj)
 	_path = new_path;
 }
 
-void	checkISS(char c1, char c2)
+void	Request::checkISS(char c1, char c2)
 {
 	if (c1 != 13 || c2 != 10)
 	{
+		_status_code = 400;
 		std::cerr << "checkISS Error 400: Bad Request.\n";
 		exit (1);
 	}
 }
 
-bool	checkValidHeader(char c)
+bool	Request::checkValidHeader(char c)
 {
 	// std::cout << c << std::endl;
 	if (!(c >= 48 && c <= 57)
@@ -137,6 +140,7 @@ bool	checkValidHeader(char c)
 		&& c != 59
 		&& c != 61)
 	{
+		_status_code = 400;
 		std::cerr << "checkValidHeader Error 400: Bad Request.\n";
 		// exit (1);
 	}
@@ -213,13 +217,14 @@ void	Request::parsHeaders(const std::string& buff)
 	}
 }
 
-void	checkKey(std::string key)
+void	Request::checkKey(std::string key)
 {
 	unsigned long int i = 0;
 	size_t	pos;
 
 	if (key.empty() == true)
 	{
+		_status_code = 400;
 		std::cerr << "checkKey 1 Error 400: Bad Request\n";
 		exit (1);
 	}
@@ -230,7 +235,8 @@ void	checkKey(std::string key)
 			&& !(key[i] >= 97 && key[i] <= 122)
 			&& !(key[i] == 45)
 			&& !(key[i] == 58)))
-		{  
+		{ 
+			_status_code = 400;
 			std::cerr << "checkKey 2 Error 400: Bad Request\n";
 			exit (1);
 		}
@@ -241,15 +247,17 @@ void	checkKey(std::string key)
 		return ;
 	else
 	{
+		_status_code = 400;
 		std::cerr << "checkKey 3 Error 400: Bad Request\n";
 		exit (1);
 	}
 }
 
-void	checkValue(std::string value)
+void	Request::checkValue(std::string value)
 {
 	if (trim(value).empty() == true)
 	{
+		_status_code = 400;
 		std::cerr << "chechValue Error 400: Bad Request\n";
 		exit (1);
 	}
@@ -281,6 +289,7 @@ void	Request::checkHeaderName()
 	}
 	if (host != 1)
 	{
+		_status_code = 400;
 		std::cerr << "checkHeaderName Error 400: Bad Request\n";
 		exit (1);
 	}
@@ -347,7 +356,7 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 	fillVar();
 	std::cout << "PATH = " << _path << std::endl;
 	_input.open(_path.c_str());
-	// std::cout << _path << std::endl;
+	std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
 		std::cerr << "Can't open input\n";
