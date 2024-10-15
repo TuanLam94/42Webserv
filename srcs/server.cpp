@@ -38,23 +38,12 @@ Server::Server(const std::string input)
 			_redirection = trim(line.substr(pos));
 		else if (line.substr(0, pos) == "max_client_body_size")
 			_max_client_body_size = std::atoi(line.substr(pos).c_str());
-		else if (line.substr(0, pos) == "cgi-bin")
-			_cgi_bin = trim(line.substr(pos));
-		else if (line.substr(0, pos) == "cgi_extension")
-			parseCGI(trim(line.substr(pos)));
+		else if (line.substr(0, pos) == "cgi_dir")
+			_cgi_dir = trim(line.substr(pos));
     }
 	std::ostringstream oss;
 	oss << _host << ":" << _port;
 	_host = oss.str();
-}
-
-void Server::parseCGI(std::string extensions)
-{
-	std::istringstream iss(extensions);
-	std::string ext;
-
-	while (iss >> ext)
-		_cgi_extensions.push_back(ext);
 }
 
 

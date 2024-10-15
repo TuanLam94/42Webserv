@@ -1,22 +1,5 @@
 #include "../headers/request.hpp"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 bool	Request::checkContentLength()
 {
 	std::vector<std::pair<std::string, std::string> >::iterator	it;
@@ -55,18 +38,18 @@ void	Request::parsingDELETE(Server i, const std::string& buffer)
 	if (checkContentLength() == true)
 		return ;
 	fillVar();
-	std::cout << _path << std::endl;
-	std::map<std::string, std::string>::iterator	it;
-	std::map<std::string, std::string>::iterator	ite;
+	// std::cout << _path << std::endl;
+	// std::map<std::string, std::string>::iterator	it;
+	// std::map<std::string, std::string>::iterator	ite;
 
-	it = _queryParameter.begin();
-	ite = _queryParameter.end();
-	while (it != ite)
-	{
-		std::cout << it->first << std::endl;
-		std::cout << it->second << std::endl;
-		it++;
-	}
+	// it = _queryParameter.begin();
+	// ite = _queryParameter.end();
+	// while (it != ite)
+	// {
+	// 	std::cout << it->first << std::endl;
+	// 	std::cout << it->second << std::endl;
+	// 	it++;
+	// }
 	// std::vector<std::pair<std::string, std::string> >::iterator	it;
 	// std::vector<std::pair<std::string, std::string> >::iterator	ite;
 

@@ -1,13 +1,5 @@
 #include "../headers/response.hpp"
 
-//TOFINISH
-// Parser d'abord le header pour svoir si la methode post :
-    //a un body destine a un cgi -> handle cgi
-    //un upload vers un fichier non existant
-    // un upload vers un fichier deja existant
-
-
-//No content type in parsing
 void Response::handlePostResponse()
 {
     if (_contentType == "application/json")                         //json data submission
@@ -15,12 +7,9 @@ void Response::handlePostResponse()
     else if (_contentType == "application/x-www-form-urlencoded")   //form submission
         handleFormSubmission();
     else if (_contentType == "multipart/form-data")                 //file upload
-        handleUploads();
+        handleCGI(2);
     // else if (_contentType == "text/plain")
     //     filePath += ".txt";
-
-
-    std::cout << "Content type is indeed " << _contentType << std::endl;
 
     buildPostResponse();
 }
@@ -83,21 +72,25 @@ bool Response::storeFormData()
     return true;
 }
 
-//voir avec Sami comment il l'a parse
-//voir si il y a bien un no, de dossier et tout pour le Post Check Errors, sinon l'enlever
 void Response::handleUploads()
 {
-    std::map<std::string, std::string>::const_iterator it = _formDataFilename.begin();
+    std::map<std::string, std::string>::const_iterator it = _formDataName.begin();
     
-    while (it != _formDataFilename.end() && it->first != "filename")
+    while (it != _formDataName.end() && it->first != "filename")
         it++;
     if (it->first == "filename") {
         switch(Post_Check_Errors()) {
             case -1:
                 _status_code = "403 Forbidden";
+                _responseBody = "Permission denied";
                 break;
             case -2:
                 _status_code = "409 Conflict";
+                _responseBody = "File already exists";
+                break;
+            case -3:
+                _status_code = "413 Payload Too Large";
+                _responseBody = "File size exceeds the maximum allowed limit";
                 break;
             case 0:
                 if (!createFile(it->second)) {
@@ -124,6 +117,8 @@ int Response::Post_Check_Errors()
         return -1;
     else if (access(_request.getPath().c_str(), F_OK) == 0) //file already exists
         return -2;
+    if (_request.getBody().size() > _request.getMaxBodySize())
+        return -3;
     return 0;
 }
 

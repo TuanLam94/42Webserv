@@ -183,31 +183,35 @@ void	Request::parsHeaders(const std::string& buff)
 		i += 2;
 		if (key[0] < 32 && value[0] < 32)
 		{
-			while (i < buff.size() && buff[i] != 13 && buff[i + 1] != 10)
+			while (i < trim(buff).size()/* && buff[i] != 13 && buff[i + 1] != 10*/)
 			{
 				_body += buff[i];
 				i++;
 			}
 			return ;
 		}
-		// std::cout << "key : " << key << "   value : " << value << std::endl;
 		if (key == "Host:" || key == "host:" || key == "HOST:")
 		{
-			// std::cout << "key : " << key << std::endl;
-			// std::cout << "value : " << value << std::endl;
+			std::string	port;
 			pos = value.find(":");
 			if (pos != std::string::npos)
 			{
 				line.clear();
-				// std::cout << "value : " << value << std::endl;
 				while (j < value.size() && value[j] != ':')
 				{
 					line += value[j];
 					j++;
 				}
+				j++;
+				while (j < value.size())
+				{
+					port += value[j];
+					j++;
+				}
+				std::istringstream	ss(port);
+				ss >> _port;
 				value.clear();
 				value = line;
-				// std::cout << "value : " << value << std::endl;
 			}
 		}
 		_headersHttp.push_back(std::pair<std::string, std::string>(key, value));
@@ -279,7 +283,9 @@ void	Request::checkHeaderName()
 		// std::cout << it->second << std::endl;
 		if (it->first == "Host:" || it->first == "HOST:" || it->first == "host:")
 			host++;
+		// std::cout << it->first << std::endl;
 		checkKey(it->first);
+		// std::cout << it->second << std::endl;
 		checkValue(it->second);
 		// std::cout << "key : ";
 		// std::cout << it->first << std::endl;

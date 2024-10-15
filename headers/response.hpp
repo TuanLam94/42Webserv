@@ -18,6 +18,7 @@
 #include "../headers/server.hpp"
 #include "../headers/request.hpp"
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 
 class Server;
@@ -37,9 +38,9 @@ class Response
 		std::string _responseBody;
 		Server		_server;
 		std::map<std::string, std::string>	_formDataName;
-		std::map<std::string, std::string>	_formDataFilename;
 		std::map<std::string, std::string>	_jsonParam;
 		std::map<std::string, std::string> _urlParam;
+		int _cgi_type;
 	public:
 		// Response() {};
 		Response(const Request& request);
@@ -68,6 +69,10 @@ class Response
 		int Post_Check_Errors();
 		bool createFile(std::string filename);
 		void buildPostResponse();
+			//cgi
+		void runScript(std::string Lpath);
+		void handleCGI(int type);
+		void buildCGIResponse();
 		//NEEDED ONLY IF DIRECTORY IN PATH
 		std::string postParseDirPath();
 		std::string postParseFilePath();

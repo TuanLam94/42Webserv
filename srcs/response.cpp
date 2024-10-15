@@ -12,7 +12,6 @@ Response::Response(const Request& request)
     _jsonParam = request.getJsonParam();
     _urlParam = request.getUrlParam();
     _formDataName = request.getFormDataName();
-    _formDataFilename = request.getFormDataFilename();
     handleRequest();
 }
 
@@ -20,8 +19,6 @@ void Response::handleRequest()
 {
     if (isErrorResponse())
         handleErrorResponse();
-    // else if (isCGI())
-    //     handleCGI();
     else {
         if (_method == "GET")
             handleGetResponse();
@@ -31,19 +28,6 @@ void Response::handleRequest()
         //     handleDeleteRequest();
         }
 }
-
-// void Response::handleCGI()
-// {
-//     pid_t pid = fork();
-
-//     if (pid == 0) {
-//         std::map<std::string, std::string> env = setCGIEnv();
-//         char* args[]
-
-//     }
-// }
-
-// std::map<std::string, std::string> 
 
 bool Response::isErrorResponse()
 {
@@ -78,6 +62,17 @@ void Response::handleErrorResponse()
 void Response::sendResponse(int fd)
 {
     write(fd, _response_str.c_str(), _response_str.size());
+}
+
+
+void Response::runScript(std::string Lpath)
+{
+    char* const args[] = {const_cast<char*>(Lpath.c_str()), (char*)_path.c_str(), NULL};
+
+    if (execv(Lpath.c_str(), args) == -1) {
+        std::cerr << "Failed to execute CGI script: " << _path << std::endl;
+        exit(1);
+    }
 }
 
 //--------------------------------------------GETTERS--------------------------------------------

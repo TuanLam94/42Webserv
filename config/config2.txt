@@ -10,8 +10,7 @@ server {
     upload_dir			    config/uploads
     redirection			    redirect/
     max_client_body_size    1,048,576
-    cgi-bin                 /usr/lib/cgi-bin
-    cgi_extension           .cgi .pl .py
+    cgi_dir                 config/cgi
 }
 
 server {
@@ -26,8 +25,7 @@ server {
     upload_dir			    config/uploads
     redirection			    redirect/
     max_client_body_size    1,048,576
-    cgi_bin                 /usr/lib/cgi-bin
-    cgi_extension           .cgi .pl .py
+    cgi_dir                 config/cgi
 }
 
 server {
@@ -42,6 +40,5 @@ server {
     upload_dir			    config/uploads
     redirection			    redirect/
     max_client_body_size    1,048,576
-    cgi-bin                 /usr/lib/cgi-bin
-    cgi_extension           .cgi .pl .py
+    cgi_dir                 config/cgi
 }

@@ -38,11 +38,9 @@ class Server
 		std::string _upload_dir;
 		std::string _redirection;
 		int	_max_client_body_size;
-        std::string _cgi_bin;
-        std::vector<std::string> _cgi_extensions;
+        std::string _cgi_dir;
 		std::vector<std::string> _methods;
         // std::vector<int>    fds;
-        void parseCGI(std::string extensions);
         void parseRoutes(std::string path);
         void parseErrors(std::string path);
 		void parseMethods(std::string input);
