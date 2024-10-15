@@ -27,6 +27,30 @@ class Response;
 class	Request
 {
 	private: 
+	bool	_cgiIsHere;
+	// attributs execution CGI (mandatory + bonus)
+	std::string	_cgiType;
+	std::string	_RequestMethod; // yes
+	std::string	_ContentLength; // yes
+	std::string	_ContentType; // yes
+	std::string	_QueryString; // yes
+	std::string	_ScriptName; // yes
+	std::string	_ServerName; // yes
+	std::string	_ServerPort;
+	std::string	_ServerProtocol; // yes
+	std::string	_GatewayInterface; // version cgi utilise 
+	std::string	_PathInfo; // yes
+	std::string	_RemoteAddr; 
+	std::string	_RemoteHost; 
+	std::string	_HttpHost; // yes
+	std::string	_HttpAccept; // yes
+	std::string	_HttpAcceptLanguage; // yes
+	std::string	_HttpAcceptEncoding; // yes
+	std::string	_HttpReferer; 
+	std::string	_HttpConnection;
+	std::string	_RemoteUser;
+	std::string	_AuthType;
+	std::string	_RedirectStatus;
 	// attributs GET, POST
 	std::string	_method;
 	std::string	_path;
@@ -55,7 +79,7 @@ class	Request
 	std::string	_boundary;
 
 	public:
-	Request() { _status_code = 0; };
+	Request();
 	Request(const Request& copy);
 	Request& operator=(const Request& other);
 	~Request() {};
@@ -94,23 +118,30 @@ class	Request
 	void	checkKeyUrl(std::string key);
 	void	checkValueUrl(std::string value);
 	bool	checkMap(std::string key, std::map<std::string, std::string>::iterator it, std::map<std::string, std::string>::iterator ite);
+	void	checkCgi();
+	void	initVE();
+	void	fillCgiGet();
+	void	fillCgiPost();
+	// void	fillCgiPost();
+	// void	fillCgiDelete();
+	std::string	fillCgiToUpper(std::string fillvar, std::string var);
 	// --------- GETTERS -------------
-		std::string	getMethod() const;
-		std::string	getPath() const;
-		std::string	getVersion() const;
-		std::string	getBody() const;
-		std::string getContentType() const;
-		std::string getResponse() const;
-		std::string getHost() const;
-		std::string getServerName() const;
-		const Server& getServer() const;
-		int getPort() const;
-		int getStatusCode() const;
-		//------------SETTERS------------
-		void setServer(Server& server);
-		void setRequestStatusCode(int status_code);
-		//Utils
-		void printRequest() const;
+	std::string	getMethod() const;
+	std::string	getPath() const;
+	std::string	getVersion() const;
+	std::string	getBody() const;
+	std::string	getContentType() const;
+	std::string	getResponse() const;
+	std::string	getHost() const;
+	std::string	getServerName() const;
+	const Server&	getServer() const;
+	int getPort() const;
+	int getStatusCode() const;
+	//------------SETTERS------------
+	void	setServer(Server& server);
+	void	setRequestStatusCode(int status_code);
+	//Utils
+	void	printRequest() const;
 };
 
 bool	checkValidChar(char c);

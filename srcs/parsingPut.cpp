@@ -14,6 +14,9 @@ void	Request::initContentLength()
 		{
 			std::istringstream ss(it->second);
 			ss >> _contentLength;
+			// std::cout << _contentLength << std::endl;
+			// std::cout << _body.size() << std::endl;
+			// std::cout << _body << std::endl;
 			if (_contentLength != _body.size())
 			{
 				_status_code = 400;

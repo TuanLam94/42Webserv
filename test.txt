@@ -1,10 +1,15 @@
 Erreur parser json:
 
-{    "name"         : "John", "age": "25", }
+	{"name": "John", "age": "25", }
 
 
 Erreur parser urlencoded:
 
-name=John=Doe&age=25
+	name=John=Doe&age=25
 
-name=JohnDoe&age==25
+	name=JohnDoe&age==25
+
+
+Erreur parser multipart/form-data:
+
+

@@ -163,7 +163,7 @@ void	Request::checkValueUrl(std::string value)
 	{
 		_status_code = 400;
 		std::cerr << "chechValue Error 400: Bad Request\n";
-		exit (1);		
+		exit (1);
 	}
 }
 
@@ -220,12 +220,12 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 	}
 	checkKeyUrl(key);
 	checkValueUrl(value);
-	if (checkMap(key, _urlParam.begin(), _urlParam.end()))
+	if (checkMap(key, _urlParam.begin(), _urlParam.end()) == false)
 		_urlParam.insert(std::pair<std::string, std::string>(key, value));
 	else
 	{
 		_status_code = 400;
-		std::cerr << "chechValue Error 400: Bad Request\n";
+		std::cerr << "parserUrlencoded Error 400: Bad Request\n";
 		exit (1);		
 	}	
 }
@@ -425,12 +425,19 @@ void	Request::parsingPOST(Server i, const std::string& buffer)
 		{
 			pos = it->second.std::string::find("multipart/form-data");
 			if (it->second == "application/json") // json utiliser pour la creation de ressource
+			{
+				_contentType = it->second;
 				parserJson();
+			}
 			else if (it->second == "application/x-www-form-urlencoded")
+			{
+				_contentType = it->second;		
 				parserUrlencoded();
+			}
 			else if (pos != std::string::npos)
 			{
 				it->second = parserFormData(it->second, buffer);
+				_contentType = it->second;
 				// checkMap(_FormDataName.begin(), _FormDataName.end());
 				// checkMap(_FormDataFilename.begin(), _FormDataFilename.end());
 			}
