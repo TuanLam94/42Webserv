@@ -336,7 +336,7 @@ int	checkPort(std::string port)
 
 void	Request::fillVar()
 {
-	unsigned long int	i = 0;
+	// unsigned long int	i = 0;
 	std::vector<std::pair<std::string, std::string> >::iterator	it;
 	std::vector<std::pair<std::string, std::string> >::iterator	ite;
 

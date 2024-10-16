@@ -355,7 +355,7 @@ void	Request::parserFormData_bis(const std::string& buff)
 			i++;
 		i++;
 		i = parserFormData_ter(buff, i);
-		if (i == -1)
+		if (static_cast<int>(i) == -1)
 			break ;
 	}
 }

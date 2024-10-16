@@ -64,7 +64,7 @@ void	Request::parsingPUT(Server i, const std::string& buffer)
 			else
 			{
 				_status_code = 415;
-				std::cerr << "parsingPOST Error 415: Unsupported Media Type.\n";
+				std::cerr << "parsingPUT Error 415: Unsupported Media Type.\n";
 				exit (1);
 			}
 		}

@@ -67,7 +67,7 @@ class Response
 		bool storeFormData();
 		void handleUploads();
 		int Post_Check_Errors();
-		bool createFile(std::string filename);
+		bool createFile(/*std::string filename*/);
 		void buildPostResponse();
 			//cgi
 		void runScript(std::string Lpath);

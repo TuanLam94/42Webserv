@@ -72,41 +72,6 @@ bool Response::storeFormData()
     return true;
 }
 
-void Response::handleUploads()
-{
-    std::map<std::string, std::string>::const_iterator it = _formDataName.begin();
-    
-    while (it != _formDataName.end() && it->first != "filename")
-        it++;
-    if (it->first == "filename") {
-        switch(Post_Check_Errors()) {
-            case -1:
-                _status_code = "403 Forbidden";
-                _responseBody = "Permission denied";
-                break;
-            case -2:
-                _status_code = "409 Conflict";
-                _responseBody = "File already exists";
-                break;
-            case -3:
-                _status_code = "413 Payload Too Large";
-                _responseBody = "File size exceeds the maximum allowed limit";
-                break;
-            case 0:
-                if (!createFile(it->second)) {
-                    _status_code = "500 Internal Server Error";
-                    _responseBody = "Failed to save file";
-                    break;
-                }
-                else {
-                    _status_code = "201 Created";
-                    _responseBody = "File uploaded succesfully";
-                    break;
-                }
-        }
-    }
-}
-
 int Response::Post_Check_Errors()
 {
     std::string dirPath = postParseDirPath();
@@ -117,10 +82,45 @@ int Response::Post_Check_Errors()
         return -1;
     else if (access(_request.getPath().c_str(), F_OK) == 0) //file already exists
         return -2;
-    if (_request.getBody().size() > _request.getMaxBodySize())
+    if (_request.getBody().size() > static_cast<size_t>(_request.getMaxBodySize()))
         return -3;
     return 0;
 }
+
+// void Response::handleUploads()
+// {
+//     std::map<std::string, std::string>::const_iterator it = _formDataName.begin();
+    
+//     while (it != _formDataName.end() && it->first != "filename")
+//         it++;
+//     if (it->first == "filename") {
+//         switch(Post_Check_Errors()) {
+//             case -1:
+//                 _status_code = "403 Forbidden";
+//                 _responseBody = "Permission denied";
+//                 break;
+//             case -2:
+//                 _status_code = "409 Conflict";
+//                 _responseBody = "File already exists";
+//                 break;
+//             case -3:
+//                 _status_code = "413 Payload Too Large";
+//                 _responseBody = "File size exceeds the maximum allowed limit";
+//                 break;
+//             case 0:
+//                 if (!createFile(/*it->second*/)) {
+//                     _status_code = "500 Internal Server Error";
+//                     _responseBody = "Failed to save file";
+//                     break;
+//                 }
+//                 else {
+//                     _status_code = "201 Created";
+//                     _responseBody = "File uploaded succesfully";
+//                     break;
+//                 }
+//         }
+//     }
+// }
 
 // bool Response::createFile(std::string filename) //smaller one
 // {
@@ -140,10 +140,10 @@ int Response::Post_Check_Errors()
 //     return true;
 // }
 
-bool Response::createFile(std::string filename)
+bool Response::createFile(/*std::string filename*/)
 {
     std::string dirPath = postParseDirPath();
-    std::string filePath = postParseFilePath();
+    std::string filePath = postParseFilePath(); //or is it filename ? tocheck
 
     createDirectoryRecursive(dirPath);
 

@@ -32,6 +32,11 @@ void Webserv::parseConfigFile(std::ifstream& input)
 		Server server(configVec[i]);
 		_servers.push_back(server);
 	}
+
+	if (_servers.size() < 1) {
+		std::cerr << "Error, invalid config file.\n";
+		exit (1);
+	}
 }
 
 void Webserv::serversInit()

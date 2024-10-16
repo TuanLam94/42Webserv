@@ -196,7 +196,7 @@ void	Server::handleNewConnection()
 void	Server::handleRequest()
 {
 	char buffer[1024];
-	int bytes = recv(_event.data.fd, buffer, sizeof(buffer), 0);
+	int bytes = recv(_event.data.fd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes < 0) {
 		std::cerr << "Read error: " << strerror(errno) << "\n";  //TOREMOVE Print the actual error message
 		close(_event.data.fd);
@@ -208,8 +208,8 @@ void	Server::handleRequest()
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
 	}
 	else {
+		buffer[bytes] = '\0';
 		Request request;
-		std::string test;
 		request.parsRequest(*this, buffer);
 		Response response(request);
 		response.handleRequest();
