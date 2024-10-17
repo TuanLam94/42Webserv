@@ -88,8 +88,10 @@ void Webserv::eventLoop() {
 					break;
 				}
 			}
-			if (!isServerSocket)
+			if (!isServerSocket) {
+				std::cout << "\nCOMING HERE\n";
 				handleClientRequest(event_fd);
+			}
 		}
 	}
 }
@@ -105,13 +107,13 @@ void Webserv::handleClientRequest(int client_fd)
     }
 
     Request request;
-    request.parsRequest(_servers[0], buffer);					//parseServer after correct_server
-	// exit (1);
+    request.parsRequest(buffer);
 	request.getClientIPPort(client_fd);
 
     Server* correct_server = findAppropriateServer(request);
 
     if (correct_server != NULL) {
+		request.parsRequestBis(*correct_server, buffer);
         Response response(request);
 		setServer(*correct_server, request, response);
         response.handleRequest();
@@ -125,8 +127,6 @@ void Webserv::handleClientRequest(int client_fd)
 Server* Webserv::findAppropriateServer(Request& request)
 {
 	int count = 0;
-
-	// std::cout << "Server Name = " << _servers[i].getServerName() << " request Name = " << request.getServerName();
 
 
 	for (size_t i = 0; i < _servers.size(); i++) {

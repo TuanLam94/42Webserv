@@ -244,15 +244,19 @@ void	Request::fillCgiPost()
 }
 
 
-void	Request::parsRequest(Server i, const std::string& buffer)
+void	Request::parsRequest(const std::string& buffer)
 {
-	std::stringstream ss(buffer);
-	std::cout << "\n\n\n" << buffer << "\n\n\n"; 
-
 	parsRequestLine(buffer);
 	checkMethod();
 	checkVersion();
 	checkCgi();
+}
+
+void Request::parsRequestBis(Server i, const std::string& buffer)
+{
+	std::stringstream ss(buffer);
+	std::cout << "\n\n\n" << buffer << "\n\n\n"; 
+
 	_max_client_body_size = i.getMaxBodySize();
 	if (_method == "GET")
 	{

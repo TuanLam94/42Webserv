@@ -84,7 +84,8 @@ class	Request
 	Request(const Request& copy);
 	Request& operator=(const Request& other);
 	~Request() {};
-	void	parsRequest(Server i, const std::string& buffer);
+	void	parsRequest(const std::string& buffer);
+	void	parsRequestBis(Server i, const std::string& buffer);
 	void	parsRequestLine(std::string buff);
 	void	checkMethod();
 	void	checkVersion();
