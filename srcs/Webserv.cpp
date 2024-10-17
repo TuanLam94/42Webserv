@@ -91,7 +91,14 @@ void Webserv::eventLoop() {
 
 void Webserv::handleClientRequest(int client_fd)
 {
-    char buffer[1024] = {0};
+	char buffer[1024] = {0};
+	// std::string buff;
+//     while (recv(client_fd, buffer, sizeof(buffer), 0) > 0)
+//     {
+// 	buff += buffer;
+// 	// std::cout << buff << std::endl;
+//     }
+	// std::cout << buff << std::endl;
     int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
     if (bytes <= 0) {
         close(client_fd);
@@ -99,19 +106,19 @@ void Webserv::handleClientRequest(int client_fd)
         return;
     }
 
-    Request request;
-    request.parsRequest(_servers[0], buffer);					//parseServer after correct_server
+	Request request;
+	request.parsRequest(_servers[0], buffer);					//parseServer after correct_server
 	// exit (1);
 	request.getClientIPPort(client_fd);
 
-    Server* correct_server = findAppropriateServer(request);
+	Server* correct_server = findAppropriateServer(request);
 
-    if (correct_server != NULL) {
-        Response response(request);
+	if (correct_server != NULL) {
+		Response response(request);
 		setServer(*correct_server, request, response);
-        response.handleRequest();
-        response.sendResponse(client_fd);
-    }
+		response.handleRequest();
+		response.sendResponse(client_fd);
+	}
 	else
 		std::cout << "Server error\n";
         // sendServerErrorResponse(client_fd); //tocode

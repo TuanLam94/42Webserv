@@ -43,6 +43,7 @@ class	Request
 	std::string	_RemoteAddr; 
 	std::string	_RemoteHost; 
 	std::string	_HttpHost; // yes
+	std::string	_HttpUserAgent;
 	std::string	_HttpAccept; // yes
 	std::string	_HttpAcceptLanguage; // yes
 	std::string	_HttpAcceptEncoding; // yes
@@ -77,7 +78,8 @@ class	Request
 	std::map<std::string, std::string>	_jsonParam; // application/json
 	std::map<std::string, std::string>	_urlParam; // application/x-www-form-urlencoded
 	std::string	_boundary;
-
+	std::string	_dataBrut; // requete POST avec content-type -> text/plain
+	bool	_isChunk; // pour verifier si requete fragmente
 	public:
 	Request();
 	Request(const Request& copy);
@@ -103,6 +105,7 @@ class	Request
 	std::string	parserFormData(std::string second, const std::string& buff);
 	void	parserFormData_bis(const std::string& buff);
 	int	parserFormData_ter(const std::string& buff, unsigned long int i);
+	void	parserTextPlain();
 	void	fillVar();
 	int	checkContentType();
 	void	getClientIPPort(int clientfd);
@@ -125,6 +128,7 @@ class	Request
 	// void	fillCgiPost();
 	// void	fillCgiDelete();
 	std::string	fillCgiToUpper(std::string fillvar, std::string var);
+	void	fillUserAgent();
 	// --------- GETTERS -------------
 	std::string	getMethod() const;
 	std::string	getPath() const;

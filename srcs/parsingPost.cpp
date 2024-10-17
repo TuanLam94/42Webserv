@@ -72,12 +72,15 @@ void	Request::parserJson()
 		{
 			if (_body[i] == ':')
 				index++;
-			if (_body[i] == '"')
+			if (_body[i] == '"' || (_body[i] >= 48 && _body[i] <= 57))
 			{
 				i++;
-				break ;
+				break ;  
 			}
-			if ((_body[i] != 32 && _body[i] != ':') || index > 1)
+			if ((_body[i] != 32
+				&& !(_body[i] >= 48 && _body[i] <= 57)
+				&& _body[i] != ':') 
+				|| index > 1)
 			{
 				_status_code = 400;
 				std::cerr << "checkJsonFormat 2 Error 400: Bad Request.\n";
@@ -88,7 +91,7 @@ void	Request::parserJson()
 		index = 0;
 		while (i < _contentLength && _body[i] >= 32)
 		{
-			if (_body[i] == '"')
+			if (_body[i] == '"' || _body[i] == ',' || _body[i] == '}')
 			{
 				i++;
 				break ;
@@ -134,7 +137,6 @@ void	Request::parserJson()
 void	Request::checkKeyUrl(std::string key)
 {
 	unsigned long int i = 0;
-	// size_t	pos;
 
 	if (key.empty() == true)
 	{
@@ -320,7 +322,7 @@ int	Request::parserFormData_ter(const std::string& buff, unsigned long int i)
 	}
 	i++;
 	if (parserFormData_help(buff, i) == true)
-		return (-1);
+		return (0);
 	else
 		_FormDataName.insert(std::pair<std::string, std::string>(key, value));
 	// {
@@ -355,7 +357,7 @@ void	Request::parserFormData_bis(const std::string& buff)
 			i++;
 		i++;
 		i = parserFormData_ter(buff, i);
-		if (i == -1)
+		if (i == 0)
 			break ;
 	}
 }
@@ -399,6 +401,18 @@ int	Request::checkContentType()
 	return (0);
 }
 
+void	Request::parserTextPlain()
+{
+	unsigned long int	i = 0;
+
+	while (i < _contentLength)
+	{
+		_dataBrut += _body[i];
+		i++;
+	}
+}
+
+
 void	Request::parsingPOST(Server i, const std::string& buffer)
 {
 	std::vector<std::pair<std::string, std::string> >::iterator it;
@@ -421,6 +435,15 @@ void	Request::parsingPOST(Server i, const std::string& buffer)
 	ite = _headersHttp.end();
 	while (it != ite)
 	{
+		if (it->first == "Transfer-Encoding:")
+		{
+			if (it->second == "chunked")
+			{
+				_isChunk = true;
+				std::cout << "chunked request\n";
+				exit (1);
+			}
+		}
 		if (it->first == "Content-Type:")
 		{
 			pos = it->second.std::string::find("multipart/form-data");
@@ -441,10 +464,11 @@ void	Request::parsingPOST(Server i, const std::string& buffer)
 				// checkMap(_FormDataName.begin(), _FormDataName.end());
 				// checkMap(_FormDataFilename.begin(), _FormDataFilename.end());
 			}
-			// else if ("text/plain")
-			// {
-
-			// }
+			else if ("text/plain")
+			{
+				parserTextPlain();
+				// body envoyer sans aucun format specifique == donnees brutes
+			}
 			else
 			{
 				_status_code = 415;

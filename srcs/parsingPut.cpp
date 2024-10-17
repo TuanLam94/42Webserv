@@ -16,7 +16,25 @@ void	Request::initContentLength()
 			ss >> _contentLength;
 			// std::cout << _contentLength << std::endl;
 			// std::cout << _body.size() << std::endl;
-			// std::cout << _body << std::endl;
+			// unsigned long int i = 0;
+			// while (i < _body.size())
+			// {
+			// 	if (_body[i] == '\r' && _body[i + 1] == '\n')
+			// 		std::cout << "ttttttttttttttttttttttttttt";
+			// 	std::cout << _body[i];
+			// 	i++;
+			// }
+			// std::cout << i;
+			// i = 0;
+			// std::cout << "\n\n\n\n";
+			// while (i < _contentLength)
+			// {
+			// 	if (_body[i] == '\r' && _body[i + 1] == '\n')
+			// 		std::cout << "ttttttttttttttttttttttttttt";
+			// 	std::cout << _body[i];
+			// 	i++;
+			// }
+			// std::cout << i << std::endl;
 			if (_contentLength != _body.size())
 			{
 				_status_code = 400;

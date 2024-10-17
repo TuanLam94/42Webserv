@@ -156,7 +156,7 @@ void	Request::parsHeaders(const std::string& buff)
 
 	while (i < buff.size() && buff[i] != 13 && buff[i + 1] != 10)
 		i++;
-	checkISS(buff[i], buff[i + 1]);
+	// checkISS(buff[i], buff[i + 1]);
 	i += 2;
 	while (i < buff.size())
 	{
@@ -180,7 +180,7 @@ void	Request::parsHeaders(const std::string& buff)
 		i += 2;
 		if (key[0] < 32 && value[0] < 32)
 		{
-			while (i < trim(buff).size()/* && buff[i] != 13 && buff[i + 1] != 10*/)
+			while (i < buff.size()/* && buff[i] != 13 && buff[i + 1] != 10*/)
 			{
 				_body += buff[i];
 				i++;
@@ -333,7 +333,6 @@ int	checkPort(std::string port)
 
 void	Request::fillVar()
 {
-	unsigned long int	i = 0;
 	std::vector<std::pair<std::string, std::string> >::iterator	it;
 	std::vector<std::pair<std::string, std::string> >::iterator	ite;
 
@@ -372,16 +371,4 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 		if (line == "  <head>")
 			_body += "    <link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\">\n";
 	}
-	// std::cout << _body << std::endl;
-	// std::map<std::string, std::string>::iterator	it;
-	// std::map<std::string, std::string>::iterator	ite;
-
-	// it = _queryParameter.begin();
-	// ite = _queryParameter.end();
-	// while (it != ite)
-	// {
-	// 	std::cout << it->first << std::endl;
-	// 	std::cout << it->second << std::endl;
-	// 	it++;
-	// }
 }

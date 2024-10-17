@@ -1,8 +1,8 @@
-SRC = srcs/main.cpp srcs/server.cpp srcs/utils.cpp srcs/request.cpp srcs/parsing.cpp srcs/response.cpp srcs/Webserv.cpp srcs/parsingGet.cpp srcs/parsingPost.cpp srcs/parsingDelete.cpp srcs/parsingPut.cpp srcs/GetResponse.cpp srcs/PostResponse.cpp
+SRC = srcs/main.cpp srcs/server.cpp srcs/utils.cpp srcs/request.cpp srcs/parsing.cpp srcs/response.cpp srcs/Webserv.cpp srcs/parsingGet.cpp srcs/parsingPost.cpp srcs/parsingDelete.cpp srcs/parsingPut.cpp srcs/GetResponse.cpp srcs/PostResponse.cpp srcs/parsCgiGet.cpp srcs/parsCgiPost.cpp
 OBJ = $(SRC:.cpp=.o) 
 CXX = c++
 RM = rm -f
-CXXFLAGS = -std=c++98 # -Wall -Wextra -Werror
+CXXFLAGS = -std=c++98 -Wall -Wextra -Werror
 
 NAME = webserv
 
