@@ -81,7 +81,7 @@ bool Response::isDirectoryEmpty()
     return true;
 }
 
-void Response::buildDeleteResponse()
+void Response::buildDelResponse()
 {
     _response.str("");
     _response.clear();

@@ -74,8 +74,7 @@ class Response
 		int		DEL_CheckFile();
 		int		DeleteFile();
 		bool	isDirectoryEmpty();
-		void	buildDeleteResponse();
-		void	buildDeleteResponse();
+		void	buildDelResponse();
 
 			//cgi
 		void runScript(std::string Lpath);
@@ -88,19 +87,16 @@ class Response
 		std::string extractExtension(std::string file);
 		void createDirectoryRecursive(const std::string& path);
 		bool createDirectory(const std::string& path);
-
-		void	buildDeleteResponse();
-		void	buildPutResponse();
-		//getters
+			//getters
 		std::string getMethod() const;
 		std::string getPath() const;
 		std::string getVersion() const;
 		std::string getStatusCode() const;
 		std::string getResponseStr() const;
 		Request getRequest() const;
-		//setters
+			//setters
 		void setServer(Server& server);
-		//utils
+			//utils
 		void printResponse();
 
 };
