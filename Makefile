@@ -10,7 +10,9 @@ SRC = srcs/main.cpp \
 		srcs/ParsingDelete.cpp \
 		srcs/ParsingPut.cpp \
 		srcs/ResponseGet.cpp \
-		srcs/ResponsePost.cpp
+		srcs/ResponsePost.cpp \
+		srcs/parsCgiGet.cpp \
+		srcs/parsCgiPost.cpp
 
 OBJ_DIR = obj
 OBJ = $(SRC:srcs/%.cpp=$(OBJ_DIR)/%.o) 
