@@ -155,7 +155,6 @@ class	Request
 	void	setRequestStatusCode(int status_code);
 	//Utils
 	void	printRequest() const;
-
 };
 
 bool	checkValidChar(char c);
