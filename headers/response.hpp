@@ -69,6 +69,14 @@ class Response
 		int Post_Check_Errors();
 		bool createFile(/*std::string filename*/);
 		void buildPostResponse();
+			//delete
+		void	handleDeleteResponse();
+		int		DEL_CheckFile();
+		int		DeleteFile();
+		bool	isDirectoryEmpty();
+		void	buildDeleteResponse();
+		void	buildDeleteResponse();
+
 			//cgi
 		void runScript(std::string Lpath);
 		void handleCGI(int type);

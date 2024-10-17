@@ -65,7 +65,7 @@ void Response::buildGetResponse()
     }
 
     _response << "Content-Length: " << _responseBody.size() << "\r\n";
-    _response << "Connection: keep-alive\r\n"; //keep alive ?
+    _response << "Connection: keep-alive\r\n";
     _response << "\r\n";
     _response << _responseBody;
     _response_str = _response.str();

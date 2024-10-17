@@ -23,6 +23,8 @@
 #include "response.hpp"
 #include "utils.hpp"
 #include <sys/wait.h>
+#include <dirent.h>
+#include <cstring>
 
 class Webserv
 {
