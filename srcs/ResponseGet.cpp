@@ -73,7 +73,9 @@ void Response::buildGetResponse()
 
 std::string Response::loadErrorPage(const std::string &errorPage)
 {
-    std::ifstream file(errorPage.c_str());
+    std::string toDisplay = "config/errors/" + errorPage;
+
+    std::ifstream file(toDisplay.c_str());
     if (!file)
         return "<html><body><h1>Error</h1><p>Could not load error page.</p></body></html>";
     std::stringstream buffer;

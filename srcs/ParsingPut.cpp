@@ -60,7 +60,7 @@ void	Request::parsingPUT(Server i, const std::string& buffer)
 	if (!checkContentType())
 	{
 		_status_code = 400;
-		std::cerr << "parsingPost Error 400: Bad Request\n";
+		std::cerr << "parsingPut Error 400: Bad Request\n";
 		exit (1);
 	}
 	initContentLength();

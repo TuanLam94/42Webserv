@@ -12,7 +12,6 @@ Response::Response(const Request& request)
     _jsonParam = request.getJsonParam();
     _urlParam = request.getUrlParam();
     _formDataName = request.getFormDataName();
-    handleRequest();
 }
 
 void Response::handleRequest()
@@ -24,8 +23,8 @@ void Response::handleRequest()
             handleGetResponse();
         else if (_method == "POST")
             handlePostResponse();
-        // else if (_method == "DELETE")
-        //     handleDeleteRequest();
+        else if (_method == "DELETE")
+            handleDeleteRequest();
         }
 }
 
