@@ -97,20 +97,33 @@ void Webserv::eventLoop() {
 void Webserv::handleClientRequest(int client_fd)
 {
 	char buffer[1024] = {0};
-	// std::string buff;
-//     while (recv(client_fd, buffer, sizeof(buffer), 0) > 0)
-//     {
-// 	buff += buffer;
-// 	// std::cout << buff << std::endl;
-//     }
-	// std::cout << buff << std::endl;
+	static std::string buff;
+	// int bytes;
+// 
     int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
     if (bytes <= 0) {
         close(client_fd);
         epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
         return;
     }
-
+	// while ((bytes = recv(client_fd, buffer, sizeof(buffer), 0)) > 0)
+	// {
+		
+	// 	// std::cout << buffer << std::endl;
+	// 	size_t i = 0;
+	// 	// buff += buffer;
+	// 	while (i < strlen(buffer))
+	// 	{
+	// 		buff += buffer[i];
+	// 		buffer[i] = '\0';
+	// 		i++;
+	// 	}
+	// 	std::cout << buff << std::endl;
+	// }
+	// exit (1);
+	// std::cout << strerror(errno) << std::endl;
+	// std::cout << bytes << std::endl;
+	// std::cout << buff << std::endl;
 	Request request;
 	request.parsRequest(buffer);
 	request.getClientIPPort(client_fd);

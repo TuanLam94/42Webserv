@@ -12,7 +12,6 @@ Response::Response(const Request& request)
     _jsonParam = request.getJsonParam();
     _urlParam = request.getUrlParam();
     _formDataName = request.getFormDataName();
-    handleRequest();
 }
 
 void Response::handleRequest()

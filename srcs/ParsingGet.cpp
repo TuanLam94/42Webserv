@@ -275,14 +275,15 @@ void	Request::checkHeaderName()
 
 	it = _headersHttp.begin();
 	ite = _headersHttp.end();
-
 	while (it != ite)
 	{
 		it->first = trim(it->first);
-		// std::cout << it->first << std::endl;
-		// std::cout << it->second << std::endl;
+		std::cout << it->first << std::endl;
+		std::cout << it->second << std::endl;
 		if (it->first == "Host:" || it->first == "HOST:" || it->first == "host:")
+		{	
 			host++;
+		}
 		// std::cout << it->first << std::endl;
 		checkKey(it->first);
 		// std::cout << it->second << std::endl;

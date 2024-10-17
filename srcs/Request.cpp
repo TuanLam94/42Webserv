@@ -96,6 +96,8 @@ void	Request::checkCgi()
 void	Request::parsRequest(const std::string& buffer)
 {
 	size_t	pos;
+	// std::cout << buffer << std::endl;
+	// exit (1);
 	parsRequestLine(buffer);
 	checkMethod();
 	checkVersion();
@@ -104,7 +106,7 @@ void	Request::parsRequest(const std::string& buffer)
 	if (pos != std::string::npos)
 	{
 		// gerer les requete fragementes + test/plain
-		std::cout << buffer << std::endl;
+		// std::cout << buffer << std::endl;
 	}
 }
 
@@ -112,7 +114,7 @@ void Request::parsRequestBis(Server i, const std::string& buffer)
 {
 	std::stringstream ss(buffer);
 	std::cout << "\n\n\n" << buffer << "\n\n\n"; 
-
+	// exit (1);
 	_max_client_body_size = i.getMaxBodySize();
 	if (_method == "GET")
 	{

@@ -426,9 +426,12 @@ void	Request::parsingPOST(Server i, const std::string& buffer)
 	checkHeaderName();
 	if (!checkContentType())
 	{
-		_status_code = 400;
-		std::cerr << "parsingPost Error 400: Bad Request\n";
-		exit (1);
+		if (_cgiIsHere == false)
+		{
+			_status_code = 400;
+			std::cerr << "parsingPost Error 400: Bad Request\n";
+			exit (1);
+		}
 	}
 	initContentLength();
 	it = _headersHttp.begin();
@@ -471,9 +474,12 @@ void	Request::parsingPOST(Server i, const std::string& buffer)
 			}
 			else
 			{
-				_status_code = 415;
-				std::cerr << "parsingPOST Error 415: Unsupported Media Type.\n";
-				exit (1);
+				if (_cgiIsHere == false)
+				{
+					_status_code = 415;
+					std::cerr << "parsingPOST Error 415: Unsupported Media Type.\n";
+					exit (1);
+				}
 			}
 		}
 		it++;
