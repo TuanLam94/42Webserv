@@ -88,10 +88,8 @@ void Webserv::eventLoop() {
 					break;
 				}
 			}
-			if (!isServerSocket) {
-				std::cout << "\nCOMING HERE\n";
+			if (!isServerSocket)
 				handleClientRequest(event_fd);
-			}
 		}
 	}
 }
