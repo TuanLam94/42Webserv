@@ -7,18 +7,9 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
+            background-color: #f0f0f0;
             text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 50px;
         }
         h1 {
             color: #e74c3c;
@@ -27,29 +18,26 @@
         p {
             color: #666;
             font-size: 18px;
-            line-height: 1.6;
         }
-        a {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 15px;
-            background: #3498db;
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
             color: white;
-            text-decoration: none;
+            border: none;
             border-radius: 5px;
+            cursor: pointer;
         }
-        a:hover {
-            background: #2980b9;
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
     <h1>404 Not Found</h1>
     <p>Sorry, the page you are looking for does not exist or has been moved.</p>
-    <p>You can go back to the <a href="/">homepage</a> or check the URL for errors.</p>
-</div>
+    <button onclick="window.location.href='index.html'">Return to Home</button>
 
 </body>
 </html>

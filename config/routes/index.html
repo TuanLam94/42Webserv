@@ -83,6 +83,17 @@
 
     <p id="message" style="display: none; color: green;"></p>
 
+    <div class="spacer"></div>
+
+    <h2>CGI</h2>
+    <p>Tests our bash and python CGIs right here.</p>
+
+    <!-- CGI POST buttons -->
+    <button onclick="sendCgiPost('hello.py')">POST to hello.py</button>
+    <button onclick="sendCgiPost('hello.sh')">POST to hello.sh</button>
+    <button onclick="sendCgiPost('upload.py')">POST to upload.py</button>
+    <button onclick="sendCgiPost('upload.sh')">POST to upload.sh</button>
+
     <script>
         // Function to toggle the visibility of the JSON data form
         function toggleJsonForm() {
@@ -184,6 +195,21 @@
             document.getElementById("formAge").value = '';
             const formContainer = document.getElementById('formData');
             formContainer.style.display = 'none'; // Hide the form
+        }
+
+        // Function to send POST requests to CGI scripts
+        function sendCgiPost(script) {
+            fetch(`http://localhost:8080/cgi-bin/${script}`, {
+                method: 'POST',
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(`POST to ${script} Success:`, data);
+                alert(`POST to ${script} completed.`);
+            })
+            .catch(error => {
+                console.error(`Error POSTing to ${script}:`, error);
+            });
         }
 
         // Placeholder function for uploading a file

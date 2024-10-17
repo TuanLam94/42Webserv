@@ -23,8 +23,8 @@ void Response::handleRequest()
             handleGetResponse();
         else if (_method == "POST")
             handlePostResponse();
-        // else if (_method == "DELETE")
-        //     handleDeleteRequest();
+        else if (_method == "DELETE")
+            handleDeleteRequest();
         }
 }
 
