@@ -42,35 +42,49 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .button-container {
+            text-align: center;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>About Us</h1>
-    <p>Welcome to [Organization Name]! We are dedicated to [describe your mission or purpose]. Our team is passionate about [what you do or the field you operate in].</p>
-
+    <p>Welcome to Tlam and Shelal's Webserv tester website. On the index page, you will find everything you need to test every feature of our Webserv 42 project. Enjoy!</p>
+    
+    <div class="button-container">
+        <button onclick="window.location.href='index.html'">Go to Index Page</button>
+    </div>
+    
     <div class="mission">
         <h2>Our Mission</h2>
-        <p>To provide high-quality services and make a positive impact in the community through innovation and dedication.</p>
+        <p>Implementing from scratch our own very personal Webserver!</p>
     </div>
 
     <h2>Meet Our Team</h2>
     <div class="team">
         <div class="team-member">
-            <h3>Jane Doe</h3>
-            <p>Position: CEO</p>
-            <p>Jane has over 10 years of experience in the industry and is passionate about leading the team towards success.</p>
+            <h3>Thomas Lam</h3>
+            <p>Worked on Config file parsing, HTTP responses, CGI, and this website!</p>
         </div>
         <div class="team-member">
-            <h3>John Smith</h3>
-            <p>Position: CTO</p>
-            <p>With a strong background in technology, John is responsible for driving innovation and overseeing technical projects.</p>
-        </div>
-        <div class="team-member">
-            <h3>Emily Johnson</h3>
-            <p>Position: Marketing Director</p>
-            <p>Emily specializes in marketing strategies and is dedicated to promoting our mission to the wider community.</p>
+            <h3>Sami Helal</h3>
+            <p>Worked on HTTP requests, cookies, and being overall a pretty great guy.</p>
         </div>
     </div>
 </div>

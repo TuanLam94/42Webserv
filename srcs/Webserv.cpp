@@ -32,6 +32,11 @@ void Webserv::parseConfigFile(std::ifstream& input)
 		Server server(configVec[i]);
 		_servers.push_back(server);
 	}
+
+	if (_servers.size() < 1) {
+		std::cerr << "Error, invalid config file.\n";
+		exit (1);
+	}
 }
 
 void Webserv::serversInit()
@@ -107,14 +112,14 @@ void Webserv::handleClientRequest(int client_fd)
     }
 
 	Request request;
-	request.parsRequest(_servers[0], buffer);					//parseServer after correct_server
-	// exit (1);
+	request.parsRequest(buffer);
 	request.getClientIPPort(client_fd);
 
 	Server* correct_server = findAppropriateServer(request);
 
-	if (correct_server != NULL) {
-		Response response(request);
+    if (correct_server != NULL) {
+		request.parsRequestBis(*correct_server, buffer);
+       		Response response(request);
 		setServer(*correct_server, request, response);
 		response.handleRequest();
 		response.sendResponse(client_fd);
@@ -127,8 +132,6 @@ void Webserv::handleClientRequest(int client_fd)
 Server* Webserv::findAppropriateServer(Request& request)
 {
 	int count = 0;
-
-	// std::cout << "Server Name = " << _servers[i].getServerName() << " request Name = " << request.getServerName();
 
 
 	for (size_t i = 0; i < _servers.size(); i++) {

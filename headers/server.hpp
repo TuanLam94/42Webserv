@@ -38,6 +38,7 @@ class Server
 		std::string _upload_dir;
 		std::string _redirection;
 		int	_max_client_body_size;
+        std::string _cgi_dir;
 		std::vector<std::string> _methods;
         // std::vector<int>    fds;
         void parseRoutes(std::string path);

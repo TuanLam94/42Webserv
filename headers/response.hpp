@@ -18,6 +18,7 @@
 #include "../headers/server.hpp"
 #include "../headers/request.hpp"
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 
 class Server;
@@ -32,8 +33,14 @@ class Response
 		Request		_request;
 		std::string	_status_code;
 		std::stringstream _response;
+		std::string _contentType;
 		std::string	_response_str;
+		std::string _responseBody;
 		Server		_server;
+		std::map<std::string, std::string>	_formDataName;
+		std::map<std::string, std::string>	_jsonParam;
+		std::map<std::string, std::string> _urlParam;
+		int _cgi_type;
 	public:
 		// Response() {};
 		Response(const Request& request);
@@ -53,11 +60,26 @@ class Response
 		bool	fileIsReg();
 		void	buildGetResponse();
 			//post
-		void	handlePostResponse();
-		int		Post_Check();
-		void	buildPostResponse();
+		void handlePostResponse();
+		void handleDataSubmission();
+		bool storeJsonData();
+		void handleFormSubmission();
+		bool storeFormData();
+		void handleUploads();
+		int Post_Check_Errors();
+		bool createFile(/*std::string filename*/);
+		void buildPostResponse();
+			//cgi
+		void runScript(std::string Lpath);
+		void handleCGI(int type);
+		void buildCGIResponse();
+		//NEEDED ONLY IF DIRECTORY IN PATH
 		std::string postParseDirPath();
-		void	createFile();
+		std::string postParseFilePath();
+		std::string postHandleMultipart();
+		std::string extractExtension(std::string file);
+		void createDirectoryRecursive(const std::string& path);
+		bool createDirectory(const std::string& path);
 
 		void	buildDeleteResponse();
 		void	buildPutResponse();

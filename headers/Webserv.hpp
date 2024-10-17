@@ -22,6 +22,7 @@
 #include "request.hpp"
 #include "response.hpp"
 #include "utils.hpp"
+#include <sys/wait.h>
 
 class Webserv
 {

@@ -107,7 +107,10 @@ void	Request::parsPath(Server obj)
 {
 	std::string	new_path;
 	
-	new_path = obj.getUploadDir() + _path;
+	if (_method == "GET")
+		new_path = obj.getRoutesPath() + _path;
+	else if (_method == "POST")
+		new_path = obj.getUploadDir() + _path;
 	_path.clear();
 	_path = new_path;
 }
@@ -333,6 +336,7 @@ int	checkPort(std::string port)
 
 void	Request::fillVar()
 {
+	// unsigned long int	i = 0;
 	std::vector<std::pair<std::string, std::string> >::iterator	it;
 	std::vector<std::pair<std::string, std::string> >::iterator	ite;
 
@@ -356,6 +360,7 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 	parsHeaders(buffer);
 	checkHeaderName();
 	fillVar();
+	std::cout << "PATH = " << _path << std::endl;
 	_input.open(_path.c_str());
 	std::cout << _path << std::endl;
 	if (!_input.is_open())

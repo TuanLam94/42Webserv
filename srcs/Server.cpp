@@ -38,12 +38,14 @@ Server::Server(const std::string input)
 			_redirection = trim(line.substr(pos));
 		else if (line.substr(0, pos) == "max_client_body_size")
 			_max_client_body_size = std::atoi(line.substr(pos).c_str());
+		else if (line.substr(0, pos) == "cgi_dir")
+			_cgi_dir = trim(line.substr(pos));
     }
 	std::ostringstream oss;
 	oss << _host << ":" << _port;
 	_host = oss.str();
-
 }
+
 
 void Server::parseRoutes(std::string path)
 {
@@ -181,7 +183,7 @@ void	Server::handleNewConnection()
 			close(client_fd);
 		}
 
-	_event.data.fd = client_fd;													//added
+	_event.data.fd = client_fd;
 	_event.events = EPOLLIN;
 	if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, client_fd, &_event) < 0) {
 		std::cerr << "epoll_ctl failed for client" << strerror(errno) << std::endl;
@@ -191,31 +193,32 @@ void	Server::handleNewConnection()
 	std::cout << "New client connected\n";
 }
 
-void	Server::handleRequest()
-{
-	char buffer[1024];
-	int bytes = recv(_event.data.fd, buffer, sizeof(buffer), 0);
-	if (bytes < 0) {
-		std::cerr << "Read error: " << strerror(errno) << "\n";  //TOREMOVE Print the actual error message
-		close(_event.data.fd);
-		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
-	}
-	else if (bytes == 0) {
-		std::cout << "Nothing to read\n";
-		close(_event.data.fd);
-		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
-	}
-	else {
-		Request request;
-		std::string test;
-		request.parsRequest(*this, buffer);
-		Response response(request);
-		response.handleRequest();
-		response.sendResponse(_event.data.fd);
-		// close(_event.data.fd);
-		// epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
-	}
-}
+// void	Server::handleRequest()
+// {
+// 	char buffer[1024];
+// 	int bytes = recv(_event.data.fd, buffer, sizeof(buffer) - 1, 0);
+// 	if (bytes < 0) {
+// 		std::cerr << "Read error: " << strerror(errno) << "\n";  //TOREMOVE Print the actual error message
+// 		close(_event.data.fd);
+// 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
+// 	}
+// 	else if (bytes == 0) {
+// 		std::cout << "Nothing to read\n";
+// 		close(_event.data.fd);
+// 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
+// 	}
+// 	else {
+// 		buffer[bytes] = '\0';
+// 		Request request;
+// 		request.parsRequest(buffer);
+// 		request.parsRequestBis(*this, buffer);
+// 		Response response(request);
+// 		response.handleRequest();
+// 		response.sendResponse(_event.data.fd);
+// 		// close(_event.data.fd);
+// 		// epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _event.data.fd, NULL);
+// 	}
+// }
 
 //----------------------------------UTILS------------------------------//
 

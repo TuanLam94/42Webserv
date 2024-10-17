@@ -65,6 +65,7 @@ class	Request
 	Server		_server;
 	int _status_code;
 	unsigned long int	_contentLength;
+	int _max_client_body_size;
 	// int	_client_fd;
 
 	// attributs GET et POST
@@ -85,7 +86,8 @@ class	Request
 	Request(const Request& copy);
 	Request& operator=(const Request& other);
 	~Request() {};
-	void	parsRequest(Server i, const std::string& buffer);
+	void	parsRequest(const std::string& buffer);
+	void	parsRequestBis(Server i, const std::string& buffer);
 	void	parsRequestLine(std::string buff);
 	void	checkMethod();
 	void	checkVersion();
@@ -138,9 +140,20 @@ class	Request
 	std::string	getResponse() const;
 	std::string	getHost() const;
 	std::string	getServerName() const;
+	int getMaxBodySize() const;
 	const Server&	getServer() const;
 	int getPort() const;
 	int getStatusCode() const;
+	const std::map<std::string, std::string>& getFormDataName() const;
+	const std::map<std::string, std::string>& getJsonParam() const;
+	const std::map<std::string, std::string>& getUrlParam() const;
+	bool	isCgi() const;
+	std::string getQueryString() const;
+	std::string getPathInfo() const;
+	std::string getScriptName() const;
+	std::string getServerPort() const;
+	std::string getRemoteAddr() const;
+	std::string getRemotePort() const;
 	//------------SETTERS------------
 	void	setServer(Server& server);
 	void	setRequestStatusCode(int status_code);

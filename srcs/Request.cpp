@@ -68,8 +68,7 @@ void	Request::checkMethod()
 {
 	if (_method != "GET" 
 		&& _method != "POST"
-		&& _method != "DELETE"
-		&& _method != "PUT")
+		&& _method != "DELETE")
 			_status_code = 405;
 }
 
@@ -94,23 +93,27 @@ void	Request::checkCgi()
 */
 
 
-void	Request::parsRequest(Server i, const std::string& buffer)
+void	Request::parsRequest(const std::string& buffer)
 {
 	size_t	pos;
-	std::stringstream ss(buffer);
-	// std::cout << "\n\n\n" << buffer << "\n\n\n"; 
-
 	parsRequestLine(buffer);
 	checkMethod();
 	checkVersion();
 	checkCgi();
-	// requete fragmente --> chunk request
 	pos = buffer.find("Transfer-Encoding: chunked");
 	if (pos != std::string::npos)
 	{
 		// gerer les requete fragementes + test/plain
 		std::cout << buffer << std::endl;
 	}
+}
+
+void Request::parsRequestBis(Server i, const std::string& buffer)
+{
+	std::stringstream ss(buffer);
+	std::cout << "\n\n\n" << buffer << "\n\n\n"; 
+
+	_max_client_body_size = i.getMaxBodySize();
 	if (_method == "GET")
 	{
 		parsingGET(i, buffer);
@@ -224,6 +227,61 @@ const Server& Request::getServer() const
 {
 	return (_server);
 }
+
+const std::map<std::string, std::string>& Request::getFormDataName() const
+{
+	return (_FormDataName);
+}
+
+const std::map<std::string, std::string>& Request::getJsonParam() const
+{
+	return (_jsonParam);
+}
+
+const std::map<std::string, std::string>& Request::getUrlParam() const
+{
+	return (_urlParam);
+}
+
+int Request::getMaxBodySize() const
+{
+	return (_max_client_body_size);
+}
+
+bool Request::isCgi() const
+{
+	return (_cgiIsHere);
+}
+
+std::string Request::getQueryString() const
+{
+	return (_QueryString);
+}
+
+std::string Request::getPathInfo() const
+{
+	return _PathInfo;
+}
+
+std::string Request::getScriptName() const
+{
+	return _ScriptName;
+}
+
+std::string Request::getServerPort() const
+{
+	return _ServerPort;
+}
+
+std::string Request::getRemoteAddr() const
+{
+	return _RemoteAddr;
+}
+
+// std::string Request::getRemotePort() const
+// {
+// 	return _RemotePort;
+// }
 
 //-----------------------------------------------------SETTERS--------------------------------------
 
