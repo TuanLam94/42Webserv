@@ -31,7 +31,7 @@ void	Request::parsingDELETE(Server i, const std::string& buffer)
 	size_t	pos = _path.find("?");
 
 	if (pos != std::string::npos)
-		parsParamPath();
+		parsParamPath(pos);
 	parsPath(i);
 	parsHeaders(buffer);
 	checkHeaderName();

@@ -10,4 +10,6 @@ Parsing RFC :
 	
 	- A sender MUST NOT generate multiple header fields with the same field name in a message unless either the entire field value for that header field is defined as a comma-separated list [i.e., #(values)] or the header field is a well-known exception.
 	
-	- A server MUST reject any received request message that contains whitespace between a header field-name and colon with a response code of 400 (Bad Request). 
+	- A server MUST reject any received request message that contains whitespace between a header field-name and colon with a response code of 400 (Bad Request).
+	
+	- Transfer-Encoding : Utilisé lorsque la taille du contenu n'est pas connue à l'avance, ou lorsque l'encodage du transfert par morceaux (chunked) est nécessaire. Il n'est pas permis d'utiliser simultanément Content-Length et Transfer-Encoding car ils sont mutuellement exclusifs dans la même réponse.

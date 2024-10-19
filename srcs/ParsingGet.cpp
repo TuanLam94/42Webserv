@@ -7,13 +7,15 @@ bool	Request::checkValidChar(char c)
 	if (!(c >= 48 && c <= 57)
 		&& !(c >= 65 && c <= 90)
 		&& !(c >= 97 && c <= 122)
+		&& c != 37 // %
+		&& c != 43 // + 
 		&& c != 47 // /
 		&& c != 46 // .
 		&& c != 45 // - 
 		&& c != 95 // _
-		&& c != 126 /* ~ */
-		&& c != 61
-		&& c != 63)
+		&& c != 126 // ~
+		&& c != 61 // =
+		&& c != 63) // ?
 	{
 		_status_code = 400;
 		std::cerr << "checkValidChar Error 400: Bad Request.\n";
@@ -41,7 +43,7 @@ std::string	Request::parsParamPath_bis(std::string str)
 			new_str += hexa;
 			i += 2;
 		}
-		else if (str[i] == 43) // +
+		if (str[i] == 43) // +
 			new_str += 32;
 		else if (checkValidChar(str[i]) == true)
 			new_str += str[i];
@@ -52,7 +54,7 @@ std::string	Request::parsParamPath_bis(std::string str)
 	return (str);
 }
 
-void	Request::parsParamPath()
+void	Request::parsParamPath(size_t pos)
 {
 	std::string	new_path;
 	std::string	final_path;
@@ -61,9 +63,9 @@ void	Request::parsParamPath()
 	unsigned long int	i = 0;
 	int	index = false;
 
-	while (i < _path.size() && _path[i] != 63) // "?"
+	while (i < _path.size() && i < pos) // "?"
 	{
-		final_path += _path[i];	
+		final_path += _path[i];
 		i++;
 	}
 	i++;
@@ -92,7 +94,7 @@ void	Request::parsParamPath()
 	}
 	key = parsParamPath_bis(key);
 	value = parsParamPath_bis(value);
-	if (trim(key).empty() == true || trim(value).empty() == true)
+	if (key.empty() == true || value.empty() == true)
 	{
 		_status_code = 400;
 		std::cout << "parsParamPath Error 400: Bad Request\n";
@@ -103,7 +105,7 @@ void	Request::parsParamPath()
 	_queryParameter.insert(std::pair<std::string, std::string>(key, value));
 }
 
-void	Request::parsPath(Server obj)
+void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../" -> dans l'uri 
 {
 	std::string	new_path;
 	
@@ -115,36 +117,74 @@ void	Request::parsPath(Server obj)
 	_path = new_path;
 }
 
-void	Request::checkISS(char c1, char c2)
+
+size_t	Request::findPosition(std::string str, const std::string& buff, size_t start)
 {
-	if (c1 != 13 || c2 != 10)
-	{
-		_status_code = 400;
-		std::cerr << "checkISS Error 400: Bad Request.\n";
-		exit (1);
-	}
+	size_t	pos;
+
+	pos = buff.find(str, start);
+	return (pos);
 }
 
-bool	Request::checkValidHeader(char c)
+std::string	Request::helpHeaderHost(std::string value, std::string line)
 {
-	// std::cout << c << std::endl;
+	size_t	pos = 0;
+	size_t	j = 0;
+	std::string	port;
+
+	pos = value.find(":");
+	if (pos != std::string::npos)
+	{
+		line.clear();
+		while (j < value.size() && value[j] != ':')
+		{
+			line += value[j];
+			j++;
+		}
+		j++;
+		while (j < value.size())
+		{
+			port += value[j];
+			j++;
+		}
+		std::istringstream	ss(port);
+		ss >> _port;
+		value.clear();
+		value = line;
+	}
+	return (value);
+}
+
+bool	Request::checkValidHeaderValue(char c)
+{
+	std::cout << c << std::endl;
 	if (!(c >= 48 && c <= 57)
 		&& !(c >= 65 && c <= 90)
 		&& !(c >= 97 && c <= 122)
-		&& c != 32
-		&& c != 42
-		&& c != 45
-		&& c != 46
-		&& c != 47
-		&& c != 58
-		&& c != 59
-		&& c != 61)
+		&& c != 32 && c != '!'  && c != '#'
+		&& c != '$' && c != '%' && c != '&'
+		&& c != '\'' && c != '*' && c != '+'
+		&& c != '-' && c != '.' && c != '_'
+		&& c != '|' && c != '~')
 	{
 		_status_code = 400;
 		std::cerr << "checkValidHeader Error 400: Bad Request.\n";
-		// exit (1);
+		exit (1);
 	}
 	return (true);
+}
+
+void	Request::fillBody(const std::string& buff)
+{
+	size_t	i = 0;
+
+	_pos += 4;
+	i = _pos;
+	while (i < buff.size())
+	{
+		_body += buff[i];
+		i++;
+	}
 }
 
 void	Request::parsHeaders(const std::string& buff)
@@ -153,19 +193,17 @@ void	Request::parsHeaders(const std::string& buff)
 	std::string	value;
 	std::string	line;
 	unsigned long int	i = 0;
-	unsigned long int	j = 0;
 	bool	index = true;
 	size_t	pos;
 
-	while (i < buff.size() && buff[i] != 13 && buff[i + 1] != 10)
-		i++;
-	// checkISS(buff[i], buff[i + 1]);
-	i += 2;
-	while (i < buff.size())
+	i = _pos;
+	_pos = findPosition("\r\n\r\n", buff, i);
+	while (i < buff.size() && i < _pos)
 	{
-		while (i < buff.size() && buff[i] != 13 && buff[i + 1] != 10)
+		pos = findPosition("\r\n", buff, i);
+		while (i < buff.size() && i < pos)
 		{
-			if (index == true && buff[i] == 58)
+			if (index == true && buff[i] == 58) // :
 			{
 				index = false;
 				key += buff[i];
@@ -173,47 +211,15 @@ void	Request::parsHeaders(const std::string& buff)
 				while (i < buff.size() && buff[i] == 32)
 					i++;
 			}
-			if (index == true/* && checkValidHeader(buff[i]) == true*/)
+			if (index == true/* && checkValidHeaderKey(buff[i]) == true*/)
 				key += buff[i];
-			else /*if (checkValidHeader(buff[i]) == true)*/
+			else /*if (checkValidHeaderValue(buff[i]) == true)*/
 				value += buff[i];
 			i++;
 		}
-		checkISS(buff[i], buff[i + 1]);
 		i += 2;
-		if (key[0] < 32 && value[0] < 32)
-		{
-			while (i < buff.size()/* && buff[i] != 13 && buff[i + 1] != 10*/)
-			{
-				_body += buff[i];
-				i++;
-			}
-			return ;
-		}
 		if (key == "Host:" || key == "host:" || key == "HOST:")
-		{
-			std::string	port;
-			pos = value.find(":");
-			if (pos != std::string::npos)
-			{
-				line.clear();
-				while (j < value.size() && value[j] != ':')
-				{
-					line += value[j];
-					j++;
-				}
-				j++;
-				while (j < value.size())
-				{
-					port += value[j];
-					j++;
-				}
-				std::istringstream	ss(port);
-				ss >> _port;
-				value.clear();
-				value = line;
-			}
-		}
+			value = helpHeaderHost(value, line);
 		_headersHttp.push_back(std::pair<std::string, std::string>(key, value));
 		key.clear();
 		value.clear();
@@ -259,10 +265,10 @@ void	Request::checkKey(std::string key)
 
 void	Request::checkValue(std::string value)
 {
-	if (trim(value).empty() == true)
+	if (value.empty() == true)
 	{
 		_status_code = 400;
-		std::cerr << "chechValue Error 400: Bad Request\n";
+		std::cerr << "checkValue Error 400: Bad Request.\n";
 		exit (1);
 	}
 }
@@ -277,21 +283,10 @@ void	Request::checkHeaderName()
 	ite = _headersHttp.end();
 	while (it != ite)
 	{
-		it->first = trim(it->first);
-		std::cout << it->first << std::endl;
-		std::cout << it->second << std::endl;
 		if (it->first == "Host:" || it->first == "HOST:" || it->first == "host:")
-		{	
 			host++;
-		}
-		// std::cout << it->first << std::endl;
 		checkKey(it->first);
-		// std::cout << it->second << std::endl;
 		checkValue(it->second);
-		// std::cout << "key : ";
-		// std::cout << it->first << std::endl;
-		// std::cout << "value : ";
-		// std::cout << it->second << std::endl;
 		it++;
 	}
 	if (host != 1)
@@ -301,26 +296,6 @@ void	Request::checkHeaderName()
 		exit (1);
 	}
 }
-
-// std::string	findPort(std::string second)
-// {
-// 	std::string	port;
-// 	unsigned long int	i = 0;
-	
-// 	while (i < second.size() && second[i] != ':')
-// 		i++;
-// 	while (i < second.size())
-// 	{
-// 		port += second[i];
-// 		i++;
-// 	}
-// 	return (port);
-// }
-/*
-	- si ya pas de port --> juste host dans var host sous forme adresse url tout simple
-	- si ya port --> port dans other variable
-*/
-
 
 int	checkPort(std::string port)
 {
@@ -337,7 +312,6 @@ int	checkPort(std::string port)
 
 void	Request::fillVar()
 {
-	// unsigned long int	i = 0;
 	std::vector<std::pair<std::string, std::string> >::iterator	it;
 	std::vector<std::pair<std::string, std::string> >::iterator	ite;
 
@@ -356,18 +330,17 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 	size_t	pos = _path.find("?");
 
 	if (pos != std::string::npos)
-		parsParamPath();
+		parsParamPath(pos);
 	parsPath(i);
 	parsHeaders(buffer);
+	fillBody(buffer);
 	checkHeaderName();
 	fillVar();
-	std::cout << "PATH = " << _path << std::endl;
 	_input.open(_path.c_str());
 	std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
 		std::cerr << "Can't open input\n";
-		// exit (1);
 	}
 	std::string	line;
 	while (std::getline(_input, line))

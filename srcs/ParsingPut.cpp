@@ -53,7 +53,7 @@ void	Request::parsingPUT(Server i, const std::string& buffer)
 
 	size_t	pos = _path.find("?");
 	if (pos != std::string::npos)
-		parsParamPath();
+		parsParamPath(pos);
 	parsPath(i);
 	parsHeaders(buffer);
 	checkHeaderName();
@@ -77,7 +77,8 @@ void	Request::parsingPUT(Server i, const std::string& buffer)
 				parserUrlencoded();
 			else if (pos != std::string::npos)
 			{
-				it->second = parserFormData(it->second, buffer);
+				it->second = "multipart/form-data";
+				parserFormData(buffer);
 			}
 			else
 			{

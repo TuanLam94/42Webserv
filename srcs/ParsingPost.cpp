@@ -279,13 +279,13 @@ void	Request::parserUrlencoded()
 	parserUrlencoded_bis(new_body);
 }
 
-bool	Request::parserFormData_help(const std::string& buff, unsigned long int i)
+bool	Request::parserFormData_help(const std::string& buff, size_t i)
 {
 	std::string	new_boundary;
 	std::string	final_boundary;
 	unsigned long int j = 0;
 
-	new_boundary = "--" + _boundary + "--";
+	new_boundary = _boundary + "--";
 	while (j < new_boundary.size())
 	{
 		final_boundary += buff[i];
@@ -297,91 +297,196 @@ bool	Request::parserFormData_help(const std::string& buff, unsigned long int i)
 	return (false);
 }
 
-int	Request::parserFormData_ter(const std::string& buff, unsigned long int i)
+void	Request::formDataGetName(const std::string& buff, size_t pos)
 {
-	std::string	id;
 	std::string	key;
 	std::string	value;
 
-	while (i < buff.size() && (id != "name" && id != "filename"))
+	pos = pos + 6;
+	while (buff[pos] != '\"')
 	{
-		id += buff[i];
-		i++;
+		key += buff[pos];
+		pos++;
 	}
-	i += 2;
-	while (i < buff.size() && buff[i] != '"')
+	pos = findPosition("\r\n\r\n", buff, pos);
+	if (pos != std::string::npos)
 	{
-		key += buff[i];
-		i++;
+		pos += 4;
+		while (buff[pos] != '\r')
+		{
+			value += buff[pos];
+			pos++;
+		}
+		if (key.empty() == false && value.empty() == false)
+		{
+			std::cout << key << std::endl;
+			std::cout << value << std::endl;
+			_FormDataName.insert(std::pair<std::string, std::string>(key, value));
+		}
+		else
+		{
+			std::cerr << "formDataGetName Error 400: Bad Request.\n";
+			exit (1);
+		}
 	}
-	i += 5;
-	while (i < buff.size() && buff[i] != '\n')
+}
+void	Request::formDataGetFilename(const std::string& buff, size_t pos)
+{
+	std::string	key;
+	std::string	value;
+
+	pos = pos + 6;
+	while (buff[pos] != '\"')
 	{
-		value += buff[i];
-		i++;
+		key += buff[pos];
+		pos++;
 	}
-	i++;
-	if (parserFormData_help(buff, i) == true)
-		return (0);
-	else
-		_FormDataName.insert(std::pair<std::string, std::string>(key, value));
-	// {
-	// 	if (id == "name")
-		// else
-	// 		_FormDataFilename.insert(std::pair<std::string, std::string>(key, value));
-	// }
-	return (i);
+	pos = findPosition("\r\n\r\n", buff, pos);
+	if (pos != std::string::npos)
+	{
+		pos += 4;
+		while (buff[pos] != '\r')
+		{
+			value += buff[pos];
+			pos++;
+		}
+		if (key.empty() == false && value.empty() == false)
+		{
+			std::cout << key << std::endl;
+			std::cout << value << std::endl;
+			_FormDataFilename.insert(std::pair<std::string, std::string>(key, value));
+		}
+		else
+		{
+			std::cerr << "formDataGetName Error 400: Bad Request.\n";
+			exit (1);
+		}
+	}
 }
 
-void	Request::parserFormData_bis(const std::string& buff)
+void	Request::parserFormData_bis(const std::string& buff, size_t pos)
 {
-	size_t	pos_boundary;
-	size_t	pos_info;
-	unsigned long int	i = 0;
+	size_t	pos_b = 0;
+	size_t	pos_info = 0;
+	size_t	i = 0;
 
-	pos_boundary = buff.find(_boundary);
-	if (pos_boundary != std::string::npos)
-		i = pos_boundary;
-	while (buff[i] != '\n')
-		i++;
-	pos_boundary = buff.find(_boundary, i);
-	i += _boundary.size() + 5;
-	pos_info = buff.find("Content-Disposition: form-data; ");
-	i = pos_info;
-	while (i < buff.size())
+	pos_b = findPosition(_boundary, buff, pos);
+	if (pos_b != std::string::npos)
+		i = pos_b;
+	// on est sur la 1 ere ligne du boundary
+	while (true)
 	{
-		while (buff[i] != 32)
-			i++;
-		i++;
-		while (buff[i] != 32)
-			i++;
-		i++;
-		i = parserFormData_ter(buff, i);
-		if (static_cast<int>(i) == -1)
+		pos_info = findPosition("Content-Disposition: form-data; ", buff, i);
+		if (pos_info != std::string::npos)
+		{
+			i = pos_info;
+			pos_info = findPosition("name=\"", buff, i);
+			if (pos_info != std::string::npos)
+				formDataGetName(buff, pos_info);
+			else
+			{
+				pos_info = findPosition("filename=\"", buff, i);
+				if (pos_info != std::string::npos)
+					formDataGetFilename(buff, pos_info);
+			}
+		}
+		pos_info = findPosition("\r\n\r\n", buff, i);
+		if (pos_info != std::string::npos)
+			i = pos_info + 5;
+		pos_info = findPosition("\r\n", buff, i);
+		if (pos_info != std::string::npos)
+			i = pos_info + 3;
+		if (parserFormData_help(buff, i) == true)
 			break ;
 	}
 }
 
-std::string	Request::parserFormData(std::string second, const std::string& buff)
+void	Request::parserFormData(const std::string& buff)
 {
-	std::string	new_second;
-	unsigned long int	i = 0;
+	size_t	pos_b = 0;
+	size_t	pos_end = 0;
+	size_t	i = 0;
+	size_t	j = 0;
+	std::string	boundary = "boundary=";
 
-	while (i < second.size() && second[i] != 59)
+	pos_b = findPosition(boundary, buff, 0);
+	if (pos_b == std::string::npos)
 	{
-		new_second += second[i];
-		i++;
+		std::cerr << "parserFormData Error 400: Bad request.\n";
+		exit (1);
 	}
-	i++;
-	while (i < second.size() && second[i] != 45)
-		i++;
-	while (i < second.size())
+	j = boundary.size();
+	while (i < j)
 	{
-		_boundary += second[i];
 		i++;
+		pos_b++;
 	}
-	parserFormData_bis(buff);
-	return (new_second);
+	_boundary += "--";
+	pos_end = findPosition("\r\n", buff, pos_b);
+	while (pos_b < buff.size() && pos_b < pos_end)
+	{
+		_boundary += buff[pos_b];
+		pos_b++;
+	}
+	parserFormData_bis(buff, pos_b);
+}
+
+void	Request::parsingPOST_v2(const std::string& buffer)
+{
+	size_t	pos;
+	std::vector<std::pair<std::string, std::string> >::iterator it;
+	std::vector<std::pair<std::string, std::string> >::iterator ite;
+
+	it = _headersHttp.begin();
+	ite = _headersHttp.end();
+	while (it != ite)
+	{
+		if (it->first == "Transfer-Encoding:")
+		{
+			if (it->second == "chunked")
+			{
+				
+				_isChunk = true;
+				std::cout << "chunked request\n";
+				exit (1);
+			}
+		}
+		if (it->first == "Content-Type:")
+		{
+			pos = it->second.std::string::find("multipart/form-data");
+			if (it->second == "application/json") // json utiliser pour la creation de ressource
+			{
+				_contentType = it->second;
+				parserJson();
+			}
+			else if (it->second == "application/x-www-form-urlencoded")
+			{
+				_contentType = it->second;		
+				parserUrlencoded();
+			}
+			else if (pos != std::string::npos)
+			{
+				it->second = "multipart/form-data";
+				parserFormData(buffer);
+				_contentType = it->second;
+			}
+			else if (it->second == "text/plain")
+			{
+				_contentType = it->second;
+				parserTextPlain();
+			}
+			else
+			{
+				if (_cgiIsHere == false)
+				{
+					_status_code = 415;
+					std::cerr << "parsingPOST Error 415: Unsupported Media Type.\n";
+					exit (1);
+				}
+			}
+		}
+		it++;
+	}
 }
 
 int	Request::checkContentType()
@@ -412,17 +517,14 @@ void	Request::parserTextPlain()
 	}
 }
 
-
-void	Request::parsingPOST(Server i, const std::string& buffer)
+void	Request::parsingPOST_v1(Server i, const std::string& buffer)
 {
-	std::vector<std::pair<std::string, std::string> >::iterator it;
-	std::vector<std::pair<std::string, std::string> >::iterator ite;
-
 	size_t	pos = _path.find("?");
 	if (pos != std::string::npos)
-		parsParamPath();
+		parsParamPath(pos);
 	parsPath(i);
 	parsHeaders(buffer);
+	fillBody(buffer);
 	checkHeaderName();
 	if (!checkContentType())
 	{
@@ -434,54 +536,5 @@ void	Request::parsingPOST(Server i, const std::string& buffer)
 		}
 	}
 	initContentLength();
-	it = _headersHttp.begin();
-	ite = _headersHttp.end();
-	while (it != ite)
-	{
-		if (it->first == "Transfer-Encoding:")
-		{
-			if (it->second == "chunked")
-			{
-				_isChunk = true;
-				std::cout << "chunked request\n";
-				exit (1);
-			}
-		}
-		if (it->first == "Content-Type:")
-		{
-			pos = it->second.std::string::find("multipart/form-data");
-			if (it->second == "application/json") // json utiliser pour la creation de ressource
-			{
-				_contentType = it->second;
-				parserJson();
-			}
-			else if (it->second == "application/x-www-form-urlencoded")
-			{
-				_contentType = it->second;		
-				parserUrlencoded();
-			}
-			else if (pos != std::string::npos)
-			{
-				it->second = parserFormData(it->second, buffer);
-				_contentType = it->second;
-				// checkMap(_FormDataName.begin(), _FormDataName.end());
-				// checkMap(_FormDataFilename.begin(), _FormDataFilename.end());
-			}
-			else if ("text/plain")
-			{
-				parserTextPlain();
-				// body envoyer sans aucun format specifique == donnees brutes
-			}
-			else
-			{
-				if (_cgiIsHere == false)
-				{
-					_status_code = 415;
-					std::cerr << "parsingPOST Error 415: Unsupported Media Type.\n";
-					exit (1);
-				}
-			}
-		}
-		it++;
-	}
+	parsingPOST_v2(buffer);
 }
