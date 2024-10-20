@@ -91,6 +91,8 @@ class	Request
 	void	parsRequestLine(std::string buff);
 	void	checkMethod();
 	void	checkVersion();
+	void	checkUri();
+	bool	checkStatusCode();
 	void	checkHeaderName();
 	void	parsParamPath(size_t pos);
 	std::string	parsParamPath_bis(std::string str);

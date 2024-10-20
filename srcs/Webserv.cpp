@@ -123,9 +123,11 @@ void Webserv::handleClientRequest(int client_fd)
 
 	Server* correct_server = findAppropriateServer(request);
 
-    if (correct_server != NULL) {
-		request.parsRequestBis(*correct_server, buff);
-       	Response response(request);
+	if (correct_server != NULL)
+	{
+		if (request.checkStatusCode() == true)
+			request.parsRequestBis(*correct_server, buff);
+		Response response(request);
 		setServer(*correct_server, request, response);
 		response.handleRequest();
 		response.sendResponse(client_fd);

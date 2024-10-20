@@ -19,7 +19,7 @@ bool	Request::checkValidChar(char c)
 	{
 		_status_code = 400;
 		std::cerr << "checkValidChar Error 400: Bad Request.\n";
-		exit (1);
+		return (false);
 	}
 	return (true);
 }
@@ -98,7 +98,7 @@ void	Request::parsParamPath(size_t pos)
 	{
 		_status_code = 400;
 		std::cout << "parsParamPath Error 400: Bad Request\n";
-		exit (1);
+		return ;
 	}
 	_path.clear();
 	_path = final_path;
@@ -157,7 +157,6 @@ std::string	Request::helpHeaderHost(std::string value, std::string line)
 
 bool	Request::checkValidHeaderValue(char c)
 {
-	std::cout << c << std::endl;
 	if (!(c >= 48 && c <= 57)
 		&& !(c >= 65 && c <= 90)
 		&& !(c >= 97 && c <= 122)
@@ -165,11 +164,14 @@ bool	Request::checkValidHeaderValue(char c)
 		&& c != '$' && c != '%' && c != '&'
 		&& c != '\'' && c != '*' && c != '+'
 		&& c != '-' && c != '.' && c != '_'
-		&& c != '|' && c != '~')
+		&& c != '|' && c != '~' && c != ':'
+		&& c != '/' && c != '(' && c != ')'
+		&& c != ';' && c != ',' && c != '='
+		&& c != '?')
 	{
 		_status_code = 400;
 		std::cerr << "checkValidHeader Error 400: Bad Request.\n";
-		exit (1);
+		return (false);
 	}
 	return (true);
 }
@@ -211,10 +213,12 @@ void	Request::parsHeaders(const std::string& buff)
 				while (i < buff.size() && buff[i] == 32)
 					i++;
 			}
-			if (index == true/* && checkValidHeaderKey(buff[i]) == true*/)
+			if (index == true /*&& checkValidHeaderKey(buff[i]) == true*/)
 				key += buff[i];
-			else /*if (checkValidHeaderValue(buff[i]) == true)*/
+			else if (checkValidHeaderValue(buff[i]) == true)
 				value += buff[i];
+			else
+				return ;
 			i++;
 		}
 		i += 2;
@@ -236,7 +240,7 @@ void	Request::checkKey(std::string key)
 	{
 		_status_code = 400;
 		std::cerr << "checkKey 1 Error 400: Bad Request\n";
-		exit (1);
+		return ;
 	}
 	while (i < key.size())
 	{
@@ -248,7 +252,7 @@ void	Request::checkKey(std::string key)
 		{ 
 			_status_code = 400;
 			std::cerr << "checkKey 2 Error 400: Bad Request\n";
-			exit (1);
+			return ;
 		}
 		i++;
 	}
@@ -259,7 +263,7 @@ void	Request::checkKey(std::string key)
 	{
 		_status_code = 400;
 		std::cerr << "checkKey 3 Error 400: Bad Request\n";
-		exit (1);
+		return ;
 	}
 }
 
@@ -269,7 +273,7 @@ void	Request::checkValue(std::string value)
 	{
 		_status_code = 400;
 		std::cerr << "checkValue Error 400: Bad Request.\n";
-		exit (1);
+		return ;
 	}
 }
 
@@ -285,15 +289,19 @@ void	Request::checkHeaderName()
 	{
 		if (it->first == "Host:" || it->first == "HOST:" || it->first == "host:")
 			host++;
-		checkKey(it->first);
-		checkValue(it->second);
+		if (checkStatusCode() == true)
+			checkKey(it->first);
+		if (checkStatusCode() == true)
+			checkValue(it->second);
+		if (checkStatusCode() == false)
+			return ;	
 		it++;
 	}
 	if (host != 1)
 	{
 		_status_code = 400;
 		std::cerr << "checkHeaderName Error 400: Bad Request\n";
-		exit (1);
+		return ;
 	}
 }
 
@@ -331,11 +339,18 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 
 	if (pos != std::string::npos)
 		parsParamPath(pos);
-	parsPath(i);
-	parsHeaders(buffer);
-	fillBody(buffer);
-	checkHeaderName();
-	fillVar();
+	if (checkStatusCode() == true)
+		parsPath(i);
+	if (checkStatusCode() == true)
+		parsHeaders(buffer);
+	if (checkStatusCode() == true)
+		fillBody(buffer);
+	if (checkStatusCode() == true)
+		checkHeaderName();
+	if (checkStatusCode() == true)
+		fillVar();
+	else
+		return ;
 	_input.open(_path.c_str());
 	std::cout << _path << std::endl;
 	if (!_input.is_open())

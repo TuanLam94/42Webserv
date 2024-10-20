@@ -57,6 +57,8 @@ void	Request::parsRequestLine(std::string buff)
 				_path += buff[i];
 			else if (space == 2 && checkValidChar(buff[i]) == true)
 				_version += buff[i];
+			else if (checkStatusCode() == true)
+				return ;
 			i++;
 		}
 		_pos += 2;
@@ -68,7 +70,7 @@ void	Request::parsRequestLine(std::string buff)
 	{
 		_status_code = 400;
 		std::cerr << "parsRequestLine Error 400: Bad Request.\n";
-		exit (1);
+		return ;
 	}
 }
 
@@ -80,7 +82,7 @@ void	Request::checkMethod()
 		{
 			std::cerr << "checkMethod Error 405: Method Not Allowed.\n";
 			_status_code = 405;
-			exit (1);
+			return ;
 		}
 }
 
@@ -90,7 +92,7 @@ void	Request::checkVersion()
 	{
 		std::cerr << "checkVersion Error 505: Version Not Supported.\n";
 		_status_code = 505;
-		exit (1);
+		return ;
 	}
 }
 
@@ -103,11 +105,22 @@ void	Request::checkCgi()
 		_cgiIsHere = true;
 }
 
-/*
-	- parfois certans bugs --> message non recu dans sa totalite 
-		--> verifier le retour de recv et etre sur que tout la chaine a ete transmise
-*/
+void	Request::checkUri()
+{
+	if (_path.size() > 2048)
+	{
+		std::cerr << "checkUri Error 414: Uri Too Long.\n";
+		_status_code = 505;
+		return ;
+	}
+}
 
+bool	Request::checkStatusCode()
+{
+	if (_status_code == 0)
+		return (true);
+	return (false);
+}
 
 void	Request::parsRequest(const std::string& buffer)
 {
@@ -117,6 +130,7 @@ void	Request::parsRequest(const std::string& buffer)
 	parsRequestLine(buffer);
 	checkMethod();
 	checkVersion();
+	checkUri();
 	checkCgi();
 	// pos = buffer.find("Transfer-Encoding: chunked");
 	// if (pos != std::string::npos)
@@ -135,18 +149,14 @@ void Request::parsRequestBis(Server i, const std::string& buffer)
 		if (_cgiIsHere == true)
 			fillCgiGet();
 	}
-	 else if(_method == "POST")
+	else if(_method == "POST")
 	{
 		parsingPOST_v1(i, buffer);
 		if (_cgiIsHere == true)
 			fillCgiPost();
 	}
-	// else if (_method == "DELETE")
-	// {
-	// 	parsingDELETE(i, buffer);
-	// 	// if (_cgiIsHere == true)
-	// 	// 	fillCgiDelete();
-	// }
+	else if (_method == "DELETE")
+		parsingDELETE(i, buffer);
 }
 
 void	Request::getClientIPPort(int clientfd)
