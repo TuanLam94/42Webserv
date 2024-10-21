@@ -58,8 +58,9 @@ void	Request::parsRequestLine(std::string buff)
 				_path += buff[i];
 			else if (space == 2 && checkValidChar(buff[i]) == true)
 				_version += buff[i];
-			else if (checkStatusCode() == true)
-				return ;
+			// else if (checkStatusCode() == true)
+			// 	return ;
+			std::cout << buff[i];
 			i++;
 		}
 		_pos += 2;
@@ -127,7 +128,6 @@ void	Request::parsRequest(const std::string& buffer)
 {
 	// size_t	pos;
 
-	// std::cout << buffer << std::endl;
 	parsRequestLine(buffer);
 	checkMethod();
 	checkVersion();

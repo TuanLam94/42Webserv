@@ -112,27 +112,29 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	char buffer[1024] = {0};
 
     int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-    if (bytes < 0) {
+    if (bytes <= 0) {
         close(client_fd);
         epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
         return;
     }
+	buffer[bytes] = 0;
 
 	request._buffer += std::string(buffer);
 	if (request.isRequestComplete()) {
-		request.parsRequest(buffer);
+		request.parsRequest(request._buffer);
 		request.getClientIPPort(client_fd);
 
 		Server* correct_server = findAppropriateServer(request);
 
 		if (correct_server != NULL) {
 			request.setServer(*correct_server);
-			request.parsRequestBis(*correct_server, buffer);
+			request.parsRequestBis(*correct_server, request._buffer);
 		}
 		else
 			std::cout << "Server error\n";
 			// sendServerErrorResponse(client_fd); //tocode
 	}
+	request._buffer.clear();
 }
 
 // char buffer[1024] = {0};

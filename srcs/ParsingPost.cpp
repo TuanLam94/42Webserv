@@ -6,7 +6,7 @@ void	Request::checkJsonAccolade()
 	unsigned long int	i = 0;
 	int	count =  0;
 
-	while (i < _contentLength && _body[i] != '}')
+	while (i < _body.size() && _body[i] != '}')
 	{
 		if (_body[i] == '"')
 			count++;
@@ -264,9 +264,13 @@ int	checkUrlEncoded(std::string body)
 		if ((!(body[i] >= 48 && body[i] <= 57)
 			&& !(body[i] >= 65 && body[i] <= 90)
 			&& !(body[i] >= 97 && body[i] <= 122)
+			&& !(body[i] == 10)
+			&& !(body[i] == 32)
+			&& !(body[i] == 13)
 			&& !(body[i] == 37)
 			&& !(body[i] == 38)
 			&& !(body[i] == 43)
+			&& !(body[i] == 44)
 			&& !(body[i] == 45)
 			&& !(body[i] == 46)
 			&& !(body[i] == 61)
@@ -450,26 +454,74 @@ void	Request::parserFormData(const std::string& buff)
 	parserFormData_bis(buff, pos_b);
 }
 
+void	Request::constructBody()
+{
+	size_t	pos1 = 0;
+	size_t	pos2 = 0;
+	std::string	str;
+	int	hexa = 0;
+	char	*end;
+	std::string	strFinal;
+	unsigned long int	i = 0;
+
+	while (true)
+	{
+		pos1 = findPosition("\r\n", _body, pos2);
+		if (pos1 != std::string::npos)
+		{
+			for (; i < pos1; i++)
+				str += _body[i];
+			pos1 += 2;
+			i += 2;
+		}
+		else
+			throw MyExcep();
+		hexa = strtol(str.c_str(), &end, 16);
+		if (hexa == 0)
+			break ;
+		str.clear();
+		pos2 = findPosition("\r\n", _body, pos1);
+		if (pos2 != std::string::npos)
+		{
+			for (int j = 0; j < hexa; j++, i++)
+				strFinal += _body[i];
+			
+			pos2 += 2;
+			i += 2;
+		}
+		else
+			throw MyExcep();
+	}
+	_body.clear();
+	_body += strFinal;
+}
+
 void	Request::parsingPOST_v2(const std::string& buffer)
 {
 	size_t	pos;
 	std::vector<std::pair<std::string, std::string> >::iterator it;
 	std::vector<std::pair<std::string, std::string> >::iterator ite;
+	std::vector<std::pair<std::string, std::string> >::iterator it1;
+	std::vector<std::pair<std::string, std::string> >::iterator ite1;
 
+	it1 = _headersHttp.begin();
+	ite1 = _headersHttp.end();
+	while (it1 != ite1)
+	{
+		if (it1->first == "Transfer-Encoding:")
+		{
+			if (it1->second == "chunked")
+			{				
+				_isChunk = true;
+				constructBody();
+			}
+		}
+		it1++;
+	}
 	it = _headersHttp.begin();
 	ite = _headersHttp.end();
 	while (it != ite)
 	{
-		if (it->first == "Transfer-Encoding:")
-		{
-			if (it->second == "chunked")
-			{
-				
-				_isChunk = true;
-				std::cout << "chunked request\n";
-				exit (1);
-			}
-		}
 		if (it->first == "Content-Type:")
 		{
 			pos = it->second.std::string::find("multipart/form-data");
@@ -489,7 +541,7 @@ void	Request::parsingPOST_v2(const std::string& buffer)
 				parserFormData(buffer);
 				_contentType = it->second;
 			}
-			else if (it->second == "plain/text")
+			else if (it->second == "text/plain")
 			{
 				_contentType = it->second;
 				parserTextPlain();
