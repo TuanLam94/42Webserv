@@ -98,7 +98,7 @@ void	Request::parsParamPath(size_t pos)
 	{
 		_status_code = 400;
 		std::cout << "parsParamPath Error 400: Bad Request\n";
-		return ;
+		throw MyExcep();
 	}
 	_path.clear();
 	_path = final_path;
@@ -218,7 +218,7 @@ void	Request::parsHeaders(const std::string& buff)
 			else if (checkValidHeaderValue(buff[i]) == true)
 				value += buff[i];
 			else
-				return ;
+				throw MyExcep();
 			i++;
 		}
 		i += 2;
@@ -240,7 +240,7 @@ void	Request::checkKey(std::string key)
 	{
 		_status_code = 400;
 		std::cerr << "checkKey 1 Error 400: Bad Request\n";
-		return ;
+		throw MyExcep();
 	}
 	while (i < key.size())
 	{
@@ -252,7 +252,7 @@ void	Request::checkKey(std::string key)
 		{ 
 			_status_code = 400;
 			std::cerr << "checkKey 2 Error 400: Bad Request\n";
-			return ;
+			throw MyExcep();
 		}
 		i++;
 	}
@@ -263,7 +263,7 @@ void	Request::checkKey(std::string key)
 	{
 		_status_code = 400;
 		std::cerr << "checkKey 3 Error 400: Bad Request\n";
-		return ;
+		throw MyExcep();
 	}
 }
 
@@ -273,7 +273,7 @@ void	Request::checkValue(std::string value)
 	{
 		_status_code = 400;
 		std::cerr << "checkValue Error 400: Bad Request.\n";
-		return ;
+		throw MyExcep();
 	}
 }
 
@@ -294,14 +294,14 @@ void	Request::checkHeaderName()
 		if (checkStatusCode() == true)
 			checkValue(it->second);
 		if (checkStatusCode() == false)
-			return ;	
+			throw MyExcep();
 		it++;
 	}
 	if (host != 1)
 	{
 		_status_code = 400;
 		std::cerr << "checkHeaderName Error 400: Bad Request\n";
-		return ;
+		throw MyExcep();
 	}
 }
 
@@ -337,20 +337,20 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 {
 	size_t	pos = _path.find("?");
 
-	if (pos != std::string::npos)
-		parsParamPath(pos);
-	if (checkStatusCode() == true)
+	try
+	{
+		if (pos != std::string::npos)
+			parsParamPath(pos);
 		parsPath(i);
-	if (checkStatusCode() == true)
 		parsHeaders(buffer);
-	if (checkStatusCode() == true)
 		fillBody(buffer);
-	if (checkStatusCode() == true)
 		checkHeaderName();
-	if (checkStatusCode() == true)
 		fillVar();
-	else
+	}
+	catch(std::exception &ex)
+	{
 		return ;
+	}
 	_input.open(_path.c_str());
 	std::cout << _path << std::endl;
 	if (!_input.is_open())

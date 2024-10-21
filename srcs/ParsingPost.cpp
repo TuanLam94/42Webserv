@@ -31,6 +31,22 @@ bool	Request::checkMap(std::string key, std::map<std::string,std::string>::itera
 	return (false);
 }
 
+// void	Request::parserJson()
+// {
+// 	int	index = 0;
+// 	int	index_comma = 0;
+// 	std::string	key;
+// 	std::string	value;
+// 	unsigned long int	i = 1;
+// 	size_t	pos;
+
+// 	checkJsonAccolade();
+// 	if (checkStatusCode() == false)
+// 		return ;	
+// 	pos = findPosition("{")
+// }
+
+
 void	Request::parserJson()
 {
 	int	index = 0;
@@ -129,7 +145,7 @@ void	Request::parserJson()
 		{
 			_status_code = 400;
 			std::cerr << "checkJsonFormat 4 Error 400: Bad Request.\n";
-			return ;
+			throw MyExcep();
 		}
 		key.clear();
 		value.clear();
@@ -144,7 +160,7 @@ void	Request::checkKeyUrl(std::string key)
 	{
 		_status_code = 400;
 		std::cerr << "checkKey 1 Error 400: Bad Request\n";
-		return ;
+		throw MyExcep();
 	}
 	while (i < key.size())
 	{
@@ -155,7 +171,7 @@ void	Request::checkKeyUrl(std::string key)
 		{ 
 			_status_code = 400;
 			std::cerr << "checkKey 2 Error 400: Bad Request\n";
-			return ;
+			throw MyExcep();
 		}
 		i++;
 	}
@@ -167,7 +183,7 @@ void	Request::checkValueUrl(std::string value)
 	{
 		_status_code = 400;
 		std::cerr << "chechValue Error 400: Bad Request\n";
-		return ;
+		throw MyExcep();
 	}
 }
 
@@ -227,14 +243,14 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 	if (checkStatusCode() == true)
 		checkValueUrl(value);
 	else
-		return ;
+		throw MyExcep();
 	if (checkMap(key, _urlParam.begin(), _urlParam.end()) == false)
 		_urlParam.insert(std::pair<std::string, std::string>(key, value));
 	else
 	{
 		_status_code = 400;
 		std::cerr << "parserUrlencoded Error 400: Bad Request\n";
-		return ;	
+		throw MyExcep();
 	}	
 	
 }
@@ -258,7 +274,7 @@ int	checkUrlEncoded(std::string body)
 			&& !(body[i] == 126)))
 		{
 			std::cerr << "checkUrlencoded Error 400: Bad Request.\n";
-			return (400);	
+			return (400);
 		}
 		i++;
 	}
@@ -272,9 +288,7 @@ void	Request::parserUrlencoded()
 	
 	_status_code = checkUrlEncoded(_body);
 	if (checkStatusCode() == false)
-	{
-		return ;
-	}
+		throw MyExcep();
 	while (i < _body.size())
 	{
 		if (_body[i] == 38) // &
@@ -333,7 +347,7 @@ void	Request::formDataGetName(const std::string& buff, size_t pos)
 		{
 			_status_code = 400;
 			std::cerr << "formDataGetName Error 400: Bad Request.\n";
-			return ;
+			throw MyExcep();
 		}
 	}
 }
@@ -364,7 +378,7 @@ void	Request::formDataGetFilename(const std::string& buff, size_t pos)
 		{
 			_status_code = 400;
 			std::cerr << "formDataGetName Error 400: Bad Request.\n";
-			return ;
+			throw MyExcep();
 		}
 	}
 }
@@ -416,8 +430,9 @@ void	Request::parserFormData(const std::string& buff)
 	pos_b = findPosition(boundary, buff, 0);
 	if (pos_b == std::string::npos)
 	{
+		_status_code = 400;
 		std::cerr << "parserFormData Error 400: Bad request.\n";
-		return ;
+		throw MyExcep();
 	}
 	j = boundary.size();
 	while (i < j)
@@ -485,7 +500,7 @@ void	Request::parsingPOST_v2(const std::string& buffer)
 				{
 					_status_code = 415;
 					std::cerr << "parsingPOST Error 415: Unsupported Media Type.\n";
-					return ;
+					throw MyExcep();
 				}
 			}
 		}
@@ -539,7 +554,7 @@ void	Request::initContentLength()
 			{
 				_status_code = 400;
 				std::cerr << "initContentLength Error 400: Bad Request\n";
-				return ;
+				throw MyExcep();
 			}
 		}
 		it++;
@@ -550,31 +565,29 @@ void	Request::parsingPOST_v1(Server i, const std::string& buffer)
 {
 	size_t	pos = _path.find("?");
 
-	if (pos != std::string::npos)
-		parsParamPath(pos);
-	if (checkStatusCode() == true)
-		parsPath(i);
-	if (checkStatusCode() == true)
-		parsHeaders(buffer);
-	if (checkStatusCode() == true)
-		fillBody(buffer);
-	if (checkStatusCode() == true)
-		checkHeaderName();
-	if (checkStatusCode() == true)
-		fillVar();
-	else
-		return ;
-	if (!checkContentType())
+	try
 	{
-		if (_cgiIsHere == false)
+		if (pos != std::string::npos)
+			parsParamPath(pos);
+		parsPath(i);
+		parsHeaders(buffer);
+		fillBody(buffer);
+		checkHeaderName();
+		fillVar();
+		if (!checkContentType())
 		{
-			_status_code = 400;
-			std::cerr << "parsingPost Error 400: Bad Request\n";
-			return ;
+			if (_cgiIsHere == false)
+			{
+				_status_code = 400;
+				std::cerr << "parsingPost Error 400: Bad Request\n";
+				throw MyExcep();
+			}
 		}
-	}
-	if (checkStatusCode() == true)
 		initContentLength();
-	if (checkStatusCode() == true)
 		parsingPOST_v2(buffer);
+	}
+	catch(std::exception &ex)
+	{
+		return ;
+	}
 }

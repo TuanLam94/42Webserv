@@ -101,7 +101,7 @@ void Webserv::handleClientRequest(int client_fd)
 	int bytes;
 // 
 //     int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-//     if (bytes <= 0) {
+//     if (bytes < 0) {
 //         close(client_fd);
 //         epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 //         return;
@@ -117,7 +117,8 @@ void Webserv::handleClientRequest(int client_fd)
 			i++;
 		}
 	}
-	Request request;															
+	Request request;	
+	std::cout << buff << std::endl;												
 	request.parsRequest(buff);
 	request.getClientIPPort(client_fd);
 
@@ -131,6 +132,7 @@ void Webserv::handleClientRequest(int client_fd)
 		setServer(*correct_server, request, response);
 		response.handleRequest();
 		response.sendResponse(client_fd);
+		exit (1);
 	}
 	else
 		std::cout << "Server error\n";

@@ -52,6 +52,7 @@ class Response
 		bool 	isErrorResponse();
 		void	handleErrorResponse();
 		void	sendResponse(int fd);
+		void	setStatusCode(const Request& request);
 		std::string loadErrorPage(const std::string& errorPage);
 		//response build
 			//get

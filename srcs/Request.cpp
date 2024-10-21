@@ -126,7 +126,7 @@ void	Request::parsRequest(const std::string& buffer)
 {
 	// size_t	pos;
 
-	std::cout << buffer << std::endl;
+	// std::cout << buffer << std::endl;
 	parsRequestLine(buffer);
 	checkMethod();
 	checkVersion();
@@ -140,8 +140,27 @@ void	Request::parsRequest(const std::string& buffer)
 	// }
 }
 
-void Request::parsRequestBis(Server i, const std::string& buffer)
+
+bool	Request::isRequestComplete(std::string buff)
 {
+	size_t	pos;
+
+	parsRequestLine(buff);
+	pos = findPosition("\r\n", buff, 0);
+	if (pos == std::string::npos)
+		return (false);
+	pos = findPosition("\r\n\r\n", buff, 0);
+	if (pos == std::string::npos)
+		return (false);
+	
+}
+
+void	Request::parsRequestBis(Server i, const std::string& buffer)
+{
+	if (isRequestComplete(buffer))
+	{
+		std::cout << "yeeeeeeeeeeeeeeeeeeeeeeeeahhhhh\n";
+	} 
 	_max_client_body_size = i.getMaxBodySize();
 	if (_method == "GET")
 	{
@@ -193,6 +212,7 @@ Request& Request::operator=(const Request& other)
 		_response = other.getResponse();
 		_body = other.getBody();
 		_contentType = other.getContentType();
+		_status_code = other.getStatusCode();
 	}
 	return *this;
 }

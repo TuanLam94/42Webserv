@@ -24,6 +24,14 @@
 class Server;
 class Response;
 
+class MyExcep : public std::exception
+{
+	const char *what()const throw()
+	{
+		return("ErrorException.\n");
+	}
+};
+
 class	Request
 {
 	private: 
@@ -165,6 +173,9 @@ class	Request
 	void	setRequestStatusCode(int status_code);
 	//Utils
 	void	printRequest() const;
+
+
+	bool	isRequestComplete(std::string buff);
 };
 
 bool	checkValidChar(char c);

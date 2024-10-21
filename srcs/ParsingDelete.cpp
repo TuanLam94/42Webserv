@@ -28,20 +28,22 @@ void	Request::parsingDELETE(Server i, const std::string& buffer)
 {
 	size_t	pos = _path.find("?");
 
-	if (pos != std::string::npos)
-		parsParamPath(pos);
-	if (checkStatusCode() == true)
+	try
+	{
+		if (pos != std::string::npos)
+			parsParamPath(pos);
 		parsPath(i);
-	if (checkStatusCode() == true)
 		parsHeaders(buffer);
-	if (checkStatusCode() == true)
 		fillBody(buffer);
-	if (checkStatusCode() == true)
 		checkHeaderName();
-	if (checkContentLength() == true)
-		return ;
-	if (checkStatusCode() == true)
 		fillVar();
-	else
+		if (!checkContentType() == true)
+			throw MyExcep();
+		initContentLength();
+		parsingPOST_v2(buffer);
+	}
+	catch(std::exception &ex)
+	{
 		return ;
+	}
 }
