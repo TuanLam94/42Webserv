@@ -44,7 +44,6 @@ void Response::handleRequest()
 
 bool Response::isErrorResponse()
 {
-    std::cout << _request.getStatusCode() << std::endl;
     if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405 || _request.getStatusCode() == 505)
         return true;
     return false;
@@ -127,7 +126,6 @@ void Response::setServer(Server& server)
 {
     _server = server;
 }
-
 
 //---------------------------------------------UTILS-----------------------------------------------
 
