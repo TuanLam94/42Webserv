@@ -141,27 +141,8 @@ void	Request::parsRequest(const std::string& buffer)
 	// }
 }
 
-
-bool	Request::isRequestComplete(std::string buff)
-{
-	size_t	pos;
-
-	parsRequestLine(buff);
-	pos = findPosition("\r\n", buff, 0);
-	if (pos == std::string::npos)
-		return (false);
-	pos = findPosition("\r\n\r\n", buff, 0);
-	if (pos == std::string::npos)
-		return (false);
-	
-}
-
 void	Request::parsRequestBis(Server i, const std::string& buffer)
 {
-	if (isRequestComplete(buffer))
-	{
-		std::cout << "yeeeeeeeeeeeeeeeeeeeeeeeeahhhhh\n";
-	} 
 	_max_client_body_size = i.getMaxBodySize();
 	if (_method == "GET")
 	{
@@ -218,23 +199,33 @@ bool Request::isRequestComplete()
 	return false;
 }
 
-bool Request::isChunkedRequestComplete(const std::string& body)
-{
-	size_t pos = 0;
-	while(pos < body.size()) {
-		size_t chunkSizeEnd = body.find("/r/n", pos);
-		if (chunkSizeEnd == std::string::npos) return false;
+bool Request::isChunkedRequestComplete(const std::string& body) {
+    size_t pos = 0;
 
-		std::string chunkSizeStr = body.substr(pos, chunkSizeEnd - pos);
-		int chunkSize = hexStringToInt(chunkSizeStr);
+    while (pos < body.size()) {
+        size_t chunkSizeEnd = body.find("\r\n", pos);
+        if (chunkSizeEnd == std::string::npos) return false;
 
-		if (chunkSize == 0)
-			return body.find("\r\n", chunkSizeEnd + 2) != std::string::npos;
+        std::string chunkSizeStr = body.substr(pos, chunkSizeEnd - pos);
+        int chunkSize = hexStringToInt(chunkSizeStr);
 
-		pos = chunkSizeEnd+ 2 + chunkSize + 2;
-	}
-	
-	return false;
+        if (chunkSize < 0)
+            return false;
+
+        if (chunkSize == 0) {
+            size_t finalEnd = body.find("\r\n", chunkSizeEnd + 2);
+            return finalEnd != std::string::npos;
+        }
+
+        size_t chunkEnd = chunkSizeEnd + 2 + chunkSize;
+        if (chunkEnd > body.size()) {
+            return false;
+        }
+
+        pos = chunkEnd;
+    }
+
+    return false;
 }
 
 //-----------------------------GETTERS-----------------------------//
