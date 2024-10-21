@@ -127,7 +127,6 @@ void Response::setServer(Server& server)
     _server = server;
 }
 
-
 //---------------------------------------------UTILS-----------------------------------------------
 
 Response::Response(const Response& copy)

@@ -69,7 +69,7 @@ void Webserv::epollInit()
 }
 
 void Webserv::eventLoop() {
-	int maxEvents = 10;
+	int maxEvents = 1024;// originally 10
 	while (true) {
 		int fd_number = epoll_wait(_epoll_fd, _events.data(), maxEvents, _servers[0].getTimeout());
 		if (fd_number < 0) {
@@ -79,6 +79,7 @@ void Webserv::eventLoop() {
 
 		for (int i = 0; i < fd_number; i++) {
 			int event_fd = _events[i].data.fd;
+			std::cout << "i = " << i << std::endl;
 
 			bool isServerSocket = false;
 			for (size_t j = 0; j < _servers.size(); j++) {
@@ -101,6 +102,7 @@ void Webserv::eventLoop() {
 
 void Webserv::handleClientWrite(int event_fd, Request& request)
 {
+	std::cout << "write\n";
 	Response response(request);
 	response.handleRequest();
 	response.sendResponse(event_fd);
@@ -118,6 +120,8 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
         return;
     }
 	buffer[bytes] = 0;
+
+	std::cout << "read\n";
 
 	request._buffer += std::string(buffer);
 	if (request.isRequestComplete()) {

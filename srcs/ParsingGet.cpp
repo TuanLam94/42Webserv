@@ -167,10 +167,10 @@ bool	Request::checkValidHeaderValue(char c)
 		&& c != '|' && c != '~' && c != ':'
 		&& c != '/' && c != '(' && c != ')'
 		&& c != ';' && c != ',' && c != '='
-		&& c != '?')
+		&& c != '?' && c != '\"')
 	{
 		_status_code = 400;
-		std::cerr << "checkValidHeader Error 400: Bad Request.\n";
+		std::cerr << "checkValidHeader1 Error 400: Bad Request.\n";
 		return (false);
 	}
 	return (true);
