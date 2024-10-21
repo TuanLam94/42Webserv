@@ -82,6 +82,7 @@ class	Request
 	std::string	_dataBrut; // requete POST avec content-type -> text/plain
 	bool	_isChunk; // pour verifier si requete fragmente
 	public:
+	std::string _buffer;
 	Request();
 	Request(const Request& copy);
 	Request& operator=(const Request& other);
@@ -112,6 +113,8 @@ class	Request
 	int	checkContentType();
 	void	getClientIPPort(int clientfd);
 	bool	parserFormData_help(const std::string& buff, unsigned long int i);
+	bool	isRequestComplete();
+	bool	isChunkedRequestComplete(const std::string& body);
 
 	void	checkISS(char c1, char c2);
 	bool	checkValidHeader(char c);

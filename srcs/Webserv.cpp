@@ -88,59 +88,65 @@ void Webserv::eventLoop() {
 					break;
 				}
 			}
-			if (!isServerSocket)
-				handleClientRequest(event_fd);
+			if (!isServerSocket) {
+				Request request;
+				if (_events[i].events & EPOLLIN)
+					handleClientRequest(event_fd, request);
+				if (_events[i].events & EPOLLOUT)
+					handleClientWrite(event_fd, request);
+			}
 		}
 	}
 }
 
-void Webserv::handleClientRequest(int client_fd)
+void Webserv::handleClientWrite(int event_fd, Request& request)
+{
+	Response response(request);
+	response.handleRequest();
+	response.sendResponse(event_fd);
+}
+
+
+void Webserv::handleClientRequest(int client_fd, Request& request)
 {
 	char buffer[1024] = {0};
-	static std::string buff;
-	// int bytes;
-// 
+
     int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-    if (bytes <= 0) {
+    if (bytes < 0) {
         close(client_fd);
         epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
         return;
     }
-	// while ((bytes = recv(client_fd, buffer, sizeof(buffer), 0)) > 0)
-	// {
-		
-	// 	// std::cout << buffer << std::endl;
-	// 	size_t i = 0;
-	// 	// buff += buffer;
-	// 	while (i < strlen(buffer))
-	// 	{
-	// 		buff += buffer[i];
-	// 		buffer[i] = '\0';
-	// 		i++;
-	// 	}
-	// 	std::cout << buff << std::endl;
-	// }
-	// exit (1);
-	// std::cout << strerror(errno) << std::endl;
-	// std::cout << bytes << std::endl;
-	// std::cout << buff << std::endl;
-	Request request;
-	request.parsRequest(buffer);
-	request.getClientIPPort(client_fd);
 
-	Server* correct_server = findAppropriateServer(request);
+	request._buffer += std::string(buffer);
+	if (request.isRequestComplete()) {
+		request.parsRequest(buffer);
+		request.getClientIPPort(client_fd);
 
-    if (correct_server != NULL) {
-		request.parsRequestBis(*correct_server, buffer);
-       	Response response(request);
-		setServer(*correct_server, request, response);
-		response.handleRequest();
-		response.sendResponse(client_fd);
+		Server* correct_server = findAppropriateServer(request);
+
+		if (correct_server != NULL) {
+			request.setServer(*correct_server);
+			request.parsRequestBis(*correct_server, buffer);
+		}
+		else
+			std::cout << "Server error\n";
+			// sendServerErrorResponse(client_fd); //tocode
 	}
-	else
-		std::cout << "Server error\n";
-        // sendServerErrorResponse(client_fd); //tocode
 }
+
+// char buffer[1024] = {0};
+// Request request;
+
+
+// while (bytes != 0)
+// {
+// 	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+// 	request.buffer += buffer;
+// }
+// parsRequest(request.buffer);
+
+
 
 Server* Webserv::findAppropriateServer(Request& request)
 {

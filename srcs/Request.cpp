@@ -1,4 +1,5 @@
 #include "../headers/request.hpp"
+#include "../headers/utils.hpp"
 
 /*
 	Revoir que thom a dit sur le traitement du chemin
@@ -152,6 +153,46 @@ void	Request::getClientIPPort(int clientfd)
 	std::ostringstream oss;
 	oss << _host << ":" << _port;
 	_host = oss.str();
+}
+
+bool Request::isRequestComplete()
+{
+	size_t headerEnd = _buffer.find("\r\n\r\n");
+	if (headerEnd != std::string::npos) {
+		size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
+		if (chunkedPos != std::string::npos)
+			return isChunkedRequestComplete(_buffer.substr(headerEnd + 4));
+
+		size_t contentLengthPos = _buffer.find("Content-Length:");
+		if (contentLengthPos != std::string::npos) {
+			size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
+			int contentLength = hexStringToInt(_buffer.substr(contentLengthStart));
+
+			size_t totalSize = headerEnd + 4 + contentLength;
+			return _buffer.size() >= totalSize;
+		}
+		return true;
+	}
+	return false;
+}
+
+bool Request::isChunkedRequestComplete(const std::string& body)
+{
+	size_t pos = 0;
+	while(pos < body.size()) {
+		size_t chunkSizeEnd = body.find("/r/n", pos);
+		if (chunkSizeEnd == std::string::npos) return false;
+
+		std::string chunkSizeStr = body.substr(pos, chunkSizeEnd - pos);
+		int chunkSize = hexStringToInt(chunkSizeStr);
+
+		if (chunkSize == 0)
+			return body.find("\r\n", chunkSizeEnd + 2) != std::string::npos;
+
+		pos = chunkSizeEnd+ 2 + chunkSize + 2;
+	}
+	
+	return false;
 }
 
 //-----------------------------GETTERS-----------------------------//

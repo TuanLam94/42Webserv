@@ -13,13 +13,7 @@ int main(int argc, char **argv)
     std::string config(argv[1]);
 
 	Webserv Webserv(config);
-    // printServerVector(Webserv.getServers());
 	Webserv.run();
 
-
-    // Server Server(config);
-
-    // Server.printServer();
-    // Server.start();
     return 0;
 }

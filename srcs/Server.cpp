@@ -184,7 +184,7 @@ void	Server::handleNewConnection()
 		}
 
 	_event.data.fd = client_fd;
-	_event.events = EPOLLIN;
+	_event.events = EPOLLIN | EPOLLOUT;
 	if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, client_fd, &_event) < 0) {
 		std::cerr << "epoll_ctl failed for client" << strerror(errno) << std::endl;
 		close(client_fd);

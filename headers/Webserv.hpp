@@ -42,7 +42,8 @@ class Webserv
 		Webserv(std::string config);
 		~Webserv();
 		void run();
-		void handleClientRequest(int client_fd);
+		void handleClientRequest(int client_fd, Request& request);
+		void handleClientWrite(int event_fd, Request& request);
 		Server* findAppropriateServer(Request& request);
 		Server* findServerByName(const Request& request);
 		Server* findServerByPort(const Request& request);

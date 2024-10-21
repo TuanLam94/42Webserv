@@ -17,9 +17,9 @@ void Response::handleDeleteResponse()
                 _status_code = "500 Internal Server Error";
             else if (status == -2) //Directory is not empty
                 _status_code = "409 Conflict";
-            else if (status == -3)
+            else if (status == -3) //Not a regular file nor directory
                 _status_code = "415 Unsupported Media Type";
-            else if (status == -4)
+            else if (status == -4) // file does not exist. Not sure if really needed
                 _status_code = "404 Not found";
             break;
     }

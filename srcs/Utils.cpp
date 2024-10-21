@@ -26,13 +26,6 @@ size_t findWhiteSpace(std::string line)
 	return i;
 }
 
-void setServer(Server& server, Request& request, Response& response)
-{
-	request.setServer(server);
-	response.setServer(server);
-}
-
-
 void printVector(std::vector<std::string> vector)
 {
 	std::cout << "---Vector---" << std::endl;
@@ -50,4 +43,12 @@ void printServerVector(std::vector<Server> vector)
 		vector[i].printServer();
 		std::cout << std::endl;
 	}
+}
+
+int hexStringToInt(const std::string& str)
+{
+	char *end;
+	long chunkSize = strtol(str.c_str(), &end, 16);
+
+	return static_cast<int>(chunkSize);
 }

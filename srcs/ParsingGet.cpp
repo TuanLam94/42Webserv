@@ -278,8 +278,8 @@ void	Request::checkHeaderName()
 	while (it != ite)
 	{
 		it->first = trim(it->first);
-		std::cout << it->first << std::endl;
-		std::cout << it->second << std::endl;
+		// std::cout << it->first << std::endl;
+		// std::cout << it->second << std::endl;
 		if (it->first == "Host:" || it->first == "HOST:" || it->first == "host:")
 		{	
 			host++;
