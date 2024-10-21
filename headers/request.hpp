@@ -182,6 +182,7 @@ class	Request
 
 
 	bool	isRequestComplete(std::string buff);
+	void	constructBody();
 };
 
 bool	checkValidChar(char c);

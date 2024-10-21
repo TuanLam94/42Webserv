@@ -29,57 +29,57 @@ SERVER_URL = "http://localhost:8080"
 #     response = requests.get(f"{SERVER_URL}/nonexisting")
 #     print(f"Status code: {response.status_code}")
 
-def test_json1():
-    print("Testing malformed JSON in POST request")
-    malformed_json = '{    "name"  "       : "John", "age": "25"  }'  # Missing quotes around 'age'
-    response = requests.post(SERVER_URL, data=malformed_json, headers={"Content-Type": "application/json"})
-    print(f"Status code: {response.status_code}")
+# def test_json1():
+#     print("Testing malformed JSON in POST request")
+#     malformed_json = '{    "name"  "       : "John", "age": "25"  }'  # Missing quotes around 'age'
+#     response = requests.post(SERVER_URL, data=malformed_json, headers={"Content-Type": "application/json"})
+#     print(f"Status code: {response.status_code}")
 
-def test_json2():
-    print("Testing malformed JSON in POST request")
-    malformed_json = '{    "name"         : "John, "age: "25"  }'  # Missing quotes around 'age'
-    response = requests.post(SERVER_URL, data=malformed_json, headers={"Content-Type": "application/json"})
-    print(f"Status code: {response.status_code}")
+# def test_json2():
+#     print("Testing malformed JSON in POST request")
+#     malformed_json = '{    "name"         : "John, "age: "25"  }'  # Missing quotes around 'age'
+#     response = requests.post(SERVER_URL, data=malformed_json, headers={"Content-Type": "application/json"})
+#     print(f"Status code: {response.status_code}")
 
 
-if __name__ == "__main__":  
+# if __name__ == "__main__":  
     # test_get()
     # test_post()
     # test_put()
     # test_delete()
     # test_404()
-    test_json1()
-    test_json2()
+    # test_json1()
+    # test_json2()
 
-# import http.client
+import http.client
 
-# # Connexion à ton serveur
-# conn = http.client.HTTPConnection("localhost", 8080)
+# Connexion à ton serveur
+conn = http.client.HTTPConnection("localhost", 8080)
 
-# # En-têtes HTTP avec Transfer-Encoding chunked
-# headers = {
-#     "Transfer-Encoding": "chunked",
-#     "Content-Type": "text/plain"
-# }
+# En-têtes HTTP avec Transfer-Encoding chunked
+headers = {
+    "Transfer-Encoding": "chunked",
+    "Content-Type": "text/plain"
+}
 
-# # Démarre la requête
-# conn.putrequest("POST", "/ton-endpoint")
-# for key, value in headers.items():
-#     conn.putheader(key, value)
-# conn.endheaders()
+# Démarre la requête
+conn.putrequest("POST", "/ton-endpoint")
+for key, value in headers.items():
+    conn.putheader(key, value)
+conn.endheaders()
 
-# # Envoyer les données en chunks
-# body_chunks = [
-#     "4\r\nWiki\r\n",   # Un morceau de 4 octets (Wiki)
-#     "6\r\npedia \r\n", # Un autre morceau de 6 octets (pedia )
-#     "e\r\nin\r\n\r\nchunks.\r\n",  # Un autre de 14 octets (in\r\nchunks.\n)
-#     "0\r\n\r\n"        # Chunk final (0 pour indiquer la fin des chunks)
-# ]
+# Envoyer les données en chunks
+body_chunks = [
+    "4\r\nWiki\r\n",   # Un morceau de 4 octets (Wiki)
+    "6\r\npedia \r\n", # Un autre morceau de 6 octets (pedia )
+    "e\r\nin\r\n\r\nchunks.\r\n",  # Un autre de 14 octets (in\r\nchunks.\n)
+    "0\r\n\r\n"        # Chunk final (0 pour indiquer la fin des chunks)
+]
 
-# for chunk in body_chunks:
-#     conn.send(chunk.encode())
+for chunk in body_chunks:
+    conn.send(chunk.encode())
 
-# # Lire la réponse
+# Lire la réponse
 # response = conn.getresponse()
 # print(response.status, response.reason)
 # data = response.read()
