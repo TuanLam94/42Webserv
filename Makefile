@@ -8,7 +8,6 @@ SRC = srcs/main.cpp \
 		srcs/ParsingGet.cpp \
 		srcs/ParsingPost.cpp \
 		srcs/ParsingDelete.cpp \
-		srcs/ParsingPut.cpp \
 		srcs/ResponseGet.cpp \
 		srcs/ResponsePost.cpp \
 		srcs/parsCgiGet.cpp \

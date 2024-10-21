@@ -18,8 +18,6 @@ bool	Request::checkContentLength()
 				return (true);
 			}
 		}
-		std::cout << it->first << std::endl;
-		std::cout << it->second << std::endl;
 		it++;
 	}
 	return (false);
@@ -30,35 +28,22 @@ void	Request::parsingDELETE(Server i, const std::string& buffer)
 {
 	size_t	pos = _path.find("?");
 
-	if (pos != std::string::npos)
-		parsParamPath();
-	parsPath(i);
-	parsHeaders(buffer);
-	checkHeaderName();
-	if (checkContentLength() == true)
+	try
+	{
+		if (pos != std::string::npos)
+			parsParamPath(pos);
+		parsPath(i);
+		parsHeaders(buffer);
+		fillBody(buffer);
+		checkHeaderName();
+		fillVar();
+		if (!checkContentType() == true)
+			throw MyExcep();
+		initContentLength();
+		parsingPOST_v2(buffer);
+	}
+	catch(std::exception &ex)
+	{
 		return ;
-	fillVar();
-	// std::cout << _path << std::endl;
-	// std::map<std::string, std::string>::iterator	it;
-	// std::map<std::string, std::string>::iterator	ite;
-
-	// it = _queryParameter.begin();
-	// ite = _queryParameter.end();
-	// while (it != ite)
-	// {
-	// 	std::cout << it->first << std::endl;
-	// 	std::cout << it->second << std::endl;
-	// 	it++;
-	// }
-	// std::vector<std::pair<std::string, std::string> >::iterator	it;
-	// std::vector<std::pair<std::string, std::string> >::iterator	ite;
-
-	// it = _headersHttp.begin();
-	// ite = _headersHttp.end();
-	// while (it != ite)
-	// {
-	// 	std::cout << it->first << std::endl;
-	// 	std::cout << it->second << std::endl;
-	// 	it++;
-	// }
+	}
 }

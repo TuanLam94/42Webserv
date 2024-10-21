@@ -24,6 +24,14 @@
 class Server;
 class Response;
 
+class MyExcep : public std::exception
+{
+	const char *what()const throw()
+	{
+		return("ErrorException.\n");
+	}
+};
+
 class	Request
 {
 	private: 
@@ -67,7 +75,7 @@ class	Request
 	unsigned long int	_contentLength;
 	int _max_client_body_size;
 	// int	_client_fd;
-
+	size_t	_pos; // garde le fil de la postion de \r\n
 	// attributs GET et POST
 	std::fstream	_input;
 	std::vector<std::pair<std::string, std::string> >	_headersHttp;
@@ -75,7 +83,7 @@ class	Request
 	
 	// attributs POST
 	std::map<std::string, std::string>	_FormDataName; // multipart/form-data
-	// std::map<std::string, std::string>	_FormDataFilename; // multipart/form-data
+	std::map<std::string, std::string>	_FormDataFilename; // multipart/form-data
 	std::map<std::string, std::string>	_jsonParam; // application/json
 	std::map<std::string, std::string>	_urlParam; // application/x-www-form-urlencoded
 	std::string	_boundary;
@@ -92,22 +100,26 @@ class	Request
 	void	parsRequestLine(std::string buff);
 	void	checkMethod();
 	void	checkVersion();
+	void	checkUri();
+	bool	checkStatusCode();
 	void	checkHeaderName();
-	void	parsParamPath();
+	void	parsParamPath(size_t pos);
 	std::string	parsParamPath_bis(std::string str);
 	void	parsPath(Server obj);
 	void	parsHeaders(const std::string& buff);
 	void	parsingGET(Server i, const std::string& buffer);
-	void	parsingPOST(Server i, const std::string& buffer);
+	void	parsingPOST_v1(Server i, const std::string& buffer);
+	void	parsingPOST_v2(const std::string& buffer);
 	void	parsingDELETE(Server i, const std::string& buffer);
 	void	parsingPUT(Server i, const std::string& buffer);
 	void	parserJson();
 	void	checkJsonAccolade();
 	void	parserUrlencoded();
 	void	parserUrlencoded_bis(std::string new_body);
-	std::string	parserFormData(std::string second, const std::string& buff);
-	void	parserFormData_bis(const std::string& buff);
-	int	parserFormData_ter(const std::string& buff, unsigned long int i);
+	void	parserFormData(const std::string& buff);
+	void	parserFormData_bis(const std::string& buff, size_t pos);
+	void	formDataGetName(const std::string& buff, size_t pos);
+	void	formDataGetFilename(const std::string& buff, size_t pos);
 	void	parserTextPlain();
 	void	fillVar();
 	int	checkContentType();
@@ -118,6 +130,7 @@ class	Request
 
 	void	checkISS(char c1, char c2);
 	bool	checkValidHeader(char c);
+	bool	checkValidHeaderValue(char c);
 	bool	checkValidChar(char c);
 	void	checkKey(std::string key);
 	void	checkValue(std::string value);
@@ -134,6 +147,10 @@ class	Request
 	// void	fillCgiDelete();
 	std::string	fillCgiToUpper(std::string fillvar, std::string var);
 	void	fillUserAgent();
+	size_t	findPosition(std::string str, const std::string& buff, size_t start);
+	std::string	helpHeaderHost(std::string value, std::string line);
+	void	fillBody(const std::string& buff);
+	// size_t	findPosition2(const std::string& buff, size_t start);
 	// --------- GETTERS -------------
 	std::string	getMethod() const;
 	std::string	getPath() const;
@@ -162,6 +179,9 @@ class	Request
 	void	setRequestStatusCode(int status_code);
 	//Utils
 	void	printRequest() const;
+
+
+	bool	isRequestComplete(std::string buff);
 };
 
 bool	checkValidChar(char c);

@@ -16,7 +16,7 @@ void Response::handleGetResponse()
             handleCGI(1);
             break;
     }
-    std::cout << "STATUS CODE GET = " << _status_code << std::endl;
+    // std::cout << "STATUS CODE GET = " << _status_code << std::endl;
 
     buildGetResponse();
 }

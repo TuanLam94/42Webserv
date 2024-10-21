@@ -12,13 +12,27 @@ Response::Response(const Request& request)
     _jsonParam = request.getJsonParam();
     _urlParam = request.getUrlParam();
     _formDataName = request.getFormDataName();
+    setStatusCode(request);
+}
+
+void Response::setStatusCode(const Request& request)
+{
+    if (request.getStatusCode() == 400)
+        _status_code = "400 Bad Request";
+    if (request.getStatusCode() == 405)
+        _status_code = "405 Method Not Allowed";
+    if (request.getStatusCode() == 505)
+        _status_code = "505 HTTP Version Not Supported";
+    if (request.getStatusCode() == 414)
+        _status_code = "414 URI Too Long";
 }
 
 void Response::handleRequest()
 {
     if (isErrorResponse())
         handleErrorResponse();
-    else {
+    else
+    {
         if (_method == "GET")
             handleGetResponse();
         else if (_method == "POST")
@@ -30,6 +44,7 @@ void Response::handleRequest()
 
 bool Response::isErrorResponse()
 {
+    std::cout << _request.getStatusCode() << std::endl;
     if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405 || _request.getStatusCode() == 505)
         return true;
     return false;
@@ -133,6 +148,7 @@ Response& Response::operator=(const Response& other)
 	}
     return *this;
 }
+
 
 void Response::printResponse()
 {

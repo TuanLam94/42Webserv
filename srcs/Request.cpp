@@ -15,6 +15,7 @@ Request::Request()
 	_cgiIsHere = false;
 	_isChunk = false;
 	_status_code = 0;
+	_pos = 0;
 	_RequestMethod = "REQUEST_METHOD=";
 	_ContentType = "CONTENT_TYPE=";
 	_ContentLength = "CONTENT_LENGTH=";
@@ -41,20 +42,27 @@ Request::Request()
 
 void	Request::parsRequestLine(std::string buff)
 {
-	unsigned long int	i = 0;
+	size_t	i = 0;
 	int	space = 0;
 
-	while (i < buff.size() && buff[i] != 13 && buff[i + 1] != 10)
+	_pos = findPosition("\r\n", buff, _pos);
+	if (_pos != std::string::npos)
 	{
-		if (buff[i] == 32)
-			space++;
-		else if (space == 0 && checkValidChar(buff[i]) == true)
-			_method += buff[i];
-		else if (space == 1 && checkValidChar(buff[i]) == true)
-			_path += buff[i];
-		else if (space == 2 && checkValidChar(buff[i]) == true)
-			_version += buff[i];
-		i++;
+		while (i < buff.size() && i < _pos)
+		{
+			if (buff[i] == 32)
+				space++;
+			else if (space == 0 && checkValidChar(buff[i]) == true)
+				_method += buff[i];
+			else if (space == 1 && checkValidChar(buff[i]) == true)
+				_path += buff[i];
+			else if (space == 2 && checkValidChar(buff[i]) == true)
+				_version += buff[i];
+			else if (checkStatusCode() == true)
+				return ;
+			i++;
+		}
+		_pos += 2;
 	}
 	if (space != 2
 		|| _method.empty() == true
@@ -62,6 +70,8 @@ void	Request::parsRequestLine(std::string buff)
 		|| _version.empty() == true)
 	{
 		_status_code = 400;
+		std::cerr << "parsRequestLine Error 400: Bad Request.\n";
+		return ;
 	}
 }
 
@@ -70,13 +80,21 @@ void	Request::checkMethod()
 	if (_method != "GET" 
 		&& _method != "POST"
 		&& _method != "DELETE")
+		{
+			std::cerr << "checkMethod Error 405: Method Not Allowed.\n";
 			_status_code = 405;
+			return ;
+		}
 }
 
 void	Request::checkVersion()
 {
 	if (_version != "HTTP/1.1")
+	{
+		std::cerr << "checkVersion Error 505: Version Not Supported.\n";
 		_status_code = 505;
+		return ;
+	}
 }
 
 void	Request::checkCgi()
@@ -88,34 +106,62 @@ void	Request::checkCgi()
 		_cgiIsHere = true;
 }
 
-/*
-	- parfois certans bugs --> message non recu dans sa totalite 
-		--> verifier le retour de recv et etre sur que tout la chaine a ete transmise
-*/
-
-
-void	Request::parsRequest(const std::string& buffer)
+void	Request::checkUri()
 {
-	size_t	pos;
-	// std::cout << buffer << std::endl;
-	// exit (1);
-	parsRequestLine(buffer);
-	checkMethod();
-	checkVersion();
-	checkCgi();
-	pos = buffer.find("Transfer-Encoding: chunked");
-	if (pos != std::string::npos)
+	if (_path.size() > 2048)
 	{
-		// gerer les requete fragementes + test/plain
-		// std::cout << buffer << std::endl;
+		std::cerr << "checkUri Error 414: Uri Too Long.\n";
+		_status_code = 505;
+		return ;
 	}
 }
 
-void Request::parsRequestBis(Server i, const std::string& buffer)
+bool	Request::checkStatusCode()
 {
-	std::stringstream ss(buffer);
-	std::cout << "\n\n\n" << buffer << "\n\n\n"; 
-	// exit (1);
+	if (_status_code == 0)
+		return (true);
+	return (false);
+}
+
+void	Request::parsRequest(const std::string& buffer)
+{
+	// size_t	pos;
+
+	// std::cout << buffer << std::endl;
+	parsRequestLine(buffer);
+	checkMethod();
+	checkVersion();
+	checkUri();
+	checkCgi();
+	// pos = buffer.find("Transfer-Encoding: chunked");
+	// if (pos != std::string::npos)
+	// {
+		// gerer les requete fragementes + test/plain
+		// std::cout << "tttttttttttttttttt\n" << std::endl;
+	// }
+}
+
+
+bool	Request::isRequestComplete(std::string buff)
+{
+	size_t	pos;
+
+	parsRequestLine(buff);
+	pos = findPosition("\r\n", buff, 0);
+	if (pos == std::string::npos)
+		return (false);
+	pos = findPosition("\r\n\r\n", buff, 0);
+	if (pos == std::string::npos)
+		return (false);
+	
+}
+
+void	Request::parsRequestBis(Server i, const std::string& buffer)
+{
+	if (isRequestComplete(buffer))
+	{
+		std::cout << "yeeeeeeeeeeeeeeeeeeeeeeeeahhhhh\n";
+	} 
 	_max_client_body_size = i.getMaxBodySize();
 	if (_method == "GET")
 	{
@@ -125,16 +171,12 @@ void Request::parsRequestBis(Server i, const std::string& buffer)
 	}
 	else if(_method == "POST")
 	{
-		parsingPOST(i, buffer);
+		parsingPOST_v1(i, buffer);
 		if (_cgiIsHere == true)
 			fillCgiPost();
 	}
-	// else if (_method == "DELETE")
-	// {
-	// 	parsingDELETE(i, buffer);
-	// 	// if (_cgiIsHere == true)
-	// 	// 	fillCgiDelete();
-	// }
+	else if (_method == "DELETE")
+		parsingDELETE(i, buffer);
 }
 
 void	Request::getClientIPPort(int clientfd)
@@ -211,6 +253,7 @@ Request& Request::operator=(const Request& other)
 		_response = other.getResponse();
 		_body = other.getBody();
 		_contentType = other.getContentType();
+		_status_code = other.getStatusCode();
 	}
 	return *this;
 }
