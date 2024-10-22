@@ -156,6 +156,7 @@ void	Request::checkKeyUrl(std::string key)
 {
 	unsigned long int i = 0;
 
+	key = trim(key);
 	if (key.empty() == true)
 	{
 		_status_code = 400;
@@ -164,10 +165,14 @@ void	Request::checkKeyUrl(std::string key)
 	}
 	while (i < key.size())
 	{
+		// std::cout << key[i] << std::endl;
 		if ((!(key[i] >= 48 && key[i] <= 57)
 			&& !(key[i] >= 65 && key[i] <= 90)
 			&& !(key[i] >= 97 && key[i] <= 122)
-			&& !(key[i] == 45)))
+			&& !(key[i] == 45)
+			&& !(key[i] == 46)
+			&& !(key[i] == 95)
+			&& !(key[i] == 126)))
 		{ 
 			_status_code = 400;
 			std::cerr << "checkKey 2 Error 400: Bad Request\n";
@@ -179,6 +184,7 @@ void	Request::checkKeyUrl(std::string key)
 
 void	Request::checkValueUrl(std::string value)
 {
+	value = trim(value);
 	if (value.empty() == true || value[0] < 32)
 	{
 		_status_code = 400;
@@ -232,9 +238,13 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 				i += 2;
 			}
 			else if (new_body[i] == 43) // +
+			{
 				value += 32;
+			}
 			else
+			{
 				value += new_body[i];
+			}
 		}
 		i++;
 	}

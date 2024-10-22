@@ -60,7 +60,6 @@ void	Request::parsRequestLine(std::string buff)
 				_version += buff[i];
 			// else if (checkStatusCode() == true)
 			// 	return ;
-			std::cout << buff[i];
 			i++;
 		}
 		_pos += 2;
@@ -128,6 +127,7 @@ void	Request::parsRequest(const std::string& buffer)
 {
 	// size_t	pos;
 
+	std::cout << buffer << std::endl;
 	parsRequestLine(buffer);
 	checkMethod();
 	checkVersion();
