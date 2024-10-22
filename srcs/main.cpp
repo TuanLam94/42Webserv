@@ -9,6 +9,7 @@ int main(int argc, char **argv)
         std::cout << "Error, launch like this : ./webserv configfile" << std::endl;
         return -1;
     }
+    signal(SIGPIPE, SIG_IGN);           //ignore sigpipes for the whole program(even new process)
 
     std::string config(argv[1]);
 

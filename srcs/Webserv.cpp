@@ -79,7 +79,6 @@ void Webserv::eventLoop() {
 
 		for (int i = 0; i < fd_number; i++) {
 			int event_fd = _events[i].data.fd;
-			std::cout << "i = " << i << std::endl;
 
 			bool isServerSocket = false;
 			for (size_t j = 0; j < _servers.size(); j++) {
@@ -93,7 +92,7 @@ void Webserv::eventLoop() {
 				Request request;
 				if (_events[i].events & EPOLLIN)
 					handleClientRequest(event_fd, request);
-				if (_events[i].events & EPOLLOUT)
+				else if (_events[i].events & EPOLLOUT)
 					handleClientWrite(event_fd, request);
 			}
 		}
@@ -102,7 +101,6 @@ void Webserv::eventLoop() {
 
 void Webserv::handleClientWrite(int event_fd, Request& request)
 {
-	std::cout << "write\n";
 	Response response(request);
 	response.handleRequest();
 	response.sendResponse(event_fd);
@@ -121,8 +119,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
     }
 	buffer[bytes] = 0;
 
-	std::cout << "read\n";
-
 	request._buffer += std::string(buffer);
 	if (request.isRequestComplete()) {
 		request.parsRequest(request._buffer);
@@ -133,26 +129,17 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		if (correct_server != NULL) {
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server, request._buffer);
+			if (request.isBodySizeTooLarge()) {
+				request.setRequestStatusCode(413);
+				return ;
+			}
 		}
 		else
-			std::cout << "Server error\n";
+			std::cout << "500 Internal Server Error\n";
 			// sendServerErrorResponse(client_fd); //tocode
 	}
 	request._buffer.clear();
 }
-
-// char buffer[1024] = {0};
-// Request request;
-
-
-// while (bytes != 0)
-// {
-// 	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-// 	request.buffer += buffer;
-// }
-// parsRequest(request.buffer);
-
-
 
 Server* Webserv::findAppropriateServer(Request& request)
 {
@@ -175,7 +162,7 @@ Server* Webserv::findAppropriateServer(Request& request)
 		}
 	}
 	else {
-		if (request.getPort() != 0)					//goes here
+		if (request.getPort() != 0)
 			return findServerByPort(request);
 		else
 			return (findServerByName(request));
@@ -206,7 +193,6 @@ Server* Webserv::findServerByPort(const Request& request)
 	}
 	return NULL;
 }
-
 
 Webserv::~Webserv()
 {

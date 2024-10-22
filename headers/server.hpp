@@ -74,6 +74,7 @@ class Server
         const std::vector<std::string>& getRoutes();
         const std::vector<std::string>& getErrors();
 		const std::vector<std::string>& getMethods();
+        int getEpollFd() const;
 		//setters
 		void setEvent(struct epoll_event& event);
 

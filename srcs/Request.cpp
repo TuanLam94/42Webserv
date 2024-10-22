@@ -204,7 +204,8 @@ bool Request::isChunkedRequestComplete(const std::string& body) {
 
     while (pos < body.size()) {
         size_t chunkSizeEnd = body.find("\r\n", pos);
-        if (chunkSizeEnd == std::string::npos) return false;
+        if (chunkSizeEnd == std::string::npos) 
+			return false;
 
         std::string chunkSizeStr = body.substr(pos, chunkSizeEnd - pos);
         int chunkSize = hexStringToInt(chunkSizeStr);
@@ -226,6 +227,11 @@ bool Request::isChunkedRequestComplete(const std::string& body) {
     }
 
     return false;
+}
+
+bool Request::isBodySizeTooLarge()
+{
+	return _body.size() > static_cast<unsigned long>(_server.getMaxBodySize());
 }
 
 //-----------------------------GETTERS-----------------------------//

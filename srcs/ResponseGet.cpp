@@ -16,7 +16,6 @@ void Response::handleGetResponse()
             handleCGI(1);
             break;
     }
-    // std::cout << "STATUS CODE GET = " << _status_code << std::endl;
 
     buildGetResponse();
 }
@@ -131,20 +130,35 @@ void Response::handleCGI(int type)
             runScript("/bin/bash");
         else {
             std::cerr << "Unsupported CGI type\n";
+            close(_server.getEpollFd());
             exit(1);
         }
 
         std::cerr << "execv failed\n";
+        close(_server.getEpollFd());
         exit(1);
     }
     else {
         close(pipefd[1]);
 
+        alarm(60);
+
         int status;
-        waitpid(pid, &status, 0);
-        if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+        pid_t result = waitpid(pid, &status, 0);
+        if (result == -1) {
+            std::cerr << "Error waiting for child process\n";
+            _status_code = "500 Internal Server Error";
+            _responseBody = "Failed to execute CGI script";
+        }
+        else if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
             _status_code = "500 Internal Server Error";
             _responseBody = "Failed to execute CGI Script.";
+        }
+        else if (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM) {
+            std::cerr << "CGI script timed out\n";
+            _status_code = "504 Gateway Timeout";
+            _responseBody = "CGI script execution timed out.";
+            kill(pid, SIGKILL);
         }
         else {
             char buffer[4096];
@@ -175,7 +189,7 @@ void Response::buildCGIResponse()
     _response << "HTTP/1.1 " << _status_code << "\r\n";
     _response << "Content-Type: text/html\r\n";
     _response << "Content-Length: " << _responseBody.size() << "\r\n";
-    _response << "Connection: keep-alive\r\n"; //keep alive ?
+    _response << "Connection: keep-alive\r\n";
     _response << "\r\n";
     _response << _responseBody;
     _response_str = _response.str();

@@ -150,6 +150,7 @@ class	Request
 	size_t	findPosition(std::string str, const std::string& buff, size_t start);
 	std::string	helpHeaderHost(std::string value, std::string line);
 	void	fillBody(const std::string& buff);
+	bool	isBodySizeTooLarge();
 	// size_t	findPosition2(const std::string& buff, size_t start);
 	// --------- GETTERS -------------
 	std::string	getMethod() const;

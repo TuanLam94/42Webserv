@@ -25,6 +25,7 @@
 #include <sys/wait.h>
 #include <dirent.h>
 #include <cstring>
+#include <set>
 
 class Webserv
 {
@@ -33,6 +34,7 @@ class Webserv
 		int								_server_fd;
 		int								_epoll_fd;
 		std::vector<struct epoll_event> _events;
+		std::set<int> _client_fds;
 
 		void parseConfigFile(std::ifstream& input);
 		void serversInit();

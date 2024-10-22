@@ -143,7 +143,6 @@ void    Server::bindInit()
 	_address.sin_family = AF_INET;
 	_address.sin_port = htons(_port);
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
-	// _address.sin_addr.s_addr = inet_addr(_host.c_str()); //maybe this is better
 	if (bind(_server_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0) {
 		std::cerr << "bind failed\n" << "errno :" << errno << std::endl;
 		exit (1);
@@ -183,8 +182,8 @@ void	Server::handleNewConnection()
 			close(client_fd);
 		}
 
-	_event.data.fd = client_fd;
 	_event.events = EPOLLIN | EPOLLOUT;
+	_event.data.fd = client_fd;
 	if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, client_fd, &_event) < 0) {
 		std::cerr << "epoll_ctl failed for client" << strerror(errno) << std::endl;
 		close(client_fd);
@@ -332,6 +331,11 @@ struct epoll_event& Server::getEvent()
 struct sockaddr_in& Server::getAddress()
 {
 	return _address;
+}
+
+int Server::getEpollFd() const
+{
+    return _epoll_fd;
 }
 
 //----------------------------------SETTERS--------------------------------

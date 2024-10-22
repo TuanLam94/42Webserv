@@ -7,24 +7,27 @@ Response::Response(const Request& request)
     _path = request.getPath();
     _version = request.getVersion();
     _request = request;
-    _server = request.getServer();
+    setStatusCode(request);
     _contentType = request.getContentType();
+    _server = request.getServer();
+    _formDataName = request.getFormDataName();
     _jsonParam = request.getJsonParam();
     _urlParam = request.getUrlParam();
-    _formDataName = request.getFormDataName();
-    setStatusCode(request);
+    _cgi_type = -1;
 }
 
 void Response::setStatusCode(const Request& request)
 {
     if (request.getStatusCode() == 400)
         _status_code = "400 Bad Request";
-    if (request.getStatusCode() == 405)
+    else if (request.getStatusCode() == 405)
         _status_code = "405 Method Not Allowed";
-    if (request.getStatusCode() == 505)
-        _status_code = "505 HTTP Version Not Supported";
-    if (request.getStatusCode() == 414)
+    else if (request.getStatusCode() == 413)
+        _status_code = "413 Content Too Large";
+    else if (request.getStatusCode() == 414)
         _status_code = "414 URI Too Long";
+    else if (request.getStatusCode() == 505)
+        _status_code = "505 HTTP Version Not Supported";
 }
 
 void Response::handleRequest()
@@ -44,7 +47,9 @@ void Response::handleRequest()
 
 bool Response::isErrorResponse()
 {
-    if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405 || _request.getStatusCode() == 505)
+    if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405 
+        || _request.getStatusCode() == 413 || _request.getStatusCode() == 414 
+        || _request.getStatusCode() == 500 || _request.getStatusCode() == 505)
         return true;
     return false;
 }
@@ -82,6 +87,7 @@ void Response::runScript(std::string Lpath)
 {
     char* const args[] = {const_cast<char*>(Lpath.c_str()), (char*)_path.c_str(), NULL};
 
+    close(_server.getEpollFd());
     if (execv(Lpath.c_str(), args) == -1) {
         std::cerr << "Failed to execute CGI script: " << _path << std::endl;
         exit(1);
