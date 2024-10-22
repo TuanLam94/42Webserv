@@ -16,28 +16,29 @@ Request::Request()
 	_isChunk = false;
 	_status_code = 0;
 	_pos = 0;
-	_RequestMethod = "REQUEST_METHOD=";
-	_ContentType = "CONTENT_TYPE=";
-	_ContentLength = "CONTENT_LENGTH=";
-	_QueryString = "QUERY_STRING=";
-	_ScriptName = "SCRIPT_NAME=";
-	_ServerName = "SERVER_NAME=";
-	_ServerPort = "SERVER_PORT=";
-	_ServerProtocol = "SERVER_PROTOCOL=";
-	_GatewayInterface = "GATEWAY_INTERFACE=";
-	_PathInfo = "PATH_INFO";
-	_RemoteAddr = "REMOTE_ADDR=";
-	_RemoteHost = "REMOTE_HOST=";
-	_HttpHost = "HTTP_HOST=";
-	_HttpUserAgent = "HTTP_USER_AGENT=";
-	_HttpAccept = "HTTP_ACCEPT=";
-	_HttpAcceptLanguage = "HTTP_ACCEPT_LANGUAGE=";
-	_HttpAcceptEncoding = "HTTP_ACCEPT_ENCODING=";
-	_HttpReferer = "HTTP_REFERER=";
-	_HttpConnection = "HTTP_CONNECTION=";
+	_RequestMethod = "REQUEST_METHOD="; // methode utilise
+	_ContentType = "CONTENT_TYPE="; // type de contenu de la requete
+	_ContentLength = "CONTENT_LENGTH="; // taille du body de la requete
+	_QueryString = "QUERY_STRING="; // param de lurl apres le '?'
+	_ScriptName = "SCRIPT_NAME="; // chemin virtule vers le script execute ("/cgi-bin/script.py")
+	_ServerName = "SERVER_NAME="; // nom de lhote ou adresse ip du serveur 
+	_ServerPort = "SERVER_PORT="; // numero du port sur lequel la requete est send
+	_ServerProtocol = "SERVER_PROTOCOL="; // version http -> HTTP/1.1
+	_GatewayInterface = "GATEWAY_INTERFACE="; // CGI/1.1
+	_PathInfo = "PATH_INFO"; // (falcultatif cf. apres)
+	_RemoteAddr = "REMOTE_ADDR="; // adresse IP du client
+	_RemoteHost = "REMOTE_HOST="; // nom d'hote du client
+	_HttpHost = "HTTP_HOST="; // a re voir
+	_HttpUserAgent = "HTTP_USER_AGENT="; // le navigateur utilise par le client
+	_HttpAccept = "HTTP_ACCEPT="; // type de donnees MIME que le client accepete de recevoir
+	_HttpAcceptLanguage = "HTTP_ACCEPT_LANGUAGE="; // langue dans laquelle le client accepte de recevoir
+	_HttpAcceptEncoding = "HTTP_ACCEPT_ENCODING="; // definit le type de codage sur le contenu renvoyer au client
+	_HttpReferer = "HTTP_REFERER="; // http://localhost:8080/index.html --> adresse absolu/partielle de la page web
+	_HttpConnection = "HTTP_CONNECTION="; // Contient des informations sur l'état de la connexion HTTP entre le serveur et le navigateur appelant
 	_RemoteUser = "REMOTE_USER=";
 	_AuthType = "AUTH_TYPE=";
 	_RedirectStatus = "REDIRECT_STATUS=";
+	_HttpOrigin = "HTTP_ORIGIN=";
 }
 
 void	Request::parsRequestLine(std::string buff)
@@ -71,7 +72,7 @@ void	Request::parsRequestLine(std::string buff)
 	{
 		_status_code = 400;
 		std::cerr << "parsRequestLine Error 400: Bad Request.\n";
-		return ;
+		throw MyExcep();
 	}
 }
 
@@ -83,7 +84,7 @@ void	Request::checkMethod()
 		{
 			std::cerr << "checkMethod Error 405: Method Not Allowed.\n";
 			_status_code = 405;
-			return ;
+			throw MyExcep();
 		}
 }
 
@@ -93,7 +94,7 @@ void	Request::checkVersion()
 	{
 		std::cerr << "checkVersion Error 505: Version Not Supported.\n";
 		_status_code = 505;
-		return ;
+		throw MyExcep();
 	}
 }
 
@@ -112,7 +113,7 @@ void	Request::checkUri()
 	{
 		std::cerr << "checkUri Error 414: Uri Too Long.\n";
 		_status_code = 505;
-		return ;
+		throw MyExcep();
 	}
 }
 
@@ -125,25 +126,28 @@ bool	Request::checkStatusCode()
 
 void	Request::parsRequest(const std::string& buffer)
 {
-	// size_t	pos;
-
 	std::cout << buffer << std::endl;
-	parsRequestLine(buffer);
-	checkMethod();
-	checkVersion();
-	checkUri();
-	checkCgi();
-	// pos = buffer.find("Transfer-Encoding: chunked");
-	// if (pos != std::string::npos)
-	// {
-		// gerer les requete fragementes + test/plain
-		// std::cout << "tttttttttttttttttt\n" << std::endl;
-	// }
+
+	try
+	{
+		parsRequestLine(buffer);
+		checkMethod();
+		checkVersion();
+		checkUri();
+		checkCgi();
+	}
+	catch(std::exception &ex)
+	{
+		return ;
+	}
 }
 
 void	Request::parsRequestBis(Server i, const std::string& buffer)
 {
 	_max_client_body_size = i.getMaxBodySize();
+	
+	if (checkStatusCode() == false)
+		return ;
 	if (_method == "GET")
 	{
 		parsingGET(i, buffer);

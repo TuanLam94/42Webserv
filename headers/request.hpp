@@ -60,6 +60,8 @@ class	Request
 	std::string	_RemoteUser;
 	std::string	_AuthType;
 	std::string	_RedirectStatus;
+	std::string	_HttpOrigin;
+	std::string	_HttpCookie;
 	// attributs GET, POST
 	std::string	_method;
 	std::string	_path;

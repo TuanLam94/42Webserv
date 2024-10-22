@@ -524,6 +524,7 @@ void	Request::parsingPOST_v2(const std::string& buffer)
 			{				
 				_isChunk = true;
 				constructBody();
+				// std::cout << _body << std::endl;
 			}
 		}
 		it1++;
