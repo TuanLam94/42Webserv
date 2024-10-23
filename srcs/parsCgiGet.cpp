@@ -50,29 +50,57 @@ void	Request::fillCgiGet()
 			_ServerName = fillCgiToUpper(_ServerName, it1->second);
 			std::cout << "servername : " << _ServerName << std::endl;
 		}
-		if (it1->first == "Content-Type:")
+		else if (it1->first == "Content-Type:")
 		{
 			_ContentType = fillCgiToUpper(_ContentType, it1->second);
 			std::cout << "content-type : " << _ContentType << std::endl;
 		}
-		if (it1->first == "Content-Length:")
+		else if (it1->first == "Content-Length:")
 		{
 			_ContentLength = fillCgiToUpper(_ContentLength, it1->second);
 			std::cout << "content-length : " << _ContentLength << std::endl;
 		}
-		if (it1->first == "User-Agent:")
+		else if (it1->first == "User-Agent:")
 		{
 			_HttpUserAgent = fillCgiToUpper(_HttpUserAgent, it1->second);
 			fillUserAgent();
 			std::cout << "HttpUserAgent : " << _HttpUserAgent << std::endl;
 		}
-		if (it1->first == "Accept:")
-			std::cout << "Accept: " << it1->second << std::endl;
-		if (it1->first == "Accept-Language:")
-			std::cout << "Accept-Language : " << it1->second << std::endl;
-		if (it1->first == "Accept-Encoding:")
-			std::cout << "Accept-Encoding : " << it1->second << std::endl;
+		else if (it1->first == "Accept:")
+		{
+			_HttpAccept = fillCgiToUpper(_HttpAccept, it1->second);
+			std::cout << "HttpAccept: " << _HttpAccept << std::endl;
+		}
+		else if (it1->first == "Accept-Language:")
+		{
+			_HttpAcceptLanguage = fillCgiToUpper(_HttpAcceptLanguage, it1->second);
+			std::cout << "_httpAcceptLanguage : " << _HttpAcceptLanguage << std::endl;
+		}
+		else if (it1->first == "Accept-Encoding:")
+		{
+			_HttpAcceptEncoding = fillCgiToUpper(_HttpAcceptEncoding, it1->second);
+			std::cout << "_HttpAcceptEncoding : " << _HttpAcceptEncoding << std::endl;
+		}
+		else if (it1->first == "Connection:")
+		{
+			_HttpConnection = fillCgiToUpper(_HttpConnection, it1->second);
+			std::cout << "_HttpConnection : " << _HttpConnection << std::endl;	
+		}
+		else if (it1->first == "Origin:")
+		{
+			_HttpOrigin = fillCgiToUpper(_HttpOrigin, it1->second);
+			std::cout << "_HttpOrigin : " << _HttpOrigin << std::endl;
+		}
+		else if (it1->first == "Referer:")
+		{
+			_HttpReferer = fillCgiToUpper(_HttpReferer, it1->second);
+			std::cout << "_HttpReferer : " << _HttpReferer << std::endl;
+		}
 		it1++;
 	}
+	_RequestMethod += _method;
+	std::cout << "request-method : " << _RequestMethod << std::endl;
+	_ServerProtocol += _version;
+	std::cout << "server-protocol : " << _ServerProtocol << std::endl;
 	std::cout << std::endl;
 }
