@@ -102,11 +102,16 @@ int Response::responseSetCgiType()
 
     if (lastSlash != std::string::npos) {
         std::string filename = _path.substr(0, lastSlash);
-        if (filename.find(".py") != std::string::npos)
+        if (filename.find(".py") != std::string::npos) {
+            std::cout << "IS CGI PY\n";
             return (1);
-        else if (filename.find(".sh") != std::string::npos)
+        }
+        else if (filename.find(".sh") != std::string::npos) {
+            std::cout << "IS CGI SH\n";
             return (2);
+        }
     }
+    std::cout << "IS NOT CGI\n";
     return 0;
 }
 

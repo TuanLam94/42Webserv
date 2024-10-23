@@ -72,3 +72,5 @@ message: Bonjour! Ça va bien?
 nom complet: Jean- Dupont
 message: Bonjour! Ça va bien?
 nom complet: Jean- Dupont
+age: 23
+name: csds
