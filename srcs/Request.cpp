@@ -219,7 +219,6 @@ bool Request::isRequestComplete()
 			}
 			return true;
 		}
-
 	}
 	return false;
 }

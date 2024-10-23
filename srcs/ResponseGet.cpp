@@ -108,6 +108,8 @@ void Response::handleCGI(int type)
         setenv("PATH_INFO", _request.getPathInfo().c_str(), 1);
     }
 
+    std::cout << "RECEIVED\n";
+
     int pipefd[2];
     if (pipe(pipefd) == -1) {
         std::cerr << "Failed to create pipe.\n";

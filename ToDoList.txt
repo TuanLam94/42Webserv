@@ -19,3 +19,5 @@
 10 - Make Website functional
 
 11 - Test all
+
+12 - Check if body < contentLength
