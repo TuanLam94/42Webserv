@@ -46,7 +46,7 @@ bool	Request::checkMap(std::string key, std::map<std::string,std::string>::itera
 // 	pos = findPosition("{")
 // }
 
-
+// revoir le parser json
 void	Request::parserJson()
 {
 	int	index = 0;
@@ -154,7 +154,7 @@ void	Request::parserJson()
 
 void	Request::checkKeyUrl(std::string key)
 {
-	unsigned long int i = 0;
+	// unsigned long int i = 0;
 
 	key = trim(key);
 	if (key.empty() == true)
@@ -163,23 +163,23 @@ void	Request::checkKeyUrl(std::string key)
 		std::cerr << "checkKey 1 Error 400: Bad Request\n";
 		throw MyExcep();
 	}
-	while (i < key.size())
-	{
-		// std::cout << key[i] << std::endl;
-		if ((!(key[i] >= 48 && key[i] <= 57)
-			&& !(key[i] >= 65 && key[i] <= 90)
-			&& !(key[i] >= 97 && key[i] <= 122)
-			&& !(key[i] == 45)
-			&& !(key[i] == 46)
-			&& !(key[i] == 95)
-			&& !(key[i] == 126)))
-		{ 
-			_status_code = 400;
-			std::cerr << "checkKey 2 Error 400: Bad Request\n";
-			throw MyExcep();
-		}
-		i++;
-	}
+	// while (i < key.size())
+	// {
+	// 	std::cout << key[i] << std::endl;
+	// 	if ((!(key[i] >= 48 && key[i] <= 57)
+	// 		&& !(key[i] >= 65 && key[i] <= 90)
+	// 		&& !(key[i] >= 97 && key[i] <= 122)
+	// 		&& !(key[i] == 45)
+	// 		&& !(key[i] == 46)
+	// 		&& !(key[i] == 95)
+	// 		&& !(key[i] == 126)))
+	// 	{ 
+	// 		_status_code = 400;
+	// 		std::cerr << "checkKey 2 Error 400: Bad Request\n";
+	// 		throw MyExcep();
+	// 	}
+	// 	i++;
+	// }
 }
 
 void	Request::checkValueUrl(std::string value)
@@ -238,9 +238,7 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 				i += 2;
 			}
 			else if (new_body[i] == 43) // +
-			{
 				value += 32;
-			}
 			else
 			{
 				value += new_body[i];
@@ -274,18 +272,11 @@ int	checkUrlEncoded(std::string body)
 		if ((!(body[i] >= 48 && body[i] <= 57)
 			&& !(body[i] >= 65 && body[i] <= 90)
 			&& !(body[i] >= 97 && body[i] <= 122)
-			&& !(body[i] == 10)
-			&& !(body[i] == 32)
-			&& !(body[i] == 13)
-			&& !(body[i] == 37)
-			&& !(body[i] == 38)
-			&& !(body[i] == 43)
-			&& !(body[i] == 44)
-			&& !(body[i] == 45)
-			&& !(body[i] == 46)
-			&& !(body[i] == 61)
-			&& !(body[i] == 95)
-			&& !(body[i] == 126)))
+			&& !(body[i] == 10) && !(body[i] == 13)
+			&& !(body[i] == 37) && !(body[i] == 38)
+			&& !(body[i] == 43) && !(body[i] == 45)
+			&& !(body[i] == 46) && !(body[i] == 61)
+			&& !(body[i] == 95) && !(body[i] == 126)))
 		{
 			std::cerr << "checkUrlencoded Error 400: Bad Request.\n";
 			return (400);
@@ -600,6 +591,21 @@ void	Request::parserTextPlain()
 }
 
 
+bool	checkLength(std::string len)
+{
+	size_t	i = 0;
+
+	while (i < len.size())
+	{
+		if (!(len[i] >= 48 && len[i] <= 57))
+		{
+			return (true);
+		}
+		i++;
+	}
+	return (false);
+}
+
 void	Request::initContentLength()
 {
 	std::vector<std::pair<std::string, std::string> >::iterator it;
@@ -611,14 +617,28 @@ void	Request::initContentLength()
 	{
 		if (it->first == "Content-Length:")
 		{
+			if (checkLength(it->second) == true)
+			{
+				_status_code = 400;
+				std::cerr << "initContentLength1 Error 400: Bad Request\n";
+				throw MyExcep();
+			}
 			std::istringstream ss(it->second);
 			ss >> _contentLength;
 			if (_contentLength != _body.size())
 			{
 				_status_code = 400;
-				std::cerr << "initContentLength Error 400: Bad Request\n";
+				std::cerr << "initContentLength2 Error 400: Bad Request\n";
 				throw MyExcep();
 			}
+			// if (static_cast<int>(_contentLength) > _max_client_body_size)
+			// {
+				// std::cout << _contentLength << std::endl;
+				// std::cout << _max_client_body_size << std::endl;
+ 			// 	_status_code = 413;
+			// 	std::cerr << "initContentLength3 Error 413 : Payload Too Large.\n";
+			// 	throw MyExcep();
+			// }
 		}
 		it++;
 	}

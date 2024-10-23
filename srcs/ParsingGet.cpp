@@ -3,7 +3,6 @@
 
 bool	Request::checkValidChar(char c)
 {
-	// std::cout << c << std::endl;
 	if (!(c >= 48 && c <= 57)
 		&& !(c >= 65 && c <= 90)
 		&& !(c >= 97 && c <= 122)
@@ -200,35 +199,40 @@ void	Request::parsHeaders(const std::string& buff)
 
 	i = _pos;
 	_pos = findPosition("\r\n\r\n", buff, i);
-	while (i < buff.size() && i < _pos)
+	if (_pos != std::string::npos)
 	{
-		pos = findPosition("\r\n", buff, i);
-		while (i < buff.size() && i < pos)
+		while (i < buff.size() && i < _pos)
 		{
-			if (index == true && buff[i] == 58) // :
+			pos = findPosition("\r\n", buff, i);
+			while (i < buff.size() && i < pos)
 			{
-				index = false;
-				key += buff[i];
-				i++;
-				while (i < buff.size() && buff[i] == 32)
+				if (index == true && buff[i] == 58) // :
+				{
+					index = false;
+					key += buff[i];
 					i++;
+					while (i < buff.size() && buff[i] == 32)
+						i++;
+				}
+				if (index == true /*&& checkValidHeaderKey(buff[i]) == true*/)
+					key += buff[i];
+				else if (checkValidHeaderValue(buff[i]) == true)
+					value += buff[i];
+				else
+					throw MyExcep();
+				i++;
 			}
-			if (index == true /*&& checkValidHeaderKey(buff[i]) == true*/)
-				key += buff[i];
-			else if (checkValidHeaderValue(buff[i]) == true)
-				value += buff[i];
-			else
-				throw MyExcep();
-			i++;
+			i += 2;
+			if (key == "Host:" || key == "host:" || key == "HOST:")
+				value = helpHeaderHost(value, line);
+			_headersHttp.push_back(std::pair<std::string, std::string>(key, value));
+			key.clear();
+			value.clear();
+			index = true;
 		}
-		i += 2;
-		if (key == "Host:" || key == "host:" || key == "HOST:")
-			value = helpHeaderHost(value, line);
-		_headersHttp.push_back(std::pair<std::string, std::string>(key, value));
-		key.clear();
-		value.clear();
-		index = true;
 	}
+	else
+		throw MyExcep();
 }
 
 void	Request::checkKey(std::string key)
@@ -349,6 +353,7 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 		fillBody(buffer);
 		checkHeaderName();
 		fillVar();
+		initContentLength();
 	}
 	catch(std::exception &ex)
 	{
