@@ -13,7 +13,8 @@ Response::Response(const Request& request)
     _formDataName = request.getFormDataName();
     _jsonParam = request.getJsonParam();
     _urlParam = request.getUrlParam();
-    _cgi_type = -1;
+    _cgi_type = responseSetCgiType();
+    std::cout << "CGI TYPE = " << _cgi_type << std::endl;
 }
 
 void Response::setStatusCode(const Request& request)
@@ -94,6 +95,20 @@ void Response::runScript(std::string Lpath)
         close(_server.getEpollFd());
         exit(1);
     }
+}
+
+int Response::responseSetCgiType()
+{
+    size_t lastSlash = _path.find_last_of('/');
+
+    if (lastSlash != std::string::npos) {
+        std::string filename = _path.substr(0, lastSlash);
+        if (filename.find(".py") != std::string::npos)
+            return (1);
+        else if (filename.find(".sh") != std::string::npos)
+            return (2);
+    }
+    return 0;
 }
 
 //--------------------------------------------GETTERS--------------------------------------------

@@ -135,6 +135,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 				request.setRequestStatusCode(413);
 				return ;
 			}
+			std::cout << "request path = " << request.getPath() << std::endl;
 		}
 		else
 			std::cout << "500 Internal Server Error\n";

@@ -54,6 +54,7 @@ class Response
 		void	sendResponse(int fd);
 		void	setStatusCode(const Request& request);
 		std::string loadErrorPage(const std::string& errorPage);
+		int responseSetCgiType();
 		//response build
 			//get
 		void	handleGetResponse();
