@@ -346,6 +346,8 @@ void	Request::formDataGetName(const std::string& buff, size_t pos)
 			value += buff[pos];
 			pos++;
 		}
+		// std::cout << "key : " << key << std::endl;
+		// std::cout << "value : " << value << std::endl;
 		if (key.empty() == false && value.empty() == false)
 			_FormDataName.insert(std::pair<std::string, std::string>(key, value));
 		else
