@@ -101,11 +101,12 @@ void Webserv::eventLoop() {
 
 void Webserv::handleClientWrite(int event_fd, Request& request)
 {
-	// if (!request.isRequestComplete())
-	// 	return;
-	Response response(request);
-	response.handleRequest();
-	response.sendResponse(event_fd);
+	if (request.isRequestComplete())
+	{
+		Response response(request);
+		response.handleRequest();
+		response.sendResponse(event_fd);
+	}
 }
 
 
@@ -141,7 +142,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 			std::cout << "500 Internal Server Error\n";
 			// sendServerErrorResponse(client_fd); //tocode
 	}
-	request._buffer.clear();
+	// request._buffer.clear();
 }
 
 Server* Webserv::findAppropriateServer(Request& request)

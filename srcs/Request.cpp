@@ -219,12 +219,7 @@ bool Request::isRequestComplete()
 			}
 			return true;
 		}
-	}
-	else
-	{
-		std::cout << _buffer << std::endl;
-		std::cerr << "Impossible <<<<<<";
-		exit (1);
+
 	}
 	return false;
 }
