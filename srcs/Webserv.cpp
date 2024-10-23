@@ -123,6 +123,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 
 	request._buffer += std::string(buffer);
 	if (request.isRequestComplete()) {
+		std::cout << request._buffer << std::endl;
 		request.parsRequest(request._buffer);
 		request.getClientIPPort(client_fd);
 
