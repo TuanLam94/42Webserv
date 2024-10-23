@@ -39,7 +39,7 @@ void	Request::fillCgiGet()
 		}
 		it++;
 	}
-	std::cout << _QueryString << std::endl;
+	// std::cout << _QueryString << std::endl;
 	it1 = _headersHttp.begin();
 	ite1 = _headersHttp.end();
 	while (it1 != ite1)

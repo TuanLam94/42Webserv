@@ -143,8 +143,6 @@ bool	Request::checkStatusCode()
 
 void	Request::parsRequest(const std::string& buffer)
 {
-	std::cout << buffer << std::endl;
-
 	try
 	{
 		parsRequestLine(buffer);
@@ -161,6 +159,8 @@ void	Request::parsRequest(const std::string& buffer)
 
 void	Request::parsRequestBis(Server i, const std::string& buffer)
 {
+	std::cout << buffer << std::endl;
+	std::cout << "ttttttttttttttttttttttt\n";
 	_max_client_body_size = i.getMaxBodySize();
 	if (checkStatusCode() == false)
 		return ;
@@ -198,7 +198,23 @@ void	Request::getClientIPPort(int clientfd)
 	_host = oss.str();
 }
 
-// probleme ici 
+size_t	fillLength(std::string buffer, size_t start)
+{
+	size_t res;
+	std::string	str;
+
+	while (start < buffer.size() && buffer[start] == 32)
+		start++;
+	while (buffer[start] >= 48 && buffer[start] <= 57)
+	{
+		str += buffer[start];
+		start++;
+	}
+	std::istringstream	ss(str);
+	ss >> res;
+	return res;
+}
+
 bool Request::isRequestComplete()
 {
 	if (_buffer.empty() == true)
@@ -212,14 +228,17 @@ bool Request::isRequestComplete()
 			size_t contentLengthPos = _buffer.find("Content-Length:");
 			if (contentLengthPos != std::string::npos) {
 				size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
-				int contentLength = hexStringToInt(_buffer.substr(contentLengthStart));
-
-				size_t totalSize = headerEnd + 4 + contentLength;
-				return _buffer.size() >= totalSize;
+				contentLengthStart = fillLength(_buffer, contentLengthStart);
+				size_t i = headerEnd + 4;
+				size_t j = 0;
+				for (; i < _buffer.size(); i++, j++);
+				if (j == contentLengthStart)
+					return (true);
+				else
+					return false;
 			}
 			return true;
 		}
-
 	}
 	return false;
 }
