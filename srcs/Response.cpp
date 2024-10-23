@@ -14,7 +14,6 @@ Response::Response(const Request& request)
     _jsonParam = request.getJsonParam();
     _urlParam = request.getUrlParam();
     _cgi_type = responseSetCgiType();
-    std::cout << "CGI TYPE = " << _cgi_type << std::endl;
 }
 
 void Response::setStatusCode(const Request& request)
