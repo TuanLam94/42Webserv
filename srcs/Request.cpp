@@ -159,8 +159,6 @@ void	Request::parsRequest(const std::string& buffer)
 
 void	Request::parsRequestBis(Server i, const std::string& buffer)
 {
-	std::cout << buffer << std::endl;
-	std::cout << "ttttttttttttttttttttttt\n";
 	_max_client_body_size = i.getMaxBodySize();
 	if (checkStatusCode() == false)
 		return ;
