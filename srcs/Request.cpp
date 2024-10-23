@@ -16,29 +16,46 @@ Request::Request()
 	_isChunk = false;
 	_status_code = 0;
 	_pos = 0;
-	_RequestMethod = "REQUEST_METHOD="; // methode utilise
-	_ContentType = "CONTENT_TYPE="; // type de contenu de la requete
-	_ContentLength = "CONTENT_LENGTH="; // taille du body de la requete
+	_RequestMethod = "REQUEST_METHOD="; // methode utilise oui
+	_ContentType = "CONTENT_TYPE="; // type de contenu de la requete oui
+	_ContentLength = "CONTENT_LENGTH="; // taille du body de la requete oui
 	_QueryString = "QUERY_STRING="; // param de lurl apres le '?'
-	_ScriptName = "SCRIPT_NAME="; // chemin virtule vers le script execute ("/cgi-bin/script.py")
-	_ServerName = "SERVER_NAME="; // nom de lhote ou adresse ip du serveur 
+	_ScriptName = "SCRIPT_NAME="; // chemin virtule vers le script execute ("/cgi-bin/script.py") oui
+	_ServerName = "SERVER_NAME="; // nom de lhote ou adresse ip du serveur oui
 	_ServerPort = "SERVER_PORT="; // numero du port sur lequel la requete est send
 	_ServerProtocol = "SERVER_PROTOCOL="; // version http -> HTTP/1.1
-	_GatewayInterface = "GATEWAY_INTERFACE="; // CGI/1.1
+	_GatewayInterface = "GATEWAY_INTERFACE="; // CGI/1.1 oui
 	_PathInfo = "PATH_INFO"; // (falcultatif cf. apres)
 	_RemoteAddr = "REMOTE_ADDR="; // adresse IP du client
 	_RemoteHost = "REMOTE_HOST="; // nom d'hote du client
 	_HttpHost = "HTTP_HOST="; // a re voir
-	_HttpUserAgent = "HTTP_USER_AGENT="; // le navigateur utilise par le client
-	_HttpAccept = "HTTP_ACCEPT="; // type de donnees MIME que le client accepete de recevoir
-	_HttpAcceptLanguage = "HTTP_ACCEPT_LANGUAGE="; // langue dans laquelle le client accepte de recevoir
-	_HttpAcceptEncoding = "HTTP_ACCEPT_ENCODING="; // definit le type de codage sur le contenu renvoyer au client
-	_HttpReferer = "HTTP_REFERER="; // http://localhost:8080/index.html --> adresse absolu/partielle de la page web
-	_HttpConnection = "HTTP_CONNECTION="; // Contient des informations sur l'état de la connexion HTTP entre le serveur et le navigateur appelant
+	_HttpUserAgent = "HTTP_USER_AGENT="; // le navigateur utilise par le client oui
+	_HttpAccept = "HTTP_ACCEPT="; // type de donnees MIME que le client accepete de recevoir oui
+	_HttpAcceptLanguage = "HTTP_ACCEPT_LANGUAGE="; // langue dans laquelle le client accepte de recevoir oui
+	_HttpAcceptEncoding = "HTTP_ACCEPT_ENCODING="; // definit le type de codage sur le contenu renvoyer au client oui
+	_HttpReferer = "HTTP_REFERER="; // http://localhost:8080/index.html --> adresse absolu/partielle de la page web oui
+	_HttpConnection = "HTTP_CONNECTION="; // Contient des informations sur l'état de la connexion HTTP entre le serveur et le navigateur appelant oui
 	_RemoteUser = "REMOTE_USER=";
 	_AuthType = "AUTH_TYPE=";
 	_RedirectStatus = "REDIRECT_STATUS=";
-	_HttpOrigin = "HTTP_ORIGIN=";
+	_HttpOrigin = "HTTP_ORIGIN="; // oui
+}
+
+bool	Request::checkValidCharRequest(char c)
+{
+	if (!(c >= 48 && c <= 57)
+		&& !(c >= 65 && c <= 90)
+		&& !(c >= 97 && c <= 122)
+		&& c != 37 && c != 43 && c != 47 
+		&& c != 46 && c != 45 && c != 95
+		&& c != 126 && c != 61 && c != 63
+		&& c != 38)
+	{
+		_status_code = 400;
+		std::cerr << "checkValidChar Error 400: Bad Request.\n";
+		return (false);
+	}
+	return (true);
 }
 
 void	Request::parsRequestLine(std::string buff)
@@ -53,11 +70,11 @@ void	Request::parsRequestLine(std::string buff)
 		{
 			if (buff[i] == 32)
 				space++;
-			else if (space == 0 && checkValidChar(buff[i]) == true)
+			else if (space == 0 && checkValidCharRequest(buff[i]) == true)
 				_method += buff[i];
-			else if (space == 1 && checkValidChar(buff[i]) == true)
+			else if (space == 1 && checkValidCharRequest(buff[i]) == true)
 				_path += buff[i];
-			else if (space == 2 && checkValidChar(buff[i]) == true)
+			else if (space == 2 && checkValidCharRequest(buff[i]) == true)
 				_version += buff[i];
 			// else if (checkStatusCode() == true)
 			// 	return ;
@@ -145,7 +162,6 @@ void	Request::parsRequest(const std::string& buffer)
 void	Request::parsRequestBis(Server i, const std::string& buffer)
 {
 	_max_client_body_size = i.getMaxBodySize();
-	
 	if (checkStatusCode() == false)
 		return ;
 	if (_method == "GET")
@@ -182,6 +198,7 @@ void	Request::getClientIPPort(int clientfd)
 	_host = oss.str();
 }
 
+// probleme ici 
 bool Request::isRequestComplete()
 {
 	size_t headerEnd = _buffer.find("\r\n\r\n");
@@ -189,7 +206,8 @@ bool Request::isRequestComplete()
 		size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
 		if (chunkedPos != std::string::npos)
 			return isChunkedRequestComplete(_buffer.substr(headerEnd + 4));
-
+		else
+			return true;
 		size_t contentLengthPos = _buffer.find("Content-Length:");
 		if (contentLengthPos != std::string::npos) {
 			size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
@@ -199,6 +217,12 @@ bool Request::isRequestComplete()
 			return _buffer.size() >= totalSize;
 		}
 		return true;
+	}
+	else
+	{
+		std::cout << _buffer << std::endl;
+		std::cerr << "Impossible <<<<<<";
+		exit (1);
 	}
 	return false;
 }
