@@ -101,8 +101,8 @@ void Webserv::eventLoop() {
 
 void Webserv::handleClientWrite(int event_fd, Request& request)
 {
-	if (!request.isRequestComplete())
-		return;
+	// if (!request.isRequestComplete())
+	// 	return;
 	Response response(request);
 	response.handleRequest();
 	response.sendResponse(event_fd);

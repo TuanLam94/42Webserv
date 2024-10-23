@@ -201,22 +201,24 @@ void	Request::getClientIPPort(int clientfd)
 // probleme ici 
 bool Request::isRequestComplete()
 {
+	if (_buffer.empty() == true)
+		return false;
 	size_t headerEnd = _buffer.find("\r\n\r\n");
 	if (headerEnd != std::string::npos) {
 		size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
 		if (chunkedPos != std::string::npos)
 			return isChunkedRequestComplete(_buffer.substr(headerEnd + 4));
-		else
-			return true;
-		size_t contentLengthPos = _buffer.find("Content-Length:");
-		if (contentLengthPos != std::string::npos) {
-			size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
-			int contentLength = hexStringToInt(_buffer.substr(contentLengthStart));
+		else {
+			size_t contentLengthPos = _buffer.find("Content-Length:");
+			if (contentLengthPos != std::string::npos) {
+				size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
+				int contentLength = hexStringToInt(_buffer.substr(contentLengthStart));
 
-			size_t totalSize = headerEnd + 4 + contentLength;
-			return _buffer.size() >= totalSize;
+				size_t totalSize = headerEnd + 4 + contentLength;
+				return _buffer.size() >= totalSize;
+			}
+			return true;
 		}
-		return true;
 	}
 	else
 	{
