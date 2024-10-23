@@ -36,8 +36,9 @@ void Response::handleRequest()
         handleErrorResponse();
     else
     {
-        if (_method == "GET")
+        if (_method == "GET") {
             handleGetResponse();
+        }
         else if (_method == "POST")
             handlePostResponse();
         else if (_method == "DELETE")
@@ -90,6 +91,7 @@ void Response::runScript(std::string Lpath)
     close(_server.getEpollFd());
     if (execv(Lpath.c_str(), args) == -1) {
         std::cerr << "Failed to execute CGI script: " << _path << std::endl;
+        close(_server.getEpollFd());
         exit(1);
     }
 }

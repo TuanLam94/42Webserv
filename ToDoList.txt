@@ -2,9 +2,9 @@
 
 2 - Close EpollFD in Child //OK
 
-3 - CGI : Ajouter un Timeout au cas ou il tourne a l'infini
+3 - CGI : Ajouter un Timeout au cas ou il tourne a l'infini //OK
 
-4 - Ajouter Max Client Body size //OK ?
+4 - Ajouter Max Client Body size //OK
 
 5 - Regarder si getBody.size() renvoie bien la bonne valeur dans la bonne unite //OK
 

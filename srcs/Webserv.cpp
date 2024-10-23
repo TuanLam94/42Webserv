@@ -92,7 +92,7 @@ void Webserv::eventLoop() {
 				Request request;
 				if (_events[i].events & EPOLLIN)
 					handleClientRequest(event_fd, request);
-				else if (_events[i].events & EPOLLOUT)
+				if (_events[i].events & EPOLLOUT)
 					handleClientWrite(event_fd, request);
 			}
 		}
@@ -101,6 +101,8 @@ void Webserv::eventLoop() {
 
 void Webserv::handleClientWrite(int event_fd, Request& request)
 {
+	if (!request.isRequestComplete())
+		return;
 	Response response(request);
 	response.handleRequest();
 	response.sendResponse(event_fd);
