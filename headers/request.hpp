@@ -55,7 +55,7 @@ class	Request
 	std::string	_HttpAccept; // yes
 	std::string	_HttpAcceptLanguage; // yes
 	std::string	_HttpAcceptEncoding; // yes
-	std::string	_HttpReferer; 
+	std::string	_HttpReferer;
 	std::string	_HttpConnection;
 	std::string	_RemoteUser;
 	std::string	_AuthType;
@@ -134,6 +134,7 @@ class	Request
 	bool	checkValidHeader(char c);
 	bool	checkValidHeaderValue(char c);
 	bool	checkValidChar(char c);
+	bool	checkValidCharRequest(char c);
 	void	checkKey(std::string key);
 	void	checkValue(std::string value);
 	bool	checkContentLength();
@@ -194,5 +195,7 @@ bool	checkValidChar(char c);
 void	checkKey(std::string key);
 void	checkValue(std::string value);
 int	checkUrlEncoded(std::string body);
+std::string	fillScriptName(std::string path);
+std::string	fillServerPort(int port);
 
 #endif
