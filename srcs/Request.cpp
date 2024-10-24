@@ -87,6 +87,9 @@ void	Request::parsRequestLine(std::string buff)
 		|| _path.empty() == true
 		|| _version.empty() == true)
 	{
+		std::cout << "method = " << _method << std::endl;
+		std::cout << "path = " << _path << std::endl;
+		std::cout << "version = " << _version << std::endl;
 		_status_code = 400;
 		std::cerr << "parsRequestLine Error 400: Bad Request.\n";
 		throw MyExcep();
@@ -99,6 +102,7 @@ void	Request::checkMethod()
 		&& _method != "POST"
 		&& _method != "DELETE")
 		{
+			std::cout << "METHOD = " << _method << std::endl;
 			std::cerr << "checkMethod Error 405: Method Not Allowed.\n";
 			_status_code = 405;
 			throw MyExcep();
@@ -408,6 +412,11 @@ bool	Request::getIsCgiHere()const
 	return (_cgiIsHere);
 }
 
+int Request::getClientFD() const
+{
+	return (_client_fd);
+}
+
 // std::string Request::getRemotePort() const
 // {
 // 	return _RemotePort;
@@ -434,4 +443,9 @@ void Request::printRequest() const
 	std::cout << "Response = " << getResponse() << std::endl;
 	std::cout << "Body = " << getBody() << std::endl;
 	std::cout << "Content Type = " << getContentType() << std::endl;
+}
+
+void Request::setClientFD(int fd)
+{
+	_client_fd = fd;
 }

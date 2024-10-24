@@ -89,14 +89,61 @@ void Webserv::eventLoop() {
 				}
 			}
 			if (!isServerSocket) {
-				Request request;
-				if (_events[i].events & EPOLLIN)
-					handleClientRequest(event_fd, request);
-				if (_events[i].events & EPOLLOUT)
-					handleClientWrite(event_fd, request);
+				if (_events[i].events & EPOLLIN) {
+					Request* request = findAppropriateRequest(event_fd);
+					handleClientRequest(event_fd, *request);
+				}
+				if (_events[i].events & EPOLLOUT) {
+					Request* request = findAppropriateRequestToWrite(event_fd);
+					if (request != NULL) {
+						handleClientWrite(event_fd, *request);
+						removeRequest(event_fd);
+					}
+				}
 			}
+			sleep(2);
 		}
 	}
+}
+
+bool Webserv::requestAlreadyExists(int event_fd)
+{
+	if (_requests.size() == 0)
+		return false;
+
+	for (size_t i = 0; i < _requests.size(); i++) {
+		if (_requests[i].getClientFD() == event_fd)
+			return true;
+	}
+	return false;
+}
+
+Request* Webserv::findAppropriateRequest(int event_fd)
+{
+	std::cout << "event_fd = " << event_fd << std::endl;
+	std::cout << "requests size = " << _requests.size() << std::endl;
+
+	for (size_t i = 0; i < _requests.size(); i++) {
+		std::cout << "request fd = " << _requests[i].getClientFD() << std::endl;
+		if (_requests[i].getClientFD() == event_fd)
+			return &_requests[i];
+	}
+    _requests.push_back(Request());  // Create empty request in vector
+    _requests.back().setClientFD(event_fd);  // Set FD on the actual stored request
+    return &_requests.back();
+}
+
+Request* Webserv::findAppropriateRequestToWrite(int event_fd)
+{
+	std::cout << "event_fd = " << event_fd << std::endl;
+	std::cout << "requests size = " << _requests.size() << std::endl;
+
+	for (size_t i = 0; i < _requests.size(); i++) {
+		std::cout << "request fd = " << _requests[i].getClientFD() << std::endl;
+		if (_requests[i].getClientFD() == event_fd)
+			return &_requests[i];
+	}
+	return NULL;
 }
 
 void Webserv::handleClientWrite(int event_fd, Request& request)
@@ -108,6 +155,16 @@ void Webserv::handleClientWrite(int event_fd, Request& request)
 	}
 }
 
+void Webserv::removeRequest(int event_fd)
+{
+    for (std::vector<Request>::iterator it = _requests.begin(); it != _requests.end(); ++it) {
+        if (it->getClientFD() == event_fd) {
+            _requests.erase(it);
+			std::cout << "REMOVED REQUEST\n";
+            break;
+        }
+    }
+}
 
 void Webserv::handleClientRequest(int client_fd, Request& request)
 {
@@ -120,10 +177,12 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
         return;
     }
 	buffer[bytes] = 0;
-
+	std::cout << "BUFFER = " << buffer << "\n\n";
 	request._buffer += std::string(buffer);
+	// std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
+
 	if (request.isRequestComplete()) {
-		std::cout << request._buffer << std::endl;
+		std::cout << "COMPLETE BUFFER = " << request._buffer << "\n\n";
 		request.parsRequest(request._buffer);
 		request.getClientIPPort(client_fd);
 
@@ -142,7 +201,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 			std::cout << "500 Internal Server Error\n";
 			// sendServerErrorResponse(client_fd); //tocode
 	}
-	// request._buffer.clear();
 }
 
 Server* Webserv::findAppropriateServer(Request& request)

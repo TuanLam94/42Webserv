@@ -34,7 +34,8 @@ class MyExcep : public std::exception
 
 class	Request
 {
-	private: 
+	private:
+	int		_client_fd;
 	bool	_cgiIsHere;
 	// attributs execution CGI (mandatory + bonus)
 	std::string	_cgiType;
@@ -179,9 +180,12 @@ class	Request
 	std::string getRemoteAddr() const;
 	std::string getRemotePort() const;
 	bool	getIsCgiHere()const;
+	int getClientFD() const;
+
 	//------------SETTERS------------
 	void	setServer(Server& server);
 	void	setRequestStatusCode(int status_code);
+	void	setClientFD(int fd);
 	//Utils
 	void	printRequest() const;
 

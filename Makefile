@@ -18,7 +18,7 @@ OBJ_DIR = obj
 OBJ = $(SRC:srcs/%.cpp=$(OBJ_DIR)/%.o) 
 CXX = c++
 RM = rm -f
-CXXFLAGS = -std=c++98 -Wall -Wextra -Werror
+CXXFLAGS = -std=c++98 -Wall -Wextra -Werror -g3
 
 NAME = webserv
 

@@ -26,11 +26,13 @@
 #include <dirent.h>
 #include <cstring>
 #include <set>
+// #include <unordered_map>
 
 class Webserv
 {
 	private:
 		std::vector<Server> 			_servers;
+		std::vector<Request>			_requests;
 		int								_server_fd;
 		int								_epoll_fd;
 		std::vector<struct epoll_event> _events;
@@ -50,6 +52,10 @@ class Webserv
 		Server* findServerByName(const Request& request);
 		Server* findServerByPort(const Request& request);
 		Server* redirectServer(Request& request);
+		bool requestAlreadyExists(int event_fd);
+		Request* findAppropriateRequest(int event_fd);
+		Request* findAppropriateRequestToWrite(int event_fd);
+		void removeRequest(int event_fd);
 		//Getters
 		int getServerFd();
 		int getEpollFd();
