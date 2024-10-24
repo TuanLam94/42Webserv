@@ -52,7 +52,6 @@ class Webserv
 		Server* findServerByName(const Request& request);
 		Server* findServerByPort(const Request& request);
 		Server* redirectServer(Request& request);
-		bool requestAlreadyExists(int event_fd);
 		Request* findAppropriateRequest(int event_fd);
 		Request* findAppropriateRequestToWrite(int event_fd);
 		void removeRequest(int event_fd);

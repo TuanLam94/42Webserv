@@ -95,7 +95,7 @@ void Webserv::eventLoop() {
 				}
 				if (_events[i].events & EPOLLOUT) {
 					Request* request = findAppropriateRequestToWrite(event_fd);
-					if (request != NULL) {
+					if (request != NULL && request->isRequestComplete()) {
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
 					}
@@ -105,24 +105,12 @@ void Webserv::eventLoop() {
 	}
 }
 
-bool Webserv::requestAlreadyExists(int event_fd)
-{
-	if (_requests.size() == 0)
-		return false;
-
-	for (size_t i = 0; i < _requests.size(); i++) {
-		if (_requests[i].getClientFD() == event_fd)
-			return true;
-	}
-	return false;
-}
-
 Request* Webserv::findAppropriateRequest(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd)
 		{
-			std::cout << "FOUND EXISTING REQUEST\n";
+			std::cout << "FOUND EXISTING REQUEST TO READ\n";
 			return &_requests[i];
 		}
 	}
@@ -136,7 +124,7 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
+			// std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
 			return &_requests[i];
 		}
 	}
@@ -174,9 +162,9 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
         return;
     }
 	// buffer[bytes] = 0;
-	// std::cout << "BUFFER = " << buffer << "\n\n";
+	std::cout << "BUFFER = " << buffer << "\n\n";
 	request._buffer += std::string(buffer);
-	// std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
+	std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
 
 	if (request.isRequestComplete()) {
 		std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
