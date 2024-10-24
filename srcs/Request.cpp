@@ -217,6 +217,8 @@ size_t	fillLength(std::string buffer, size_t start)
 	return res;
 }
 
+// si content-length pas egal a body --> return error 400 bad request ou 500 internal errror timeout
+
 bool Request::isRequestComplete()
 {
 	if (_buffer.empty() == true)

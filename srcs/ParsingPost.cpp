@@ -6,13 +6,13 @@ void	Request::checkJsonAccolade()
 	unsigned long int	i = 0;
 	int	count =  0;
 
-	while (i < _body.size() && _body[i] != '}')
+	while (i < _body.size())
 	{
 		if (_body[i] == '"')
 			count++;
 		i++;
 	}
-	if (_body[0] != '{' || _body[i] != '}' || (count % 2) != 0)
+	if ((count % 2) != 0)
 	{
 		_status_code = 400;
 		std::cerr << "checkJsonFormat Error 400: Bad Request.\n";
@@ -31,124 +31,141 @@ bool	Request::checkMap(std::string key, std::map<std::string,std::string>::itera
 	return (false);
 }
 
-// void	Request::parserJson()
-// {
-// 	int	index = 0;
-// 	int	index_comma = 0;
-// 	std::string	key;
-// 	std::string	value;
-// 	unsigned long int	i = 1;
-// 	size_t	pos;
-
-// 	checkJsonAccolade();
-// 	if (checkStatusCode() == false)
-// 		return ;	
-// 	pos = findPosition("{")
-// }
-
-// revoir le parser json
-void	Request::parserJson()
+bool	Request::checkFirstAccolade(size_t pos)
 {
-	int	index = 0;
-	int	index_comma = 0;
+	if (_buffer[pos] != _body[0])
+		return (false);
+	return (true);
+}
+
+
+bool	Request::checkLastAccolade(size_t pos)
+{
+	if (_buffer[pos] != _body[_body.size() - 1])
+		return (false);
+	return (true);	
+}
+
+int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
+{
 	std::string	key;
 	std::string	value;
-	unsigned long int	i = 1;
-	
-	checkJsonAccolade();
-	if (checkStatusCode() == false)
-		return ;
-	while (i < _contentLength && _body[i] != '}')
+	size_t	pos_points = 0;
+	int	index_pts = 0;
+	int	index_g = 0;
+
+	pos_points = findPosition(":", _buffer, pos_start);
+	if (pos_points == std::string::npos)
 	{
-		while (i < _contentLength)
+		return (-1);
+	}
+	else
+	{
+		while (pos_start < pos_comma)
 		{
-			if (_body[i] == '"')
+			if (_buffer[pos_start] == ':')
 			{
-				i++;
-				break ;
+				if (index_pts == 1)
+					return (-1);
+				index_pts = 1;
 			}
-			if (_body[i] != 32)
+			else if (_buffer[pos_start] == '\"')
+				index_g = 1;
+			else if (index_pts == 0 && index_g == 1)
 			{
-				_status_code = 400;
-				std::cerr << "checkJsonFormat 1 Error 400: Bad Request.\n";
-				return ;
+				while (_buffer[pos_start] != '\"')
+				{
+					key += _buffer[pos_start];
+					pos_start++;
+				}
+				index_g = 0;
 			}
-			i++;
+			else if (index_pts == 1 && index_g == 1)
+			{
+				while (_buffer[pos_start] != '\"')
+				{
+					value += _buffer[pos_start];
+					pos_start++;
+				}
+				index_pts = 0;
+				index_g = 0;
+			}
+			else if (_buffer[pos_start] != 32 && _buffer[pos_start] != '{'
+				&& _buffer[pos_start] != '}')
+			{
+				std::cout << _buffer[pos_start] << std::endl;
+				return (-1);
+			}
+			pos_start++;
 		}
-		while (i < _contentLength && _body[i] >= 32)
+		if (checkMap(key, _jsonParam.begin(), _jsonParam.end()) == false
+			&& key.empty() == false && value.empty() == false)
 		{
-			if (_body[i] == '"')
-			{
-				i++;
-				break ;
-			}
-			else
-				key += _body[i];
-			i++;
-		}
-		while (i < _contentLength)
-		{
-			if (_body[i] == ':')
-				index++;
-			if (_body[i] == '"' || (_body[i] >= 48 && _body[i] <= 57))
-			{
-				i++;
-				break ;  
-			}
-			if ((_body[i] != 32
-				&& !(_body[i] >= 48 && _body[i] <= 57)
-				&& _body[i] != ':') 
-				|| index > 1)
-			{
-				_status_code = 400;
-				std::cerr << "checkJsonFormat 2 Error 400: Bad Request.\n";
-				return ;
-			}
-			i++;
-		}
-		index = 0;
-		while (i < _contentLength && _body[i] >= 32)
-		{
-			if (_body[i] == '"' || _body[i] == ',' || _body[i] == '}')
-			{
-				i++;
-				break ;
-			}
-			else
-				value += _body[i];
-			i++;			
-		}
-		while (i < _contentLength && _body[i] != '"')
-		{
-			if (_body[i] == ',')
-				index_comma++;
-			// if (_body[i] == '"')
-			// 	break ;
-			if (_body[i] == '}' && index_comma == 1)
-			{
-				_status_code = 400;
-				std::cerr << "checkJsonFormat 3 Error 400: Bad Request.\n";
-				return ;
-			}
-			if ((_body[i] != 32 && _body[i] != '}') && index_comma != 1)
-			{
-				_status_code = 400;
-				std::cerr << "checkJsonFormat 3 Error 400: Bad Request.\n";
-				return ;
-			}
-			i++;
-		}
-		index_comma = 0;
-		if (checkMap(key, _jsonParam.begin(), _jsonParam.end()) == false)
+			std::cout << key << std::endl;
+			std::cout << value << std::endl;
 			_jsonParam.insert(std::pair<std::string, std::string>(key, value));
+		}
 		else
 		{
-			_status_code = 400;
-			std::cerr << "checkJsonFormat 4 Error 400: Bad Request.\n";
-			throw MyExcep();
+			return (-1);
 		}
-		key.clear();
-		value.clear();
+	}
+	pos_start++;
+	return (pos_start);
+}
+
+void	Request::parserJson()
+{
+	size_t	pos_start;
+	size_t	pos_end;
+	size_t	pos_comma;
+	int	index = 0;
+
+	checkJsonAccolade();
+	if (checkStatusCode() == false)
+		return ;	
+	pos_start = findPosition("{", _buffer, 0);
+	if (pos_start == std::string::npos)
+		throw MyExcep();
+	else
+	{
+		if (checkFirstAccolade(pos_start) == false)
+			throw MyExcep();
+	}
+	pos_end = findPosition("}", _buffer, 0);
+	if (pos_end == std::string::npos)
+		throw MyExcep();
+	else
+	{
+		if (checkLastAccolade(pos_end) == false)
+			throw MyExcep();
+	}
+	while (pos_start != pos_end)
+	{
+		pos_comma = findPosition(",", _buffer, pos_start);
+		if (pos_comma != std::string::npos)
+		{
+			pos_start = parserJsonBis(pos_start, pos_comma);
+			if (static_cast<int>(pos_start) == -1)
+			{
+				_status_code = 400;
+				std::cerr << "parserJson1 Error 400: Bad Request.\n";
+				throw MyExcep();
+			}
+		}
+		else if (index == 0)
+		{
+			index = 1;
+			pos_start = parserJsonBis(pos_start, pos_end);
+			if (static_cast<int>(pos_start) == -1)
+			{
+				_status_code = 400;
+				std::cerr << "parserJson2 Error 400: Bad Request.\n";
+				throw MyExcep();
+			}
+			else
+				break ;
+		}
 	}
 }
 
@@ -517,7 +534,7 @@ void	Request::parsingPOST_v2(const std::string& buffer)
 			{				
 				_isChunk = true;
 				constructBody();
-				// std::cout << _body << std::endl;
+				std::cout << _body << std::endl;
 			}
 		}
 		it1++;
@@ -532,6 +549,7 @@ void	Request::parsingPOST_v2(const std::string& buffer)
 			if (it->second == "application/json") // json utiliser pour la creation de ressource
 			{
 				_contentType = it->second;
+				std::cout << it->second << std::endl;
 				parserJson();
 			}
 			else if (it->second == "application/x-www-form-urlencoded")
@@ -633,14 +651,14 @@ void	Request::initContentLength()
 				std::cerr << "initContentLength2 Error 400: Bad Request\n";
 				throw MyExcep();
 			}
-			// if (static_cast<int>(_contentLength) > _max_client_body_size)
-			// {
-				// std::cout << _contentLength << std::endl;
-				// std::cout << _max_client_body_size << std::endl;
- 			// 	_status_code = 413;
-			// 	std::cerr << "initContentLength3 Error 413 : Payload Too Large.\n";
-			// 	throw MyExcep();
-			// }
+			if (static_cast<int>(_contentLength) > _max_client_body_size)
+			{
+				std::cout << _contentLength << std::endl;
+				std::cout << _max_client_body_size << std::endl;
+ 				_status_code = 413;
+				std::cerr << "initContentLength3 Error 413 : Payload Too Large.\n";
+				throw MyExcep();
+			}
 		}
 		it++;
 	}

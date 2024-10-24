@@ -116,6 +116,9 @@ class	Request
 	void	parsingDELETE(Server i, const std::string& buffer);
 	void	parsingPUT(Server i, const std::string& buffer);
 	void	parserJson();
+	int	parserJsonBis(size_t pos_start, size_t pos_comma);
+	bool	checkFirstAccolade(size_t pos);
+	bool	checkLastAccolade(size_t pos);
 	void	checkJsonAccolade();
 	void	parserUrlencoded();
 	void	parserUrlencoded_bis(std::string new_body);
@@ -147,15 +150,12 @@ class	Request
 	void	initVE();
 	void	fillCgiGet();
 	void	fillCgiPost();
-	// void	fillCgiPost();
-	// void	fillCgiDelete();
 	std::string	fillCgiToUpper(std::string fillvar, std::string var);
 	void	fillUserAgent();
 	size_t	findPosition(std::string str, const std::string& buff, size_t start);
 	std::string	helpHeaderHost(std::string value, std::string line);
 	void	fillBody(const std::string& buff);
 	bool	isBodySizeTooLarge();
-	// size_t	findPosition2(const std::string& buff, size_t start);
 	// --------- GETTERS -------------
 	std::string	getMethod() const;
 	std::string	getPath() const;
