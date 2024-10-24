@@ -101,7 +101,6 @@ void Webserv::eventLoop() {
 					}
 				}
 			}
-			sleep(2);
 		}
 	}
 }
@@ -120,28 +119,26 @@ bool Webserv::requestAlreadyExists(int event_fd)
 
 Request* Webserv::findAppropriateRequest(int event_fd)
 {
-	std::cout << "event_fd = " << event_fd << std::endl;
-	std::cout << "requests size = " << _requests.size() << std::endl;
-
 	for (size_t i = 0; i < _requests.size(); i++) {
-		std::cout << "request fd = " << _requests[i].getClientFD() << std::endl;
 		if (_requests[i].getClientFD() == event_fd)
+		{
+			std::cout << "FOUND EXISTING REQUEST\n";
 			return &_requests[i];
+		}
 	}
-    _requests.push_back(Request());  // Create empty request in vector
-    _requests.back().setClientFD(event_fd);  // Set FD on the actual stored request
+	std::cout << "CREATING NEW REQUEST\n";
+    _requests.push_back(Request());
+    _requests.back().setClientFD(event_fd);
     return &_requests.back();
 }
 
 Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
-	std::cout << "event_fd = " << event_fd << std::endl;
-	std::cout << "requests size = " << _requests.size() << std::endl;
-
 	for (size_t i = 0; i < _requests.size(); i++) {
-		std::cout << "request fd = " << _requests[i].getClientFD() << std::endl;
-		if (_requests[i].getClientFD() == event_fd)
+		if (_requests[i].getClientFD() == event_fd) {
+			std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
 			return &_requests[i];
+		}
 	}
 	return NULL;
 }
@@ -176,19 +173,20 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
         epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
         return;
     }
-	buffer[bytes] = 0;
-	std::cout << "BUFFER = " << buffer << "\n\n";
+	// buffer[bytes] = 0;
+	// std::cout << "BUFFER = " << buffer << "\n\n";
 	request._buffer += std::string(buffer);
 	// std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
 
 	if (request.isRequestComplete()) {
-		std::cout << "COMPLETE BUFFER = " << request._buffer << "\n\n";
+		std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
 		request.parsRequest(request._buffer);
 		request.getClientIPPort(client_fd);
 
 		Server* correct_server = findAppropriateServer(request);
 
 		if (correct_server != NULL) {
+			std::cout << "\nparsing again...\n\n";
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server, request._buffer);
 			if (request.isBodySizeTooLarge()) {

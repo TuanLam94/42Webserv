@@ -43,18 +43,19 @@ Request::Request()
 
 bool	Request::checkValidCharRequest(char c)
 {
-	if (!(c >= 48 && c <= 57)
-		&& !(c >= 65 && c <= 90)
-		&& !(c >= 97 && c <= 122)
-		&& c != 37 && c != 43 && c != 47 
-		&& c != 46 && c != 45 && c != 95
-		&& c != 126 && c != 61 && c != 63
-		&& c != 38)
-	{
-		_status_code = 400;
-		std::cerr << "checkValidChar Error 400: Bad Request.\n";
-		return (false);
-	}
+	// if (!(c >= 48 && c <= 57)
+	// 	&& !(c >= 65 && c <= 90)
+	// 	&& !(c >= 97 && c <= 122)
+	// 	&& c != 37 && c != 43 && c != 47 
+	// 	&& c != 46 && c != 45 && c != 95
+	// 	&& c != 126 && c != 61 && c != 63
+	// 	&& c != 38)
+	// {
+	// 	_status_code = 400;
+	// 	std::cerr << "checkValidChar Error 400: Bad Request.\n";
+	// 	return (false);
+	// }
+	(void)c;
 	return (true);
 }
 
@@ -284,9 +285,59 @@ bool Request::isBodySizeTooLarge()
 
 //-----------------------------GETTERS-----------------------------//
 
-Request::Request(const Request& copy)
+Request::Request(const Request& copy) 
 {
-	*this = copy;
+    _client_fd = copy._client_fd;
+    _cgiIsHere = copy._cgiIsHere;
+    _cgiType = copy._cgiType;
+    _RequestMethod = copy._RequestMethod;
+    _ContentLength = copy._ContentLength;
+    _ContentType = copy._ContentType;
+    _QueryString = copy._QueryString;
+    _ScriptName = copy._ScriptName;
+    _ServerName = copy._ServerName;
+    _ServerPort = copy._ServerPort;
+    _ServerProtocol = copy._ServerProtocol;
+    _GatewayInterface = copy._GatewayInterface;
+    _PathInfo = copy._PathInfo;
+    _RemoteAddr = copy._RemoteAddr;
+    _RemoteHost = copy._RemoteHost;
+    _HttpHost = copy._HttpHost;
+    _HttpUserAgent = copy._HttpUserAgent;
+    _HttpAccept = copy._HttpAccept;
+    _HttpAcceptLanguage = copy._HttpAcceptLanguage;
+    _HttpAcceptEncoding = copy._HttpAcceptEncoding;
+    _HttpReferer = copy._HttpReferer;
+    _HttpConnection = copy._HttpConnection;
+    _RemoteUser = copy._RemoteUser;
+    _AuthType = copy._AuthType;
+    _RedirectStatus = copy._RedirectStatus;
+    _HttpOrigin = copy._HttpOrigin;
+    _HttpCookie = copy._HttpCookie;
+    _method = copy._method;
+    _path = copy._path;
+    _version = copy._version;
+    _response = copy._response;
+    _body = copy._body;
+    _contentType = copy._contentType;
+    _host = copy._host;
+    _serverName = copy._serverName;
+    _port = copy._port;
+    _server = copy._server;  // Assuming Server has a copy constructor
+    _status_code = copy._status_code;
+    _contentLength = copy._contentLength;
+    _max_client_body_size = copy._max_client_body_size;
+    _pos = copy._pos;
+    _headersHttp = copy._headersHttp;
+    _queryParameter = copy._queryParameter;
+    _FormDataName = copy._FormDataName;
+    _FormDataFilename = copy._FormDataFilename;
+    _jsonParam = copy._jsonParam;
+    _urlParam = copy._urlParam;
+    _boundary = copy._boundary;
+    _dataBrut = copy._dataBrut;
+    _isChunk = copy._isChunk;
+    _buffer = copy._buffer;
 }
 
 Request& Request::operator=(const Request& other)
