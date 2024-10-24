@@ -3,6 +3,8 @@
 
 Response::Response(const Request& request)
 {
+
+    std::cout << "CREATING RESPONSE\n";
     _method = request.getMethod();
     _path = request.getPath();
     _version = request.getVersion();
@@ -102,11 +104,12 @@ int Response::responseSetCgiType()
 
     if (lastSlash != std::string::npos) {
         std::string filename = _path.substr(0, lastSlash);
-        if (filename.find(".py") != std::string::npos) {
+        // std::cout << "filename : " << filename << std::endl;
+        if (_path.find(".py") != std::string::npos) {
             std::cout << "IS CGI PY\n";
             return (1);
         }
-        else if (filename.find(".sh") != std::string::npos) {
+        else if (_path.find(".sh") != std::string::npos) {
             std::cout << "IS CGI SH\n";
             return (2);
         }

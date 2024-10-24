@@ -178,6 +178,7 @@ class	Request
 	std::string getServerPort() const;
 	std::string getRemoteAddr() const;
 	std::string getRemotePort() const;
+	bool	getIsCgiHere()const;
 	//------------SETTERS------------
 	void	setServer(Server& server);
 	void	setRequestStatusCode(int status_code);

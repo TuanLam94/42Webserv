@@ -403,6 +403,11 @@ std::string Request::getRemoteAddr() const
 	return _RemoteAddr;
 }
 
+bool	Request::getIsCgiHere()const
+{
+	return (_cgiIsHere);
+}
+
 // std::string Request::getRemotePort() const
 // {
 // 	return _RemotePort;

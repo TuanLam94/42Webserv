@@ -384,7 +384,7 @@ void	Request::formDataGetFilename(const std::string& buff, size_t pos)
 		else
 		{
 			_status_code = 400;
-			std::cerr << "formDataGetName Error 400: Bad Request.\n";
+			std::cerr << "formDataGetFileName Error 400: Bad Request.\n";
 			throw MyExcep();
 		}
 	}
