@@ -108,13 +108,12 @@ void Webserv::eventLoop() {
 Request* Webserv::findAppropriateRequest(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
-		if (_requests[i].getClientFD() == event_fd)
-		{
+		if (_requests[i].getClientFD() == event_fd) {
 			std::cout << "FOUND EXISTING REQUEST TO READ\n";
 			return &_requests[i];
 		}
 	}
-	std::cout << "CREATING NEW REQUEST\n";
+	// std::cout << "CREATING NEW REQUEST\n";
     _requests.push_back(Request());
     _requests.back().setClientFD(event_fd);
     return &_requests.back();
@@ -145,7 +144,7 @@ void Webserv::removeRequest(int event_fd)
     for (std::vector<Request>::iterator it = _requests.begin(); it != _requests.end(); ++it) {
         if (it->getClientFD() == event_fd) {
             _requests.erase(it);
-			std::cout << "REMOVED REQUEST\n";
+			// std::cout << "REMOVED REQUEST\n";
             break;
         }
     }

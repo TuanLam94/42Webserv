@@ -156,6 +156,7 @@ class	Request
 	std::string	helpHeaderHost(std::string value, std::string line);
 	void	fillBody(const std::string& buff);
 	bool	isBodySizeTooLarge();
+	int	checkIsDigit(size_t pos_start);
 	// --------- GETTERS -------------
 	std::string	getMethod() const;
 	std::string	getPath() const;
@@ -194,6 +195,7 @@ class	Request
 	void	constructBody();
 };
 
+bool	isDigit(char str);
 bool	checkValidChar(char c);
 // void	checkISS(char c1, char c2);
 // bool	checkValidHeader(char c);

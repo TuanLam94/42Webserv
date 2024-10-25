@@ -46,6 +46,29 @@ bool	Request::checkLastAccolade(size_t pos)
 	return (true);	
 }
 
+int	Request::checkIsDigit(size_t pos_start)
+{
+	while (pos_start < _buffer.size())
+	{
+		if (!(_buffer[pos_start] >= 48 && _buffer[pos_start] <= 57)
+			&& _buffer[pos_start] != ','
+			&& _buffer[pos_start] != 32
+			&& _buffer[pos_start] != '}')
+			return (-1);
+		if (_buffer[pos_start] == ',' || _buffer[pos_start] == '}' || _buffer[pos_start] == 32)
+			break ;
+		pos_start++;
+	}
+	return (pos_start);
+}
+
+bool	isDigit(char str)
+{
+	if (str >= 48 && str <= 57)
+		return (true);
+	return (false);
+}
+
 int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 {
 	std::string	key;
@@ -56,9 +79,7 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 
 	pos_points = findPosition(":", _buffer, pos_start);
 	if (pos_points == std::string::npos)
-	{
 		return (-1);
-	}
 	else
 	{
 		while (pos_start < pos_comma)
@@ -80,6 +101,22 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 				}
 				index_g = 0;
 			}
+			else if (index_pts == 1 && isDigit(_buffer[pos_start]) == true)
+			{
+				size_t pos = pos_start;
+				pos_start = checkIsDigit(pos_start);
+				if (static_cast<int>(pos_start) == -1)
+					return (-1);
+				else
+				{
+					while (pos < pos_start)
+					{
+						value += _buffer[pos];
+						pos++;
+					}
+				}
+				index_pts = 0;
+			}
 			else if (index_pts == 1 && index_g == 1)
 			{
 				while (_buffer[pos_start] != '\"')
@@ -92,23 +129,16 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 			}
 			else if (_buffer[pos_start] != 32 && _buffer[pos_start] != '{'
 				&& _buffer[pos_start] != '}')
-			{
-				std::cout << _buffer[pos_start] << std::endl;
 				return (-1);
-			}
 			pos_start++;
 		}
+		std::cout << key << std::endl;
+		std::cout << value << std::endl;
 		if (checkMap(key, _jsonParam.begin(), _jsonParam.end()) == false
 			&& key.empty() == false && value.empty() == false)
-		{
-			std::cout << key << std::endl;
-			std::cout << value << std::endl;
 			_jsonParam.insert(std::pair<std::string, std::string>(key, value));
-		}
 		else
-		{
 			return (-1);
-		}
 	}
 	pos_start++;
 	return (pos_start);
