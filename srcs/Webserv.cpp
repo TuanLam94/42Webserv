@@ -162,9 +162,9 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
         return;
     }
 	// buffer[bytes] = 0;
-	std::cout << "BUFFER = " << buffer << "\n\n";
+	// std::cout << "BUFFER = " << buffer << "\n\n";
 	request._buffer += std::string(buffer);
-	std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
+	// std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
 
 	if (request.isRequestComplete()) {
 		std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
