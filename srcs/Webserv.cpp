@@ -122,11 +122,11 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd)
 		{
-			std::cout << "FOUND EXISTING REQUEST\n";
+			// std::cout << "FOUND EXISTING REQUEST\n";
 			return &_requests[i];
 		}
 	}
-	std::cout << "CREATING NEW REQUEST\n";
+	// std::cout << "CREATING NEW REQUEST\n";
     _requests.push_back(Request());
     _requests.back().setClientFD(event_fd);
     return &_requests.back();
@@ -136,7 +136,7 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
+			// std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
 			return &_requests[i];
 		}
 	}
@@ -157,7 +157,7 @@ void Webserv::removeRequest(int event_fd)
     for (std::vector<Request>::iterator it = _requests.begin(); it != _requests.end(); ++it) {
         if (it->getClientFD() == event_fd) {
             _requests.erase(it);
-			std::cout << "REMOVED REQUEST\n";
+			// std::cout << "REMOVED REQUEST\n";
             break;
         }
     }
@@ -176,7 +176,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	// buffer[bytes] = 0;
 	// std::cout << "BUFFER = " << buffer << "\n\n";
 	request._buffer += std::string(buffer);
-	// std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
+	std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
 
 	if (request.isRequestComplete()) {
 		std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
