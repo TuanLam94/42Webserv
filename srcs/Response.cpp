@@ -83,6 +83,7 @@ void Response::handleErrorResponse()
 
 void Response::sendResponse(int fd)
 {
+	// std::cout << "sending response...\n\n" << _response_str.c_str() << std::endl;
     write(fd, _response_str.c_str(), _response_str.size());
 }
 
@@ -107,15 +108,15 @@ int Response::responseSetCgiType()
         std::string filename = _path.substr(0, lastSlash);
         // std::cout << "filename : " << filename << std::endl;
         if (_path.find(".py") != std::string::npos) {
-            std::cout << "IS CGI PY\n";
+            // std::cout << "IS CGI PY\n";
             return (1);
         }
         else if (_path.find(".sh") != std::string::npos) {
-            std::cout << "IS CGI SH\n";
+            // std::cout << "IS CGI SH\n";
             return (2);
         }
     }
-    std::cout << "IS NOT CGI\n";
+    // std::cout << "IS NOT CGI\n";
     return 0;
 }
 

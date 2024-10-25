@@ -21,3 +21,5 @@
 11 - Test all
 
 12 - Check if body < contentLength
+
+13 - Handle DELETE already deleted better

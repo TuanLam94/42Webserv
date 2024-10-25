@@ -91,7 +91,6 @@ void Webserv::eventLoop() {
 			}
 			if (!isServerSocket) {
 				if (_events[i].events & EPOLLIN) {
-					std::cout << "event_fd = " << event_fd << std::endl;
 					Request* request = findAppropriateRequest(event_fd);
 					handleClientRequest(event_fd, *request);
 				}
@@ -111,7 +110,7 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			std::cout << "FOUND EXISTING REQUEST TO READ\n";
+			// std::cout << "FOUND EXISTING REQUEST TO READ\n";
 			return &_requests[i];
 		}
 	}
@@ -125,7 +124,7 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
+			// std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
 			return &_requests[i];
 		}
 	}

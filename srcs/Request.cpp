@@ -88,9 +88,9 @@ void	Request::parsRequestLine(std::string buff)
 		|| _path.empty() == true
 		|| _version.empty() == true)
 	{
-		std::cout << "method = " << _method << std::endl;
-		std::cout << "path = " << _path << std::endl;
-		std::cout << "version = " << _version << std::endl;
+		// std::cout << "method = " << _method << std::endl;
+		// std::cout << "path = " << _path << std::endl;
+		// std::cout << "version = " << _version << std::endl;
 		_status_code = 400;
 		std::cerr << "parsRequestLine Error 400: Bad Request.\n";
 		throw MyExcep();

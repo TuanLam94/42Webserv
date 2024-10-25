@@ -107,11 +107,14 @@ void	Request::parsParamPath(size_t pos)
 void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../" -> dans l'uri 
 {
 	std::string	new_path;
+
 	
 	if (_method == "GET")
 		new_path = obj.getRoutesPath() + _path;
 	else if (_method == "POST")
 		new_path = obj.getUploadDir() + _path;
+	else if (_method == "DELETE")
+		new_path = _path.substr(1);
 	_path.clear();
 	_path = new_path;
 }
@@ -360,7 +363,7 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 		return ;
 	}
 	_input.open(_path.c_str());
-	std::cout << _path << std::endl;
+	// std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
 		std::cerr << "Can't open input\n";

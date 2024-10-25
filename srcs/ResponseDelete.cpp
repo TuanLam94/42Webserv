@@ -2,18 +2,15 @@
 
 void Response::handleDeleteResponse()
 {
-	std::cout << "path = " << _path << std::endl;
+	// std::cout << "path = " << _path << std::endl;
     switch(DEL_CheckFile()) {
         case -1:
             _status_code = "404 Not found";
-			std::cout << "1\n";
             break;
         case -2:
             _status_code = "403 Forbidden";
-			std::cout << "2\n";
             break;
         case 0:
-			std::cout << "3\n";
             int status = DeleteFile();
             if (status == 0) //Success
                 _status_code = "204 No Content";
