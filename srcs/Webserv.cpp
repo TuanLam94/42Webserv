@@ -91,12 +91,13 @@ void Webserv::eventLoop() {
 			}
 			if (!isServerSocket) {
 				if (_events[i].events & EPOLLIN) {
+					std::cout << "event_fd = " << event_fd << std::endl;
 					Request* request = findAppropriateRequest(event_fd);
 					handleClientRequest(event_fd, *request);
 				}
 				if (_events[i].events & EPOLLOUT) {
 					Request* request = findAppropriateRequestToWrite(event_fd);
-					if (request != NULL && request->isRequestComplete()) {
+					if (request != NULL /*&& request->isRequestComplete() && !request._buffer.empty()*/) {
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
 					}
@@ -168,7 +169,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 
 	if (request.isRequestComplete()) {
 		std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
-		request.parsRequest(request._buffer);
+		request.parsRequest(request._buffer);			//PATH IS HERE
 		request.getClientIPPort(client_fd);
 
 		Server* correct_server = findAppropriateServer(request);
@@ -177,6 +178,8 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 			std::cout << "\nparsing again...\n\n";
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server, request._buffer);
+			std::cout << "request succesfully parsed!\n";
+			std::cout << "Request Path is " << request.getPath() << std::endl;
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);
 				return ;

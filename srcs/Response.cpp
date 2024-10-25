@@ -16,6 +16,7 @@ Response::Response(const Request& request)
     _jsonParam = request.getJsonParam();
     _urlParam = request.getUrlParam();
     _cgi_type = responseSetCgiType();
+	std::cout << "RESPONSE PATH = " << _path << std::endl;
 }
 
 void Response::setStatusCode(const Request& request)
