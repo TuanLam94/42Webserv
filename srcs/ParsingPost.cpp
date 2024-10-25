@@ -362,7 +362,7 @@ bool	Request::parserFormData_help(const std::string& buff, size_t i)
 	unsigned long int j = 0;
 
 	new_boundary = _boundary + "--";
-	while (j < new_boundary.size())
+	while (j < new_boundary.size() && i < buff.size())
 	{
 		final_boundary += buff[i];
 		i++;
