@@ -175,11 +175,11 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		Server* correct_server = findAppropriateServer(request);
 
 		if (correct_server != NULL) {
-			std::cout << "\nparsing again...\n\n";
+			// std::cout << "\nparsing again...\n\n";
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server, request._buffer);
-			std::cout << "request succesfully parsed!\n";
-			std::cout << "Request Path is " << request.getPath() << std::endl;
+			// std::cout << "request succesfully parsed!\n";
+			// std::cout << "Request Path is " << request.getPath() << std::endl;
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);
 				return ;

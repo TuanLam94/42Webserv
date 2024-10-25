@@ -160,7 +160,7 @@ void	Request::parsRequest(const std::string& buffer)
 	{
 		return ;
 	}
-	std::cout << "parsRequest path = " << _path << std::endl;
+	// std::cout << "parsRequest path = " << _path << std::endl;
 }
 
 void	Request::parsRequestBis(Server i, const std::string& buffer)
@@ -181,9 +181,9 @@ void	Request::parsRequestBis(Server i, const std::string& buffer)
 			fillCgiPost();
 	}
 	else if (_method == "DELETE") {
-		std::cout << "Method is delete. Path is " << _path << std::endl;
+		// std::cout << "Method is delete. Path is " << _path << std::endl;
 		parsingDELETE(i, buffer);
-		std::cout << "still delete, path is " << _path << std::endl;
+		// std::cout << "still delete, path is " << _path << std::endl;
 	}
 }
 
