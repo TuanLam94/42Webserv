@@ -101,22 +101,6 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 				}
 				index_g = 0;
 			}
-			else if (index_pts == 1 && isDigit(_buffer[pos_start]) == true)
-			{
-				size_t pos = pos_start;
-				pos_start = checkIsDigit(pos_start);
-				if (static_cast<int>(pos_start) == -1)
-					return (-1);
-				else
-				{
-					while (pos < pos_start)
-					{
-						value += _buffer[pos];
-						pos++;
-					}
-				}
-				index_pts = 0;
-			}
 			else if (index_pts == 1 && index_g == 1)
 			{
 				while (_buffer[pos_start] != '\"')
@@ -126,6 +110,24 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 				}
 				index_pts = 0;
 				index_g = 0;
+			}
+			else if (index_pts == 1 && isDigit(_buffer[pos_start]) == true)
+			{
+				size_t pos = pos_start;
+				pos_start = checkIsDigit(pos_start);
+				if (static_cast<int>(pos_start) == -1)
+				{
+					return (-1);
+				}
+				else
+				{
+					while (pos < pos_start)
+					{
+						value += _buffer[pos];
+						pos++;
+					}
+				}
+				index_pts = 0;
 			}
 			else if (_buffer[pos_start] != 32 && _buffer[pos_start] != '{'
 				&& _buffer[pos_start] != '}')
@@ -293,6 +295,8 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 		}
 		i++;
 	}
+	std::cout << "key : " << key << std::endl;
+	std::cout << "value : " << value << std::endl;
 	if (checkStatusCode() == true)
 		checkKeyUrl(key);
 	if (checkStatusCode() == true)
@@ -364,7 +368,7 @@ bool	Request::parserFormData_help(const std::string& buff, size_t i)
 	// std::cout << _boundary << std::endl;
 	new_boundary = _boundary + "--";
 	// std::cout << new_boundary << std::endl;
-	while (j < new_boundary.size())
+	while (j < new_boundary.size() && i < buff.size())
 	{
 		final_boundary += buff[i];
 		i++;
@@ -511,21 +515,47 @@ void	Request::constructBody()
 {
 	size_t	pos1 = 0;
 	size_t	pos2 = 0;
+	size_t	pos3 = 0;
 	std::string	str;
-	int	hexa = 0;
+	size_t	hexa = 0;
 	char	*end;
 	std::string	strFinal;
-	unsigned long int	i = 0;
 
-	while (true)
+	pos1 = findPosition("\r\n", _body, pos2);
+	if (pos1 != std::string::npos)
 	{
+		for (size_t i = 0; i < pos1; i++)
+			str += _body[i];
+		pos1 += 2;
+	}
+	else
+		throw MyExcep();
+	pos2 = pos1;
+	hexa = strtol(str.c_str(), &end, 16);
+	str.clear();
+	pos3 = findPosition("0\r\n\r\n", _body, 0);
+	if (pos3 == std::string::npos)
+	{
+		_status_code = 400;
+		std::cout << "constructBody Error 400: Bad Request.\n";
+		throw MyExcep();
+	}
+	while (pos2 < pos3)
+	{
+		size_t i = 0;
+		while (i < hexa && pos2 < pos3)
+		{
+			strFinal += _body[pos2];
+			i++;
+			pos2++;
+		}
+		pos2 += 2;
 		pos1 = findPosition("\r\n", _body, pos2);
 		if (pos1 != std::string::npos)
 		{
-			for (; i < pos1; i++)
+			for (size_t i = pos2; i < pos1; i++)
 				str += _body[i];
 			pos1 += 2;
-			i += 2;
 		}
 		else
 			throw MyExcep();
@@ -533,17 +563,7 @@ void	Request::constructBody()
 		if (hexa == 0)
 			break ;
 		str.clear();
-		pos2 = findPosition("\r\n", _body, pos1);
-		if (pos2 != std::string::npos)
-		{
-			for (int j = 0; j < hexa; j++, i++)
-				strFinal += _body[i];
-			
-			pos2 += 2;
-			i += 2;
-		}
-		else
-			throw MyExcep();
+		pos2 = pos1;
 	}
 	_body.clear();
 	_body += strFinal;
