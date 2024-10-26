@@ -312,8 +312,8 @@ bool Request::isRequestComplete()
             size_t bodySize = _buffer.size() - (headerEnd + 4);  // +4 for \r\n\r\n
             
             // Debug output
-            std::cout << "Expected size: " << expectedSize << std::endl;
-            std::cout << "Current body size: " << bodySize << std::endl;
+        //     std::cout << "Expected size: " << expectedSize << std::endl;
+        //     std::cout << "Current body size: " << bodySize << std::endl;
             
             return (bodySize >= expectedSize);
         }

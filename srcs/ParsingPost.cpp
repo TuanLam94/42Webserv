@@ -361,13 +361,16 @@ bool	Request::parserFormData_help(const std::string& buff, size_t i)
 	std::string	final_boundary;
 	unsigned long int j = 0;
 
+	// std::cout << _boundary << std::endl;
 	new_boundary = _boundary + "--";
+	// std::cout << new_boundary << std::endl;
 	while (j < new_boundary.size())
 	{
 		final_boundary += buff[i];
 		i++;
 		j++;
 	}
+	// std::cout << final_boundary << std::endl;
 	if (new_boundary == final_boundary)
 		return (true);	
 	return (false);
@@ -467,7 +470,7 @@ void	Request::parserFormData_bis(const std::string& buff, size_t pos)
 			i = pos_info + 5;
 		pos_info = findPosition("\r\n", buff, i);
 		if (pos_info != std::string::npos)
-			i = pos_info + 3;
+			i = pos_info + 2;
 		if (parserFormData_help(buff, i) == true)
 			break ;
 	}

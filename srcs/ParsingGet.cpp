@@ -112,6 +112,8 @@ void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../"
 		new_path = obj.getRoutesPath() + _path;
 	else if (_method == "POST")
 		new_path = obj.getUploadDir() + _path;
+	else if	(_method == "DELETE")
+		new_path = obj.getUploadDir() + _path;
 	_path.clear();
 	_path = new_path;
 }

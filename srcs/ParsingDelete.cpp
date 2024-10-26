@@ -37,10 +37,7 @@ void	Request::parsingDELETE(Server i, const std::string& buffer)
 		fillBody(buffer);
 		checkHeaderName();
 		fillVar();
-		if (!checkContentType() == true)
-			throw MyExcep();
 		initContentLength();
-		parsingPOST_v2(buffer);
 	}
 	catch(std::exception &ex)
 	{
