@@ -85,3 +85,6 @@ message: ceci est mon messsage
 name: sami
 age: 21
 name: fdsa
+email: sami.helal@live.fr
+message: this is the message
+name: sami
