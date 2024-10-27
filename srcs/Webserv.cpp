@@ -150,14 +150,6 @@ void Webserv::removeRequest(int event_fd)
     }
 }
 
-/*
-	- Gerer la taille de l"URI 
-	- Gerer la taille des headers
-	- Gerer la taille du body
-	- Gerer Content Length taille infinie
-*/
-
-
 int	checkUriSize(std::string buff)
 {
 	size_t	pos;
@@ -284,6 +276,9 @@ int	checkBodySize(std::string buff, Request request)
 		{
 			if (static_cast<int>(i) > request.getMaxBodySize())
 			{
+				std::cout << i << std::endl;
+				std::cout << request.getMaxBodySize() << std::endl;
+				exit (1);
 				std::cerr << "checkBodySize Error 413: Payload Too Large.\n";
 				return (413);
 			}
@@ -333,15 +328,15 @@ int	checkContentLengthSize(std::string buff)
 	return (0);
 }
 
-int	checkAllSize(std::string buff, Request request)
+int	checkAllSize(Request request)
 {
-	if (checkUriSize(buff) == 414)
+	if (checkUriSize(request._buffer) == 414)
 		return (414);
-	if (checkHeadersSize(buff) == 431)
+	if (checkHeadersSize(request._buffer) == 431)
 		return (431);
-	if (checkBodySize(buff, request) == 413)
-		return (413);
-	if (checkContentLengthSize(buff) == 413) // revoir le status code -> pas sur
+	// if (checkBodySize(request._buffer) == 413) // revoir le body size pour avoir le bon
+		// return (413);
+	if (checkContentLengthSize(request._buffer) == 413)
 		return (413);
 	return (0);
 }
@@ -361,7 +356,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	request._buffer += std::string(buffer);
 	std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
 
-	request.setStatusCode(checkAllSize(request._buffer, request));
+	request.setStatusCode(checkAllSize(request));
 	if (request.getStatusCode() != 0)
 		return ;
 	if (request.isRequestComplete()) {
