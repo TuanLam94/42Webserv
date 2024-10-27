@@ -134,7 +134,7 @@ void	Request::checkUri()
 	if (_path.size() > 2048)
 	{
 		std::cerr << "checkUri Error 414: Uri Too Long.\n";
-		_status_code = 505;
+		_status_code = 414;
 		throw MyExcep();
 	}
 }
@@ -564,6 +564,11 @@ int Request::getClientFD() const
 // }
 
 //-----------------------------------------------------SETTERS--------------------------------------
+
+void	Request::setStatusCode(int code)
+{
+	_status_code = code;
+}
 
 void Request::setServer(Server& server)
 {

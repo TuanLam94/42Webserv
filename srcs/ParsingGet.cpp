@@ -242,7 +242,7 @@ void	Request::checkKey(std::string key)
 	unsigned long int i = 0;
 	size_t	pos;
 
-	if (key.empty() == true)
+	if (key.empty() == true || key.size () == 1)
 	{
 		_status_code = 400;
 		std::cerr << "checkKey 1 Error 400: Bad Request\n";
@@ -294,8 +294,6 @@ void	Request::checkHeaderName()
 	while (it != ite)
 	{
 		it->first = trim(it->first);
-		// std::cout << it->first << std::endl;
-		// std::cout << it->second << std::endl;
 		if (it->first == "Host:" || it->first == "HOST:" || it->first == "host:")
 			host++;
 		if (checkStatusCode() == true)

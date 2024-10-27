@@ -109,7 +109,7 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			std::cout << "FOUND EXISTING REQUEST TO READ\n";
+			// std::cout << "FOUND EXISTING REQUEST TO READ\n";
 			return &_requests[i];
 		}
 	}
@@ -150,6 +150,202 @@ void Webserv::removeRequest(int event_fd)
     }
 }
 
+/*
+	- Gerer la taille de l"URI 
+	- Gerer la taille des headers
+	- Gerer la taille du body
+	- Gerer Content Length taille infinie
+*/
+
+
+int	checkUriSize(std::string buff)
+{
+	size_t	pos;
+
+	pos = buff.find("\r\n");
+	if (pos != std::string::npos)
+	{
+		for (size_t i = 0; i < pos; i++)
+		{
+			if (i > 2048)
+			{
+				std::cerr << "checkUriSize Error 414: Uri too long.\n";
+				return (414);
+			}
+		}
+	}
+	else
+	{
+		for (size_t i = 0; i < buff.size(); i++)
+		{
+			if (i > 2048)
+			{
+				std::cerr << "checkUriSize Error 414: Uri too long.\n";
+				return (414);
+			}
+		}
+	}
+	return (0);
+}
+
+int	checkHeadersSize(std::string buff)
+{
+	size_t	pos;
+	size_t	pos1;
+	size_t	pos2;
+
+	pos = buff.find("\r\n");
+	if (pos == std::string::npos)
+		return (0);
+	else
+	{
+		pos += 2;
+		pos1 = buff.find("\r\n\r\n", pos); 
+		if (pos1 == std::string::npos)
+		{
+			for (size_t i = 0; i < buff.size(); i++)
+			{
+				pos2 = buff.find("\r\n", pos);
+				if (pos2 == std::string::npos)
+				{
+					for (size_t j = pos; j < pos2; j++, i++)
+					{
+						if (i > 2048)
+						{
+							std::cerr << "checkHeadersSize1 Error 431: Header Field Too Large.\n";
+							return (431);
+						}
+					}
+				}
+				else
+				{
+					int i = 0;
+					for (size_t j = pos; j < pos2; j++, i++)
+					{
+						if (i > 2048)
+						{
+							std::cerr << "checkHeadersSize1 Error 431: Header Field Too Large.\n";
+							return (431);
+						}
+					}
+				}
+				if (i > 8192)
+				{
+					std::cerr << "checkHeadersSize2 Error 431: Header Field Too Large.\n";
+					return (431);
+				}
+				pos2 += 2;
+				pos = pos2;
+			}
+		}
+		else
+		{
+			for (size_t i = 0; i < pos1; i++)
+			{
+				pos2 = buff.find("\r\n", pos);
+				if (pos2 == std::string::npos)
+					return (0);
+				else
+				{
+					int i = 0;
+					for (size_t j = pos; j < pos2; j++, i++)
+					{
+						if (i > 2048)
+						{
+							std::cerr << "checkHeadersSize1 Error 431: Header Field Too Large.\n";
+							return (431);
+						}
+					}
+				}
+				if (i > 8192)
+				{
+					std::cerr << "checkHeadersSize2 Error 431: Header Field Too Large.\n";
+					return (431);
+				}
+				pos2 += 2;
+				pos = pos2;
+			}
+		}
+	}
+	return (0);
+}
+
+int	checkBodySize(std::string buff, Request request)
+{
+	size_t	pos;
+
+	pos = buff.find("\r\n\r\n");
+	if (pos == std::string::npos)
+		return (0);
+	else
+	{
+		pos += 4;
+		for (size_t i = pos; i < buff.size(); i++)
+		{
+			if (static_cast<int>(i) > request.getMaxBodySize())
+			{
+				std::cerr << "checkBodySize Error 413: Payload Too Large.\n";
+				return (413);
+			}
+		}
+	}
+	return (0);
+}
+
+int	checkContentLengthSize(std::string buff)
+{
+	size_t	pos;
+	std::string	content = "Content-Length: ";
+	std::string	nbr;
+
+	pos = buff.find(content);
+	if (pos == std::string::npos)
+		return (0);
+	else
+	{
+		pos += content.size();
+		size_t	pos1 = buff.find("\r\n", pos);
+		if (pos1 == std::string::npos)
+			return (0);
+		else
+		{
+			for (size_t i = pos; i < pos1; i++)
+			{
+				if (buff[i] >= 48 & buff[i] <= 57)
+				{
+					nbr += buff[i];
+				}
+			}
+			if (nbr.empty() == false)
+			{
+				unsigned int	integer;
+				std::stringstream	ss(nbr);
+				ss >> integer;
+				std::cout << integer << std::endl;
+				if (integer > 10485760)
+				{
+					std::cerr << "checkContentLengthSize Error 413: Payload Too Large.\n";
+					return (413);
+				}
+			}
+		}
+	}
+	return (0);
+}
+
+int	checkAllSize(std::string buff, Request request)
+{
+	if (checkUriSize(buff) == 414)
+		return (414);
+	if (checkHeadersSize(buff) == 431)
+		return (431);
+	if (checkBodySize(buff, request) == 413)
+		return (413);
+	if (checkContentLengthSize(buff) == 413) // revoir le status code -> pas sur
+		return (413);
+	return (0);
+}
+
 void Webserv::handleClientRequest(int client_fd, Request& request)
 {
 	char buffer[1024] = {0};
@@ -161,10 +357,13 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
         return;
     }
 	// buffer[bytes] = 0;
-	std::cout << "BUFFER = " << buffer << "\n\n";
+	// std::cout << "BUFFER = " << buffer << "\n\n";
 	request._buffer += std::string(buffer);
 	std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
 
+	request.setStatusCode(checkAllSize(request._buffer, request));
+	if (request.getStatusCode() != 0)
+		return ;
 	if (request.isRequestComplete()) {
 		std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
 		request.parsRequest(request._buffer);

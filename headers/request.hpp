@@ -184,6 +184,7 @@ class	Request
 	int getClientFD() const;
 
 	//------------SETTERS------------
+	void	setStatusCode(int code);
 	void	setServer(Server& server);
 	void	setRequestStatusCode(int status_code);
 	void	setClientFD(int fd);
