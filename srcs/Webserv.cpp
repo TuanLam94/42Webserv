@@ -69,7 +69,8 @@ void Webserv::epollInit()
 }
 
 void Webserv::eventLoop() {
-	int maxEvents = 1024;// originally 10
+	int maxEvents = 10;// originally 10
+	_events.resize(maxEvents);
 	while (true) {
 		int fd_number = epoll_wait(_epoll_fd, _events.data(), maxEvents, _servers[0].getTimeout());
 		if (fd_number < 0) {
@@ -95,7 +96,7 @@ void Webserv::eventLoop() {
 				}
 				if (_events[i].events & EPOLLOUT) {
 					Request* request = findAppropriateRequestToWrite(event_fd);
-					if (request != NULL && request->isRequestComplete()) {
+					if (request != NULL /*&& request->isRequestComplete() && !request._buffer.empty()*/) {
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
 					}
@@ -354,22 +355,24 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	// buffer[bytes] = 0;
 	// std::cout << "BUFFER = " << buffer << "\n\n";
 	request._buffer += std::string(buffer);
-	std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
+	// std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
 
 	request.setStatusCode(checkAllSize(request));
 	if (request.getStatusCode() != 0)
 		return ;
 	if (request.isRequestComplete()) {
 		std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
-		request.parsRequest(request._buffer);
+		request.parsRequest(request._buffer);			//PATH IS HERE
 		request.getClientIPPort(client_fd);
 
 		Server* correct_server = findAppropriateServer(request);
 
 		if (correct_server != NULL) {
-			std::cout << "\nparsing again...\n\n";
+			// std::cout << "\nparsing again...\n\n";
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server, request._buffer);
+			// std::cout << "request succesfully parsed!\n";
+			// std::cout << "Request Path is " << request.getPath() << std::endl;
 			std::cout << "\nrequest parsed\n";
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);

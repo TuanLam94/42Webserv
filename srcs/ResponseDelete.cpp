@@ -2,6 +2,7 @@
 
 void Response::handleDeleteResponse()
 {
+	// std::cout << "path = " << _path << std::endl;
     switch(DEL_CheckFile()) {
         case -1:
             _status_code = "404 Not found";

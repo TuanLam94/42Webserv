@@ -88,9 +88,9 @@ void	Request::parsRequestLine(std::string buff)
 		|| _path.empty() == true
 		|| _version.empty() == true)
 	{
-		std::cout << "method = " << _method << std::endl;
-		std::cout << "path = " << _path << std::endl;
-		std::cout << "version = " << _version << std::endl;
+		// std::cout << "method = " << _method << std::endl;
+		// std::cout << "path = " << _path << std::endl;
+		// std::cout << "version = " << _version << std::endl;
 		_status_code = 400;
 		std::cerr << "parsRequestLine Error 400: Bad Request.\n";
 		throw MyExcep();
@@ -160,6 +160,7 @@ void	Request::parsRequest(const std::string& buffer)
 	{
 		return ;
 	}
+	// std::cout << "parsRequest path = " << _path << std::endl;
 }
 
 void	Request::parsRequestBis(Server i, const std::string& buffer)
@@ -179,8 +180,11 @@ void	Request::parsRequestBis(Server i, const std::string& buffer)
 		if (_cgiIsHere == true)
 			fillCgiPost();
 	}
-	else if (_method == "DELETE")
+	else if (_method == "DELETE") {
+		// std::cout << "Method is delete. Path is " << _path << std::endl;
 		parsingDELETE(i, buffer);
+		// std::cout << "still delete, path is " << _path << std::endl;
+	}
 }
 
 void	Request::getClientIPPort(int clientfd)
@@ -312,6 +316,8 @@ bool Request::isChunkedRequestComplete(const std::string& body) {
 //             size_t bodySize = _buffer.size() - (headerEnd + 4);  // +4 for \r\n\r\n
             
 //             // Debug output
+//             std::cout << "Expected size: " << expectedSize << std::endl;
+//             std::cout << "Current body size: " << bodySize << std::endl;
 //         //     std::cout << "Expected size: " << expectedSize << std::endl;
 //         //     std::cout << "Current body size: " << bodySize << std::endl;
             
@@ -412,6 +418,7 @@ Request::Request(const Request& copy)
     _serverName = copy._serverName;
     _port = copy._port;
     _server = copy._server;  // Assuming Server has a copy constructor
+	// _input = copy._input;  // Caution: This may not behave as expected
     _status_code = copy._status_code;
     _contentLength = copy._contentLength;
     _max_client_body_size = copy._max_client_body_size;

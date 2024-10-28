@@ -43,6 +43,10 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+		        .dropdown-container {
+            display: none; /* Initially hide the dropdown container */
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -87,6 +91,24 @@
 
     <div class="spacer"></div>
 
+	<h2>DELETE Requests</h2>
+    <p>Delete files from the server.</p>
+    
+    <button onclick="toggleDeleteDropdown()">Delete file</button>
+
+    <div class="dropdown-container" id="deleteDropdown">
+        <select id="fileSelect">
+            <option value="foo">foo</option>
+            <option value="foo1">foo1</option>
+            <option value="foo2">foo2</option>
+            <option value="foo3">foo3</option>
+            <option value="foo4">foo4</option>
+            <option value="foo5">foo5</option>
+        </select>
+        <button onclick="deleteFile()">Confirm Delete</button>
+    </div>
+
+	
     <h2>CGI</h2>
     <p>Tests our bash and python CGIs right here.</p>
 
@@ -233,6 +255,46 @@
             document.getElementById("formAge").value = '';
             const formContainer = document.getElementById('formData');
             formContainer.style.display = 'none'; // Hide the form
+        }
+		function toggleDeleteDropdown() {
+            const dropdownContainer = document.getElementById('deleteDropdown');
+            dropdownContainer.style.display = dropdownContainer.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Function to send DELETE request for selected file
+		function deleteFile() {
+			const file = document.getElementById('fileSelect').value;
+			const deleteUrl = `http://localhost:8080/config/toDelete/${file}`;
+
+			fetch(deleteUrl, {
+			method: 'DELETE',
+			})
+			.then(response => {
+			if (response.status === 404) {
+				throw new Error('404 Not Found: The file you want to delete does not exist');
+			}
+			if (response.status === 403) {
+				throw new Error('403 Forbidden: You do not have permission to delete this file');
+			}
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+			return response.text();
+			})
+			.then(data => {
+			console.log(`File ${file} deleted successfully:`, data);
+			alert(`File ${file} deleted successfully!`);
+			})
+			.catch(error => {
+			console.error(`Error deleting file ${file}:`, error);
+			if (error.message.includes('404')) {
+				alert('404 Not Found: The file you want to delete does not exist'); // Removed the template literal and file name
+			} else if (error.message.includes('403')) {
+				alert('403 Forbidden: You do not have permission to delete this file');
+			} else {
+				alert(`Error deleting file ${file}: ${error.message}`);
+			}
+			});
         }
     </script>
 </body>

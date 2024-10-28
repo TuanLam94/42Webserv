@@ -2,14 +2,14 @@
 
 void Response::handlePostResponse()
 {
-    std::cout << "\nCOMING HERE2\n";
-
     if (_contentType == "application/json")                         //json data submission
         handleDataSubmission();
     else if (_contentType == "application/x-www-form-urlencoded")   //form submission
         handleFormSubmission();
-    else if (_contentType == "multipart/form-data")                 //file upload
+    else if (_contentType == "multipart/form-data") {				//file upload
+		std::cout << "told you it was CGI\n";
         handleCGI(2);
+	}
     // else if (_contentType == "text/plain")
     //     filePath += ".txt";
 
