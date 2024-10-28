@@ -66,14 +66,14 @@ int	checkHeadersSize(std::string buff)
 					{
 						if (i > 2048)
 						{
-							std::cerr << "checkHeadersSize1 Error 431: Header Field Too Large.\n";
+							std::cerr << "checkHeadersSize2 Error 431: Header Field Too Large.\n";
 							return (431);
 						}
 					}
 				}
 				if (i > 8192)
 				{
-					std::cerr << "checkHeadersSize2 Error 431: Header Field Too Large.\n";
+					std::cerr << "checkHeadersSize3 Error 431: Header Field Too Large.\n";
 					return (431);
 				}
 				pos2 += 2;
@@ -84,7 +84,7 @@ int	checkHeadersSize(std::string buff)
 		{
 			for (size_t i = 0; i < pos1; i++)
 			{
-				pos2 = buff.find("\r\n", pos);
+				pos2 = buff.find("\r\n", pos1);
 				if (pos2 == std::string::npos)
 					return (0);
 				else
@@ -94,14 +94,14 @@ int	checkHeadersSize(std::string buff)
 					{
 						if (i > 2048)
 						{
-							std::cerr << "checkHeadersSize1 Error 431: Header Field Too Large.\n";
+							std::cerr << "checkHeadersSize4 Error 431: Header Field Too Large.\n";
 							return (431);
 						}
 					}
 				}
 				if (i > 8192)
 				{
-					std::cerr << "checkHeadersSize2 Error 431: Header Field Too Large.\n";
+					std::cerr << "checkHeadersSize5 Error 431: Header Field Too Large.\n";
 					return (431);
 				}
 				pos2 += 2;
@@ -112,23 +112,22 @@ int	checkHeadersSize(std::string buff)
 	return (0);
 }
 
-int	checkBodySize(std::string buff, Request request)
+int	checkBodySize(Request request)
 {
 	size_t	pos;
 
-	pos = buff.find("\r\n\r\n");
+	pos = request._buffer.find("\r\n\r\n");
 	if (pos == std::string::npos)
 		return (0);
 	else
 	{
 		pos += 4;
-		for (size_t i = pos; i < buff.size(); i++)
+		for (size_t i = pos; i < request._buffer.size(); i++)
 		{
 			if (static_cast<int>(i) > request.getMaxBodySize())
 			{
 				std::cout << i << std::endl;
 				std::cout << request.getMaxBodySize() << std::endl;
-				exit (1);
 				std::cerr << "checkBodySize Error 413: Payload Too Large.\n";
 				return (413);
 			}
@@ -341,12 +340,14 @@ int	checkAllSize(Request request)
 		return (414);
 	if (checkHeadersSize(request._buffer) == 431)
 		return (431);
-	// if (checkBodySize(request._buffer) == 413) // revoir le body size pour avoir le bon
-		// return (413);
+	if (checkBodySize(request) == 413) // revoir le body size pour avoir le bon
+		return (413);
 	if (checkContentLengthSize(request._buffer) == 413)
 		return (413);
 	return (0);
 }
+
+// echo -ne "POST /submit HTTP/1.1\r\nHost: localhost\r\nContent-Type: text/plain\r\nConnection:close\r\n\r\n" | nc localhost 8080
 
 void Webserv::handleClientRequest(int client_fd, Request& request)
 {

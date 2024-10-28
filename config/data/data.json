@@ -64,3 +64,19 @@
  "city": "dsa",
  "name": "fsa"
 }
+{
+ "age": "21",
+ "city": "dsad",
+ "name": "smai"
+}
+{
+ "key1": "value1",
+ "key2": "value%26"
+}
+{
+ "age": "30",
+ "nname": "John"
+}
+{
+ "name": "John"
+}

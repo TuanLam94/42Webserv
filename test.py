@@ -12,7 +12,7 @@ with socket.create_connection((host, port)) as s:
         "User-Agent: custom-client\r\n"
         "Accept: */*\r\n"
         "Transfer-Encoding: chunked\r\n"
-        "Content-Type: application/x-www-form-urlencoded\r\n"
+        "Content-Type: text/plain\r\n"
         "\r\n"
         "4\r\n"
         "Wiki\r\n"

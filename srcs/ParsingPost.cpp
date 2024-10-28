@@ -619,6 +619,7 @@ void	Request::parsingPOST_v2(const std::string& buffer)
 			{
 				_contentType = it->second;
 				parserTextPlain();
+
 			}
 			else
 			{
@@ -655,11 +656,13 @@ void	Request::parserTextPlain()
 {
 	unsigned long int	i = 0;
 
-	while (i < _contentLength)
+	while (i < _contentLength && i < _body.size())
 	{
 		_dataBrut += _body[i];
 		i++;
 	}
+	std::cout << _dataBrut << std::endl;
+	exit (1);
 }
 
 
