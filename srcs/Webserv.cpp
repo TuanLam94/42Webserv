@@ -307,7 +307,7 @@ int	checkContentLengthSize(std::string buff)
 		{
 			for (size_t i = pos; i < pos1; i++)
 			{
-				if (buff[i] >= 48 & buff[i] <= 57)
+				if (buff[i] >= 48 && buff[i] <= 57)
 				{
 					nbr += buff[i];
 				}
