@@ -1,60 +1,32 @@
-import requests
-from requests.auth import HTTPBasicAuth
+import socket
 
-def printResponse(r):
-	print("==STATUSCODE==")
-	print(r.status_code)
-	print("==HEADERS==")
-	print(r.headers)
-	print("==BODY==")
-	print(r.text)
-	print("******************\n")
+host = 'localhost'
+port = 8080
 
-
-
-print("GET on 8080/test")
-r = requests.get('http://localhost:8080/test')
-printResponse(r)
-
-print("GET on 8080/test/index.html with no language parameter")
-r = requests.get('http://localhost:8080/test/index.html')
-printResponse(r)
-
-print("GET on 8080/test/index.html with preferred language FR")
-headers = {'Accept-Language': 'fr'}
-r = requests.get('http://localhost:8080/test/index.html', headers=headers)
-printResponse(r)
-
-print("GET on 8080/test/index.html with preferred language EN")
-headers = {'Accept-Language': 'en'}
-r = requests.get('http://localhost:8080/test/index.html', headers=headers)
-printResponse(r)
-
-print("GET on 8080/test/index.html with preferred language FR and preferred encoding utf8")
-headers = {'Accept-Language': 'fr', 'Accept-Charset': 'utf8'}
-r = requests.get('http://localhost:8080/test/index.html', headers=headers)
-printResponse(r)
-
-print("GET on 8080/test/index.html with preferred language EN and preferred encoding utf8")
-headers = {'Accept-Language': 'en', 'Accept-Charset': 'utf8'}
-r = requests.get('http://localhost:8080/test/index.html', headers=headers)
-printResponse(r)
-
-print("GET on 8080/auth/add.html without auth")
-r = requests.get('http://localhost:8080/auth/add.html')
-printResponse(r)
-
-print("GET on 8080/auth/add.html with auth")
-r = requests.get('http://localhost:8080/auth/add.html', auth=HTTPBasicAuth('test', 'test'))
-printResponse(r)
-
-print("GET on 80/ with test host header")
-headers = {'Host': 'test'}
-r = requests.get('http://localhost:80/', headers=headers)
-printResponse(r)
-
-print("GET on 80/ with add host header")
-headers = {'Host': 'add'}
-r = requests.get('http://localhost:80/', headers=headers)
-printResponse(r)
+# Créer la connexion
+with socket.create_connection((host, port)) as s:
+    # En-têtes et corps en chunked encoding
+    request = (
+        "POST /your_endpoint HTTP/1.1\r\n"
+        "Host: localhost:8080\r\n"
+        "User-Agent: custom-client\r\n"
+        "Accept: */*\r\n"
+        "Transfer-Encoding: chunked\r\n"
+        "Content-Type: application/x-www-form-urlencoded\r\n"
+        "\r\n"
+        "4\r\n"
+        "Wiki\r\n"
+        "5\r\n"
+        "pedia\r\n"
+        "E\r\n"
+        "in\r\n"
+        "chunks.\r\n"
+        "0\r\n"
+        "\r\n"
+    )
+    # Envoyer la requête
+    s.sendall(request.encode())
+    # Recevoir la réponse
+    response = s.recv(4096)
+    print(response.decode())
 
