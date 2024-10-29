@@ -42,7 +42,7 @@ int	checkHeadersSize(std::string buff)
 	else
 	{
 		pos += 2;
-		pos1 = buff.find("\r\n\r\n", pos); 
+		pos1 = buff.find("\r\n\r\n", pos);
 		if (pos1 == std::string::npos)
 		{
 			for (size_t i = 0; i < buff.size(); i++)
@@ -124,13 +124,13 @@ int	checkBodySize(Request request)
 		pos += 4;
 		for (size_t i = pos; i < request._buffer.size(); i++)
 		{
-			if (static_cast<int>(i) > request.getMaxBodySize())
-			{
-				std::cout << i << std::endl;
-				std::cout << request.getMaxBodySize() << std::endl;
-				std::cerr << "checkBodySize Error 413: Payload Too Large.\n";
-				return (413);
-			}
+			// if (static_cast<int>(i) > request.getMaxBodySize())
+			// {
+			// 	std::cout << i << std::endl;
+			// 	std::cout << request.getMaxBodySize() << std::endl;
+			// 	std::cerr << "checkBodySize Error 413: Payload Too Large.\n";
+			// 	return (413);
+			// }
 		}
 	}
 	return (0);
