@@ -47,18 +47,21 @@ int	checkHeadersSize(std::string buff)
 		{
 			for (size_t i = 0; i < buff.size(); i++)
 			{
-				pos2 = buff.find("\r\n", pos);
+				pos2 = buff.find("\r\n", pos1);
 				if (pos2 == std::string::npos)
-				{
-					for (size_t j = pos; j < pos2; j++, i++)
-					{
-						if (i > 2048)
-						{
-							std::cerr << "checkHeadersSize1 Error 431: Header Field Too Large.\n";
-							return (431);
-						}
-					}
-				}
+					return (0);
+				// {
+				// 	int k = 0;
+				// 	for (size_t j = pos; j < pos2; j++, k++)
+				// 	{
+				// 		std::cout << buff[k];
+				// 		if (k > 2048)
+				// 		{
+				// 			std::cerr << "checkHeadersSize1 Error 431: Header Field Too Large.\n";
+				// 			return (431);
+				// 		}
+				// 	}
+				// }
 				else
 				{
 					int i = 0;
@@ -348,6 +351,7 @@ int	checkAllSize(Request request)
 }
 
 // echo -ne "POST /submit HTTP/1.1\r\nHost: localhost\r\nContent-Type: text/plain\r\nConnection:close\r\n\r\n" | nc localhost 8080
+
 
 void Webserv::handleClientRequest(int client_fd, Request& request)
 {
