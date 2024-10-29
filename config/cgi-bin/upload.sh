@@ -29,7 +29,7 @@
 #!/bin/bash
 
 # Définir le répertoire de téléchargement
-UPLOAD_DIR="/path/to/uploads"  # Remplacez par le chemin de votre dossier de destination
+UPLOAD_DIR="config/uploads"  # Remplacez par le chemin de votre dossier de destination
 
 # Vérifiez si le répertoire de téléchargement existe, sinon créez-le
 [ ! -d "$UPLOAD_DIR" ] && mkdir -p "$UPLOAD_DIR"

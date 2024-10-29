@@ -24,8 +24,6 @@ void Response::handleDeleteResponse()
                 _status_code = "404 Not found";
             break;
     }
-
-    buildDelResponse();
 }
 
 

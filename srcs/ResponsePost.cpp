@@ -10,8 +10,6 @@ void Response::handlePostResponse()
         handleCGIPost();
     // else if (_contentType == "text/plain")
     //     filePath += ".txt";
-
-    buildPostResponse();
 }
 
 //what to do with the data now ? 
@@ -111,21 +109,29 @@ void Response::handleCGIPost()
         else {
             std::cerr << "Unsupported CGI type\n";
             close(_server.getEpollFd());
-            exit(1);
+            exit(415);
         }
 
         std::cerr << "execv failed\n";
         close(_server.getEpollFd());
-        exit(1);
+        exit(500);
     }
 	else {
 		close(pipefd[1]);
+        close(bodyPipe[0]);
+
+        write(bodyPipe[1], _request.getBody().c_str(), _request.getBody().size());
+        close(bodyPipe[1]);
 
 		time_t start_time = time(NULL);
 		const time_t timeout = 60;
 		int status;
 		pid_t result = 0;
 		bool timedout = false;
+
+        char buffer[1024];
+        ssize_t bytesRead;
+        _responseBody.clear();
 
 		while (result == 0) {
 			result = waitpid(pid, &status, WNOHANG);
@@ -138,6 +144,22 @@ void Response::handleCGIPost()
 				}
 				usleep(100000);
 			}
+
+            if (WIFEXITED(status)) {
+                int exitCode = WEXITSTATUS(status);
+                if (exitCode == 500) {
+                    _status_code = "500 Internal Server Error";
+                    close(pipefd[0]);
+                    buildResponse();
+                    return ;
+                }
+                else if (exitCode == 415) {
+                    _status_code = "415 Unsupported Media Type";
+                    close(pipefd[0]);
+                    buildResponse();
+                    return ;
+                }
+            }
 		}
 
 		if (timedout) {
@@ -155,6 +177,19 @@ void Response::handleCGIPost()
 			_status_code = "500 Internal Server Error\n";
 			_responseBody = "Failed to execute CGI Script";
 		}
+        else {
+            while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0)
+                _responseBody.append(buffer, bytesRead);
+            if (bytesRead == -1) {
+                std::cerr << "Error reading from pipe\n";
+                _status_code = "500 Internal Server Error";
+                _responseBody = "Error reading CGI Script output"; //?
+            }
+            else
+                _status_code = "200 OK";
+        }
+        close(pipefd[0]);
+        buildResponse();
 	}
 }
 

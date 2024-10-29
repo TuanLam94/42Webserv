@@ -50,7 +50,6 @@ class Response
 		//request handling
 		void	handleRequest();
 		bool 	isErrorResponse();
-		void	handleErrorResponse();
 		void	sendResponse(int fd);
 		void	setStatusCode(const Request& request);
 		std::string loadErrorPage(const std::string& errorPage);
@@ -80,8 +79,13 @@ class Response
 
 			//cgi
 		void runScript(std::string Lpath);
-		void handleCGI(int type);
-		void buildCGIResponse();
+		void handleCGIGet();
+		void handleCGIPost();
+		void buildResponse();
+		void handleErrorResponse();
+		bool isErrorCode();
+
+		// void buildCGIResponse();
 		//NEEDED ONLY IF DIRECTORY IN PATH
 		std::string postParseDirPath();
 		std::string postParseFilePath();

@@ -36,7 +36,7 @@ void Response::setStatusCode(const Request& request)
 void Response::handleRequest()
 {
     if (isErrorResponse())
-        handleErrorResponse();
+        return ;
     else
     {
         if (_method == "GET")
@@ -52,32 +52,12 @@ bool Response::isErrorResponse()
 {
     if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405 
         || _request.getStatusCode() == 413 || _request.getStatusCode() == 414 
-        || _request.getStatusCode() == 500 || _request.getStatusCode() == 505)
+        || _request.getStatusCode() == 500 || _request.getStatusCode() == 505
+        || _request.getStatusCode() == 404 || _request.getStatusCode() == 415
+        || _request.getStatusCode() == 409 || _request.getStatusCode() == 403
+        || _request.getStatusCode() == 504)
         return true;
     return false;
-}
-
-void Response::handleErrorResponse()
-{
-    switch(_request.getStatusCode()) {
-        case 400:
-            _responseBody = loadErrorPage("400.html");
-            break;
-        case 405:
-            _responseBody = loadErrorPage("405.html");
-            break;
-        case 505:
-            _responseBody = loadErrorPage("505.html");
-            break;
-    }
-
-    _response << "HTTP/1.1" << _status_code << "\r\n";
-    _response << "Content-Type: text/html\r\n";
-    _response << "Content-Length: " << _responseBody.size() << "\r\n";
-    _response << "Connection: keep-alive\r\n";
-    _response << "\r\n";
-    _response << _responseBody;
-    _response_str = _response.str();
 }
 
 void Response::sendResponse(int fd)
@@ -112,6 +92,86 @@ int Response::responseSetCgiType()
     }
 
     return 0;
+}
+
+
+void Response::buildResponse()
+{
+    _response.str("");
+    _response.clear();
+
+    _response << "HTTP/1.1 " << _status_code << "/r/n";
+    if (isErrorCode())
+        handleErrorResponse();
+    else if (_method == "GET")
+        buildGetResponse();
+    else if (_method == "POST")
+        buildPostResponse();
+    else if (_method == "DELETE")
+        buildDelResponse();
+}
+
+bool Response::isErrorCode()
+{
+    if (_status_code == "404 Not Found" || _status_code == "415 Unsupported Media Type" || _status_code == "409 Conflict"
+        || _status_code == "403 Forbidden" || _status_code == "504 Gateway Timeout" || _status_code == "400 Bad Request"
+        || _status_code == "500 Internal Server Error" || _status_code == "413 Content Too Large" || _status_code == "414 URI Too Long"
+        || _status_code == "405 Method Not Allowed" || _status_code == "505 HTTP Version Not Supported")
+        return true;
+    return false;
+}
+
+void Response::handleErrorResponse()
+{
+    char *end;
+
+    int errorCode = strtol(_status_code.substr(0, 3).c_str(), &end, 10);
+    switch (errorCode) {
+        case 404:
+            _responseBody = loadErrorPage("404.html");
+            _response << "Content-Type: text/html/r/n";
+            break;
+        case 415:
+            _responseBody = loadErrorPage("415.html");
+            _response << "Content-Type: text/html/r/n";
+            break;
+        case 409:
+            _responseBody = loadErrorPage("409.html");
+            _response << "Content-Type: text/html/r/n";
+            break;
+        case 403:
+            _responseBody = loadErrorPage("403.html");
+            _response << "Content-Type: text/html/r/n";
+            break;
+        case 504:
+            _responseBody = loadErrorPage("504.html");
+            _response << "Content-Type: text/html/r/n";
+            break;
+        case 400:
+            _responseBody = loadErrorPage("400.html");
+            _response << "Content-Type: text/html/r/n";
+            break;
+        case 500:
+            _responseBody = loadErrorPage("500.html");
+            _response << "Content-Type: text/html/r/n";
+            break;
+        case 413:
+            _responseBody = loadErrorPage("413.html");
+            _response << "Content-Type: text/html/r/n";
+            break;
+        case 414:
+            _responseBody = loadErrorPage("414.html");
+            _response << "Content-Type: text/html/r/n";
+            break;
+        case 405:
+            _responseBody = loadErrorPage("405.html");
+            _response << "Content-Type: text/html/r/n";
+            break;
+        case 505:
+            _responseBody = loadErrorPage("505.html");
+            _response << "Content-Type: text/html/r/n";
+            break;
+    }
 }
 
 //--------------------------------------------GETTERS--------------------------------------------

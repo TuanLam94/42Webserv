@@ -318,6 +318,7 @@ void Webserv::handleClientWrite(int event_fd, Request& request)
 {
 	Response response(request);
 	response.handleRequest();
+	response.buildResponse();
 	response.sendResponse(event_fd);
 }
 
