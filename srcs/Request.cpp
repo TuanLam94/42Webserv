@@ -223,11 +223,12 @@ size_t	fillLength(std::string buffer, size_t start)
 }
 
 // si content-length pas egal a body --> return error 400 bad request ou 500 internal errror timeout
+// si pas de \r\n\r\n a la fin --> boucle infinie request never complete return error 400 bad request
 
 bool Request::isRequestComplete()
 {
 	if (_buffer.empty() == true)
-		return false;
+		return true;
 	size_t headerEnd = _buffer.find("\r\n\r\n");
 	if (headerEnd != std::string::npos) {
 		size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
@@ -240,7 +241,9 @@ bool Request::isRequestComplete()
 				contentLengthStart = fillLength(_buffer, contentLengthStart);
 				size_t i = headerEnd + 4;
 				size_t j = 0;
-				for (; i < _buffer.size(); i++, j++);
+				for (; i < _buffer.size(); i++, j++);			
+				// std::cout << j << std::endl;
+				// std::cout << contentLengthStart << std::endl;
 				if (j == contentLengthStart)
 					return (true);
 				else

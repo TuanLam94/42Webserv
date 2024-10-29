@@ -41,7 +41,7 @@ bool	Request::checkFirstAccolade(size_t pos)
 
 bool	Request::checkLastAccolade(size_t pos)
 {
-	if (_buffer[pos] != _body[_body.size() - 1])
+	if (_buffer[pos] != _body[_body.size() - 3])
 		return (false);
 	return (true);	
 }
@@ -158,19 +158,35 @@ void	Request::parserJson()
 		return ;	
 	pos_start = findPosition("{", _buffer, 0);
 	if (pos_start == std::string::npos)
+	{
+		_status_code = 400;
+		std::cerr << "parserJson3 Error 400: Bad Request.\n";
 		throw MyExcep();
+	}
 	else
 	{
 		if (checkFirstAccolade(pos_start) == false)
+		{
+			_status_code = 400;
+			std::cerr << "parserJson4 Error 400: Bad Request.\n";
 			throw MyExcep();
+		}
 	}
 	pos_end = findPosition("}", _buffer, 0);
 	if (pos_end == std::string::npos)
+	{
+		_status_code = 400;
+		std::cerr << "parserJson5 Error 400: Bad Request.\n";
 		throw MyExcep();
+	}
 	else
 	{
 		if (checkLastAccolade(pos_end) == false)
+		{
+			_status_code = 400;
+			std::cerr << "parserJson6 Error 400: Bad Request.\n";
 			throw MyExcep();
+		}
 	}
 	while (pos_start != pos_end)
 	{
@@ -395,21 +411,31 @@ void	Request::formDataGetName(const std::string& buff, size_t pos)
 	if (pos != std::string::npos)
 	{
 		pos += 4;
-		while (buff[pos] != '\r')
-		{
-			value += buff[pos];
-			pos++;
-		}
-		// std::cout << "key : " << key << std::endl;
-		// std::cout << "value : " << value << std::endl;
-		if (key.empty() == false && value.empty() == false)
-			_FormDataName.insert(std::pair<std::string, std::string>(key, value));
-		else
+		size_t pos1 = findPosition("\r\n", buff, pos);
+		if (pos1 == std::string::npos)
 		{
 			_status_code = 400;
 			std::cerr << "formDataGetName Error 400: Bad Request.\n";
 			throw MyExcep();
 		}
+		else
+		{
+			while (pos < buff.size() && pos < pos1)
+			{
+				value += buff[pos];
+				pos++;
+			}
+		}
+		std::cout << "Name key : " << key << std::endl;
+		std::cout << "Name value : " << value << std::endl;
+		// if (key.empty() == false && value.empty() == false)
+			_FormDataName.insert(std::pair<std::string, std::string>(key, value));
+		// else
+		// {
+		// 	_status_code = 400;
+		// 	std::cerr << "formDataGetName Error 400: Bad Request.\n";
+		// 	throw MyExcep();
+		// }
 	}
 }
 
@@ -418,7 +444,7 @@ void	Request::formDataGetFilename(const std::string& buff, size_t pos)
 	std::string	key;
 	std::string	value;
 
-	pos = pos + 6;
+	pos = pos + 10;
 	while (buff[pos] != '\"')
 	{
 		key += buff[pos];
@@ -428,19 +454,31 @@ void	Request::formDataGetFilename(const std::string& buff, size_t pos)
 	if (pos != std::string::npos)
 	{
 		pos += 4;
-		while (buff[pos] != '\r')
-		{
-			value += buff[pos];
-			pos++;
-		}
-		if (key.empty() == false && value.empty() == false)
-			_FormDataFilename.insert(std::pair<std::string, std::string>(key, value));
-		else
+		size_t pos1 = findPosition("\r\n", buff, pos);
+		if (pos1 == std::string::npos)
 		{
 			_status_code = 400;
 			std::cerr << "formDataGetFileName Error 400: Bad Request.\n";
 			throw MyExcep();
 		}
+		else
+		{
+			while (pos < buff.size() && pos < pos1)
+			{
+				value += buff[pos];
+				pos++;
+			}
+		}
+		std::cout << "FileName key : " << key << std::endl;
+		std::cout << "FileName value : " << value << std::endl;
+		// if (key.empty() == false && value.empty() == false)
+			_FormDataFilename.insert(std::pair<std::string, std::string>(key, value));
+		// else
+		// {
+		// 	_status_code = 400;
+		// 	std::cerr << "formDataGetFileName Error 400: Bad Request.\n";
+		// 	throw MyExcep();
+		// }
 	}
 }
 
@@ -456,18 +494,21 @@ void	Request::parserFormData_bis(const std::string& buff, size_t pos)
 	while (true)
 	{
 		pos_info = findPosition("Content-Disposition: form-data; ", buff, i);
-		if (pos_info != std::string::npos)
+		if (pos_info == std::string::npos)
+		{
+			_status_code = 400;
+			std::cout << "parserFormData Error 400 : Bad Request.\n";
+			throw MyExcep();
+		}
+		else if (pos_info != std::string::npos)
 		{
 			i = pos_info;
 			pos_info = findPosition("name=\"", buff, i);
 			if (pos_info != std::string::npos)
 				formDataGetName(buff, pos_info);
-			else
-			{
-				pos_info = findPosition("filename=\"", buff, i);
-				if (pos_info != std::string::npos)
-					formDataGetFilename(buff, pos_info);
-			}
+			pos_info = findPosition("filename=\"", buff, i);
+			if (pos_info != std::string::npos)
+				formDataGetFilename(buff, pos_info);
 		}
 		pos_info = findPosition("\r\n\r\n", buff, i);
 		if (pos_info != std::string::npos)
@@ -597,7 +638,7 @@ void	Request::parsingPOST_v2(const std::string& buffer)
 	{
 		if (it->first == "Content-Type:")
 		{
-			pos = it->second.std::string::find("multipart/form-data");
+			pos = it->second.std::string::find("multipart/form-data;");
 			if (it->second == "application/json") // json utiliser pour la creation de ressource
 			{
 				_contentType = it->second;
@@ -661,8 +702,7 @@ void	Request::parserTextPlain()
 		_dataBrut += _body[i];
 		i++;
 	}
-	std::cout << _dataBrut << std::endl;
-	exit (1);
+	std::cout << _body.size() << std::endl;
 }
 
 
@@ -708,8 +748,6 @@ void	Request::initContentLength()
 			}
 			if (static_cast<int>(_contentLength) > _max_client_body_size)
 			{
-				std::cout << _contentLength << std::endl;
-				std::cout << _max_client_body_size << std::endl;
  				_status_code = 413;
 				std::cerr << "initContentLength3 Error 413 : Payload Too Large.\n";
 				throw MyExcep();

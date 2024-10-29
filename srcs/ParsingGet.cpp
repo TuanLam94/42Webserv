@@ -80,6 +80,8 @@ void	Request::parsParamPath(size_t pos)
 			index = false;
 			key = parsParamPath_bis(key);
 			value = parsParamPath_bis(value);
+			// std::cout << "key : " << key << std::endl;
+			// std::cout << "value : " << value << std::endl;
 			_queryParameter.insert(std::pair<std::string, std::string>(key, value));
 			key.clear();
 			value.clear();
@@ -93,6 +95,8 @@ void	Request::parsParamPath(size_t pos)
 	}
 	key = parsParamPath_bis(key);
 	value = parsParamPath_bis(value);
+	// std::cout << "key : " << key << std::endl;
+	// std::cout << "value : " << value << std::endl;
 	if (key.empty() == true || value.empty() == true)
 	{
 		_status_code = 400;
@@ -229,7 +233,11 @@ void	Request::parsHeaders(const std::string& buff)
 				else if (checkValidHeaderValue(buff[i]) == true)
 					value += buff[i];
 				else
+				{
+					_status_code = 400;
+					std::cerr << "parsHeaders1 Error 400: Bad Request\n";
 					throw MyExcep();
+				}
 				i++;
 			}
 			i += 2;
@@ -242,7 +250,11 @@ void	Request::parsHeaders(const std::string& buff)
 		}
 	}
 	else
+	{
+		_status_code = 400;
+		std::cerr << "parsHeaders2 Error 400: Bad Request\n";
 		throw MyExcep();
+	}
 }
 
 void	Request::checkKey(std::string key)
@@ -299,6 +311,12 @@ void	Request::checkHeaderName()
 
 	it = _headersHttp.begin();
 	ite = _headersHttp.end();
+	if (it == ite)
+	{
+		_status_code = 400;
+		std::cerr << "checkHeaderName1 Error 400: Bad Request.\n";
+		throw MyExcep();
+	}
 	while (it != ite)
 	{
 		it->first = trim(it->first);
@@ -315,7 +333,7 @@ void	Request::checkHeaderName()
 	if (host != 1)
 	{
 		_status_code = 400;
-		std::cerr << "checkHeaderName Error 400: Bad Request\n";
+		std::cerr << "checkHeaderName2 Error 400: Bad Request\n";
 		throw MyExcep();
 	}
 }
