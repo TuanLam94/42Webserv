@@ -6,10 +6,8 @@ void Response::handlePostResponse()
         handleDataSubmission();
     else if (_contentType == "application/x-www-form-urlencoded")   //form submission
         handleFormSubmission();
-    else if (_contentType == "multipart/form-data") {				//file upload
-		std::cout << "told you it was CGI\n";
-        handleCGI(2);
-	}
+    else if (_contentType == "multipart/form-data")					//file upload
+        handleCGIPost();
     // else if (_contentType == "text/plain")
     //     filePath += ".txt";
 
@@ -74,20 +72,133 @@ bool Response::storeFormData()
     return true;
 }
 
-int Response::Post_Check_Errors()
+void Response::handleCGIPost()
 {
-    std::string dirPath = postParseDirPath();
+    std::ostringstream oss;
+    oss << _request.getBody().size();
+    std::string content_length_str = oss.str();
 
-    if (access(dirPath.c_str(), F_OK) && !access(dirPath.c_str(), W_OK))//no permission to write in subdirectory
-        return -1;
-    if (!access(_server.getUploadDir().c_str(), W_OK)) //no permissions to write in directory
-        return -1;
-    else if (access(_request.getPath().c_str(), F_OK) == 0) //file already exists
-        return -2;
-    if (_request.getBody().size() > static_cast<size_t>(_request.getMaxBodySize()))
-        return -3;
-    return 0;
+    setenv("REQUEST_METHOD", "POST", 1);
+    setenv("CONTENT_LENGTH", content_length_str.c_str(), 1);
+    setenv("CONTENT_TYPE", _request.getContentType().c_str(), 1);
+    setenv("QUERY_STRING", _request.getQueryString().c_str(), 1);
+    setenv("PATH_INFO", _request.getPathInfo().c_str(), 1);
+
+    int pipefd[2], bodyPipe[2];
+    if (pipe(pipefd) == -1 || pipe(bodyPipe) == -1) {
+        std::cerr << "Failed to create pipes.\n";
+        return;
+    }
+
+    pid_t pid = fork();
+    if (pid == -1) {
+        std::cerr << "Failed to fork process.\n";
+        close(pipefd[0]); close(pipefd[1]);
+        close(bodyPipe[0]); close(bodyPipe[1]);
+        return;
+    }
+
+    if (pid == 0) {
+        dup2(pipefd[1], STDOUT_FILENO);
+        dup2(bodyPipe[0], STDIN_FILENO);
+        close(pipefd[0]); close(pipefd[1]);
+        close(bodyPipe[0]); close(bodyPipe[1]);
+
+		if (_cgi_type == 1)
+            runScript("/usr/bin/python3");
+        else if (_cgi_type == 2)
+            runScript("/bin/bash");
+        else {
+            std::cerr << "Unsupported CGI type\n";
+            close(_server.getEpollFd());
+            exit(1);
+        }
+
+        std::cerr << "execv failed\n";
+        close(_server.getEpollFd());
+        exit(1);
+    }
+	else {
+		close(pipefd[1]);
+
+		time_t start_time = time(NULL);
+		const time_t timeout = 60;
+		int status;
+		pid_t result = 0;
+		bool timedout = false;
+
+		while (result == 0) {
+			result = waitpid(pid, &status, WNOHANG);
+			if (result == -1)
+				break;
+			if (result == 0) {
+				if (time(NULL) - start_time >= timeout) {
+					timedout = true;
+					break;
+				}
+				usleep(100000);
+			}
+		}
+
+		if (timedout) {
+			kill(pid, SIGTERM);
+			usleep(100000);
+			kill(pid, SIGKILL);
+			waitpid(pid, NULL, 0);
+
+			std::cerr << "CGI Script timed out\n";
+			_status_code = "504 Gateway Timeout";
+			_responseBody = "CGI Script execution timed out after 60 seconds";
+		}
+		else if (result == -1) {
+			std::cerr << "Error waiting for child process\n";
+			_status_code = "500 Internal Server Error\n";
+			_responseBody = "Failed to execute CGI Script";
+		}
+	}
 }
+
+//TO REDO
+void Response::buildPostResponse()
+{
+    _response.str("");
+    _response.clear();
+
+    _response << "HTTP/1.1 " << _status_code << "\r\n";
+    if (_status_code == "409 Conflict") {
+        _responseBody = loadErrorPage("409.html");
+        _response << "Content-Type: text/html\r\n"; 
+    } 
+    else if (_status_code == "403 Forbidden") {
+        _responseBody = loadErrorPage("403.html");
+        _response << "Content-Type: text/html\r\n";
+    } 
+    else {
+        _responseBody = _request.getBody();
+        _response << "Content-Type: " << _request.getContentType() << "\r\n";
+    }
+
+    _response << "Content-Length: " << _responseBody.size() << "\r\n";
+    _response << "Connection: keep-alive\r\n"; //keep alive ?
+    _response << "\r\n";
+    _response << _responseBody;
+    _response_str = _response.str();
+}
+
+// int Response::Post_Check_Errors()
+// {
+//     std::string dirPath = postParseDirPath();
+
+//     if (access(dirPath.c_str(), F_OK) && !access(dirPath.c_str(), W_OK))//no permission to write in subdirectory
+//         return -1;
+//     if (!access(_server.getUploadDir().c_str(), W_OK)) //no permissions to write in directory
+//         return -1;
+//     else if (access(_request.getPath().c_str(), F_OK) == 0) //file already exists
+//         return -2;
+//     if (_request.getBody().size() > static_cast<size_t>(_request.getMaxBodySize()))
+//         return -3;
+//     return 0;
+// }
 
 // void Response::handleUploads()
 // {
@@ -140,126 +251,99 @@ int Response::Post_Check_Errors()
 
 //     file.close();
 //     return true;
+// // }
+
+// bool Response::createFile(/*std::string filename*/)
+// {
+//     std::string dirPath = postParseDirPath();
+//     std::string filePath = postParseFilePath(); //or is it filename ? tocheck
+
+//     createDirectoryRecursive(dirPath);
+
+//     filePath += postHandleMultipart();
+
+//     std::ofstream file(filePath.c_str() /*, std::ios::binary*/);
+//     if (!file.is_open()) {
+//         std::cerr << "Error creating file" << std::endl;
+//         return false;
+//     }
+
+//     //std::string body = extractRequestBody();
+
+//     file << _request.getBody();
+
+//     if (!file.good())
+//         std::cerr << "Error writing to file at path: " << filePath << std::endl;
+
+//     file.close();
+//     return true;
 // }
 
-bool Response::createFile(/*std::string filename*/)
-{
-    std::string dirPath = postParseDirPath();
-    std::string filePath = postParseFilePath(); //or is it filename ? tocheck
+// std::string Response::postParseDirPath()
+// {
+//     std::string path = _request.getPath();
+//     size_t lastSlash = path.find_last_of('/');
 
-    createDirectoryRecursive(dirPath);
+//     if (lastSlash != std::string::npos)
+//         return path.substr(0, lastSlash);
 
-    filePath += postHandleMultipart();
+//     return "";
+// }
 
-    std::ofstream file(filePath.c_str() /*, std::ios::binary*/);
-    if (!file.is_open()) {
-        std::cerr << "Error creating file" << std::endl;
-        return false;
-    }
+// std::string Response::postParseFilePath()
+// {
+//     std::string path = _request.getPath();
+//     size_t lastSlash = path.find_last_of('/');
 
-    //std::string body = extractRequestBody();
+//     if (lastSlash != std::string::npos)
+//         return path.substr(lastSlash);
+//     return path;
+// }
 
-    file << _request.getBody();
+// std::string Response::postHandleMultipart()
+// {
+//     std::map<std::string, std::string> map = _request.getFormDataName();
+//     std::map<std::string, std::string>::iterator it = map.begin();
 
-    if (!file.good())
-        std::cerr << "Error writing to file at path: " << filePath << std::endl;
+//     while (it != map.end() && it->first != "filename")
+//         it++;
+//     if (it->first == "filename")
+//         return(extractExtension(it->second));
+//     return "";
+// }
 
-    file.close();
-    return true;
-}
+// std::string Response::extractExtension(std::string file)
+// {
+//     size_t pos = file.find(".");
+//     return file.substr(pos);
+// }
 
-std::string Response::postParseDirPath()
-{
-    std::string path = _request.getPath();
-    size_t lastSlash = path.find_last_of('/');
+// void Response::createDirectoryRecursive(const std::string& path)
+// {
+//     std::string currentPath;
+//     std::istringstream pathStream(path);
+//     std::string buffer;
 
-    if (lastSlash != std::string::npos)
-        return path.substr(0, lastSlash);
+//     while (std::getline(pathStream, buffer, '/')) {
+//         if (buffer.empty())
+//             continue;
+//         if (!currentPath.empty())
+//             currentPath += "/";
+//         currentPath += buffer;
 
-    return "";
-}
+//         if (!createDirectory(currentPath)) {
+//             if (errno != EEXIST)
+//                 std::cerr << "Failed to create directory " << currentPath << std::endl;
+//         }
+//     }
+// }
 
-std::string Response::postParseFilePath()
-{
-    std::string path = _request.getPath();
-    size_t lastSlash = path.find_last_of('/');
-
-    if (lastSlash != std::string::npos)
-        return path.substr(lastSlash);
-    return path;
-}
-
-std::string Response::postHandleMultipart()
-{
-    std::map<std::string, std::string> map = _request.getFormDataName();
-    std::map<std::string, std::string>::iterator it = map.begin();
-
-    while (it != map.end() && it->first != "filename")
-        it++;
-    if (it->first == "filename")
-        return(extractExtension(it->second));
-    return "";
-}
-
-std::string Response::extractExtension(std::string file)
-{
-    size_t pos = file.find(".");
-    return file.substr(pos);
-}
-
-void Response::createDirectoryRecursive(const std::string& path)
-{
-    std::string currentPath;
-    std::istringstream pathStream(path);
-    std::string buffer;
-
-    while (std::getline(pathStream, buffer, '/')) {
-        if (buffer.empty())
-            continue;
-        if (!currentPath.empty())
-            currentPath += "/";
-        currentPath += buffer;
-
-        if (!createDirectory(currentPath)) {
-            if (errno != EEXIST)
-                std::cerr << "Failed to create directory " << currentPath << std::endl;
-        }
-    }
-}
-
-bool Response::createDirectory(const std::string& path)
-{
-    if (mkdir(path.c_str(), 0755) == 0)
-        return true;
-    if (errno == EEXIST)
-        return true;
-    std::cerr << "Error creating directory " << path << std::endl;
-    return false;
-}
-
-//TO REDO
-void Response::buildPostResponse()
-{
-    _response.str("");
-    _response.clear();
-
-    _response << "HTTP/1.1 " << _status_code << "\r\n";
-    if (_status_code == "409 Conflict") {
-        _responseBody = loadErrorPage("409.html");
-        _response << "Content-Type: text/html\r\n"; 
-    } 
-    else if (_status_code == "403 Forbidden") {
-        _responseBody = loadErrorPage("403.html");
-        _response << "Content-Type: text/html\r\n";
-    } 
-    else {
-        _responseBody = _request.getBody();
-        _response << "Content-Type: " << _request.getContentType() << "\r\n";
-    }
-
-    _response << "Content-Length: " << _responseBody.size() << "\r\n";
-    _response << "Connection: keep-alive\r\n"; //keep alive ?
-    _response << "\r\n";
-    _response << _responseBody;
-    _response_str = _response.str();
-}
+// bool Response::createDirectory(const std::string& path)
+// {
+//     if (mkdir(path.c_str(), 0755) == 0)
+//         return true;
+//     if (errno == EEXIST)
+//         return true;
+//     std::cerr << "Error creating directory " << path << std::endl;
+//     return false;
+// }

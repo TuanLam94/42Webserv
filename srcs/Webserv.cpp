@@ -316,11 +316,9 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 
 void Webserv::handleClientWrite(int event_fd, Request& request)
 {
-	if (request.isRequestComplete()) {
-		Response response(request);
-		response.handleRequest();
-		response.sendResponse(event_fd);
-	}
+	Response response(request);
+	response.handleRequest();
+	response.sendResponse(event_fd);
 }
 
 void Webserv::removeRequest(int event_fd)

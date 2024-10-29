@@ -39,9 +39,8 @@ void Response::handleRequest()
         handleErrorResponse();
     else
     {
-        if (_method == "GET") {
+        if (_method == "GET")
             handleGetResponse();
-        }
         else if (_method == "POST")
             handlePostResponse();
         else if (_method == "DELETE")
@@ -106,17 +105,12 @@ int Response::responseSetCgiType()
 
     if (lastSlash != std::string::npos) {
         std::string filename = _path.substr(0, lastSlash);
-        // std::cout << "filename : " << filename << std::endl;
-        if (_path.find(".py") != std::string::npos) {
-            // std::cout << "IS CGI PY\n";
+        if (_path.find(".py") != std::string::npos)
             return (1);
-        }
-        else if (_path.find(".sh") != std::string::npos) {
-            // std::cout << "IS CGI SH\n";
+        else if (_path.find(".sh") != std::string::npos)
             return (2);
-        }
     }
-    // std::cout << "IS NOT CGI\n";
+
     return 0;
 }
 

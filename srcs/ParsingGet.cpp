@@ -108,11 +108,18 @@ void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../"
 {
 	std::string	new_path;
 
-	
-	if (_method == "GET")
-		new_path = obj.getRoutesPath() + _path;
-	else if (_method == "POST")
-		new_path = obj.getUploadDir() + _path;
+	if (_method == "GET") {
+		if (_cgiIsHere)
+			new_path = "config" + _path;			//a revoir pour GET
+		else
+			new_path = obj.getRoutesPath() + _path;
+	}
+	else if (_method == "POST") {
+		if (_cgiIsHere)
+			new_path = "config" + _path;
+		else
+			new_path = obj.getUploadDir() + _path;
+	}
 	else if (_method == "DELETE")
 		new_path = _path.substr(1);
 	_path.clear();
