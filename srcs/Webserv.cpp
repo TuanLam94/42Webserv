@@ -322,6 +322,7 @@ void Webserv::handleClientWrite(int event_fd, Request& request)
 	Response response(request);
 	response.handleRequest();
 	response.buildResponse();
+	std::cout << "\n\n\nRESPONSE CONTENT TYPE == " << response.getContentType() << "\n\n";
 	response.sendResponse(event_fd);
 }
 

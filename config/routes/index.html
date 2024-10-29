@@ -112,6 +112,9 @@
     <h2>CGI</h2>
     <p>Tests our bash and python CGIs right here.</p>
 
+    <button onclick="callCgi('hello.sh')">GET to hello.sh</button>
+    <button onclick="callCgi('hello.py')">GET to hello.py</button>
+
     <!-- CGI POST buttons -->
     <button onclick="triggerFileUpload('upload.py')">POST to upload.py</button>
     <button onclick="triggerFileUpload('upload.sh')">POST to upload.sh</button>
@@ -123,6 +126,28 @@
         function triggerFileUpload(script) {
             currentCgiScript = script;  // Save which script to use for upload
             document.getElementById('fileInput').click();  // Open the file picker
+        }
+
+        function callCgi(script) {
+            const getUrl = `http://localhost:8080/cgi-bin/${script}`;
+
+            fetch(getUrl, {
+                method: 'GET',
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text(); // Assuming the CGI script returns text
+            })
+            .then(data => {
+                console.log(`Response from ${script}:`, data);
+                alert(`Response from ${script}: ${data}`); // Show response in an alert
+            })
+            .catch(error => {
+                console.error(`Error calling ${script}:`, error);
+                alert(`Error calling ${script}: ${error.message}`);
+            });
         }
 
         // Event listener for file input change to handle file selection and submission
