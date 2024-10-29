@@ -1,7 +1,7 @@
 POST /endpoint HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
-Content-Length: 42
+Content-Length: 35
 
-{"field1": "value1", "field2": "value2"}
+{"field1": 1, "field2": "value2"}
 
