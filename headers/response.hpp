@@ -100,6 +100,7 @@ class Response
 		std::string getStatusCode() const;
 		std::string getResponseStr() const;
 		Request getRequest() const;
+		std::string getContentType() const;
 			//setters
 		void setServer(Server& server);
 			//utils

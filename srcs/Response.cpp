@@ -206,6 +206,10 @@ Request Response::getRequest() const
     return _request;
 }
 
+std::string Response::getContentType() const
+{
+    return _contentType;
+}
 //-------------------------------------------SETTERS----------------------------------
 
 void Response::setServer(Server& server)
