@@ -4,7 +4,7 @@ void Response::handleGetResponse()
 {
     switch(GET_CheckFile()) {
         case -1:
-            _status_code = "404 Not found";
+            _status_code = "404 Not Found";
             break;
         case -2:
             _status_code = "403 Forbidden";
@@ -44,23 +44,9 @@ bool Response::fileIsReg()
 
 void Response::buildGetResponse()
 {
-    _response.str("");
-    _response.clear();
-
     _response << "HTTP/1.1 " << _status_code << "\r\n";
-    if (_status_code == "404 Not found") {
-        _responseBody = loadErrorPage("404.html");
-        _response << "Content-Type: text/html\r\n"; 
-    } 
-    else if (_status_code == "403 Forbidden") {
-        _responseBody = loadErrorPage("403.html");
-        _response << "Content-Type: text/html\r\n";
-    } 
-    else {
-        _responseBody = _request.getBody();
-        _response << "Content-Type: " << _request.getContentType() << "\r\n";
-    }
-
+	_responseBody = _request.getBody();
+	_response << "Content-Type: " << _request.getContentType() << "\r\n";
     _response << "Content-Length: " << _responseBody.size() << "\r\n";
     _response << "Connection: keep-alive\r\n";
     _response << "\r\n";

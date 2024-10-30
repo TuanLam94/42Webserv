@@ -21,16 +21,41 @@ Response::Response(const Request& request)
 
 void Response::setStatusCode(const Request& request)
 {
-    if (request.getStatusCode() == 400)
-        _status_code = "400 Bad Request";
-    else if (request.getStatusCode() == 405)
-        _status_code = "405 Method Not Allowed";
-    else if (request.getStatusCode() == 413)
-        _status_code = "413 Content Too Large";
-    else if (request.getStatusCode() == 414)
-        _status_code = "414 URI Too Long";
-    else if (request.getStatusCode() == 505)
-        _status_code = "505 HTTP Version Not Supported";
+	switch (request.getStatusCode()) {
+		case 400:
+			_status_code = "400 Bad Request";
+			break;
+		case 404:
+			_status_code = "404 Not Found";
+			break;
+		case 415:
+			_status_code = "415 Unsupported Media Type";
+			break;
+		case 409:
+			_status_code = "409 Conflict";
+			break;
+		case 403:
+			_status_code = "403 Forbidden";
+			break;
+		case 504:
+			_status_code = "504 Gateway Timeout";
+			break;
+		case 500:
+			_status_code = "500 Internal Server Error";
+			break;
+		case 413:
+			_status_code = "413 Content Too Large";
+			break;
+		case 414:
+			_status_code = "414 URI Too Long";
+			break;
+		case 405:
+			_status_code = "405 Method Not Allowed";
+			break;
+		case 505:
+			_status_code = "505 HTTP Version Not Supported";
+			break;
+	}
 }
 
 void Response::handleRequest()
@@ -62,7 +87,6 @@ bool Response::isErrorResponse()
 
 void Response::sendResponse(int fd)
 {
-	// std::cout << "sending response...\n\n" << _response_str.c_str() << std::endl;
     write(fd, _response_str.c_str(), _response_str.size());
 }
 
@@ -75,7 +99,7 @@ void Response::runScript(std::string Lpath)
     if (execv(Lpath.c_str(), args) == -1) {
         std::cerr << "Failed to execute CGI script: " << _path << std::endl;
         close(_server.getEpollFd());
-        exit(1);
+        exit(500);
     }
 }
 
@@ -100,7 +124,7 @@ void Response::buildResponse()
     _response.str("");
     _response.clear();
 
-    _response << "HTTP/1.1 " << _status_code << "/r/n";
+    // _response << "HTTP/1.1 " << _status_code << "/r/n";
     if (isErrorCode())
         handleErrorResponse();
     else if (_method == "GET")
@@ -113,6 +137,8 @@ void Response::buildResponse()
 
 bool Response::isErrorCode()
 {
+	std::cout << "STATUS CODE = " << _status_code << std::endl;
+
     if (_status_code == "404 Not Found" || _status_code == "415 Unsupported Media Type" || _status_code == "409 Conflict"
         || _status_code == "403 Forbidden" || _status_code == "504 Gateway Timeout" || _status_code == "400 Bad Request"
         || _status_code == "500 Internal Server Error" || _status_code == "413 Content Too Large" || _status_code == "414 URI Too Long"
@@ -126,52 +152,58 @@ void Response::handleErrorResponse()
     char *end;
 
     int errorCode = strtol(_status_code.substr(0, 3).c_str(), &end, 10);
+	_response << "HTTP/1.1 " << _status_code << "\r\n";
     switch (errorCode) {
         case 404:
             _responseBody = loadErrorPage("404.html");
-            _response << "Content-Type: text/html/r/n";
+            _response << "Content-Type: text/html\r\n";
             break;
         case 415:
             _responseBody = loadErrorPage("415.html");
-            _response << "Content-Type: text/html/r/n";
+            _response << "Content-Type: text/html\r\n";
             break;
         case 409:
             _responseBody = loadErrorPage("409.html");
-            _response << "Content-Type: text/html/r/n";
+            _response << "Content-Type: text/html\r\n";
             break;
         case 403:
             _responseBody = loadErrorPage("403.html");
-            _response << "Content-Type: text/html/r/n";
+            _response << "Content-Type: text/html\r\n";
             break;
         case 504:
             _responseBody = loadErrorPage("504.html");
-            _response << "Content-Type: text/html/r/n";
+            _response << "Content-Type: text/html\r\n";
             break;
         case 400:
             _responseBody = loadErrorPage("400.html");
-            _response << "Content-Type: text/html/r/n";
+            _response << "Content-Type: text/html\r\n";
             break;
         case 500:
             _responseBody = loadErrorPage("500.html");
-            _response << "Content-Type: text/html/r/n";
+            _response << "Content-Type: text/html\r\n";
             break;
         case 413:
             _responseBody = loadErrorPage("413.html");
-            _response << "Content-Type: text/html/r/n";
+            _response << "Content-Type: text/html\r\n";
             break;
         case 414:
             _responseBody = loadErrorPage("414.html");
-            _response << "Content-Type: text/html/r/n";
+            _response << "Content-Type: text/html\r\n";
             break;
         case 405:
             _responseBody = loadErrorPage("405.html");
-            _response << "Content-Type: text/html/r/n";
+            _response << "Content-Type: text/html\r\n";
             break;
         case 505:
             _responseBody = loadErrorPage("505.html");
-            _response << "Content-Type: text/html/r/n";
+            _response << "Content-Type: text/html\r\n";
             break;
     }
+    _response << "Content-Length: " << _responseBody.size() << "\r\n";
+    _response << "Connection: keep-alive\r\n";
+    _response << "\r\n";
+    _response << _responseBody;
+    _response_str = _response.str();
 }
 
 //--------------------------------------------GETTERS--------------------------------------------

@@ -22,4 +22,6 @@
 
 12 - Check if body < contentLength
 
-13 - Handle DELETE already deleted better
+13 - Handle DELETE already deleted better //OK
+
+Tester send Json Data avec le site = 400 bad request, parserJson6 ! A regarder quand t'as un moment 🙂
