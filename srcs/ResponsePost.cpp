@@ -196,25 +196,11 @@ void Response::handleCGIPost()
 //TO REDO
 void Response::buildPostResponse()
 {
-    _response.str("");
-    _response.clear();
-
     _response << "HTTP/1.1 " << _status_code << "\r\n";
-    if (_status_code == "409 Conflict") {
-        _responseBody = loadErrorPage("409.html");
-        _response << "Content-Type: text/html\r\n"; 
-    } 
-    else if (_status_code == "403 Forbidden") {
-        _responseBody = loadErrorPage("403.html");
-        _response << "Content-Type: text/html\r\n";
-    } 
-    else {
-        _responseBody = _request.getBody();
-        _response << "Content-Type: " << _request.getContentType() << "\r\n";
-    }
-
+	_responseBody = _request.getBody();// ?
+	_response << "Content-Type: " << _request.getContentType() << "\r\n";
     _response << "Content-Length: " << _responseBody.size() << "\r\n";
-    _response << "Connection: keep-alive\r\n"; //keep alive ?
+    _response << "Connection: keep-alive\r\n";
     _response << "\r\n";
     _response << _responseBody;
     _response_str = _response.str();

@@ -5,7 +5,7 @@ void Response::handleDeleteResponse()
 	// std::cout << "path = " << _path << std::endl;
     switch(DEL_CheckFile()) {
         case -1:
-            _status_code = "404 Not found";
+            _status_code = "404 Not Found";
             break;
         case -2:
             _status_code = "403 Forbidden";
@@ -21,7 +21,7 @@ void Response::handleDeleteResponse()
             else if (status == -3) //Not a regular file nor directory
                 _status_code = "415 Unsupported Media Type";
             else if (status == -4) // file does not exist. Not sure if really needed
-                _status_code = "404 Not found";
+                _status_code = "404 Not Found";
             break;
     }
 }
@@ -82,31 +82,7 @@ bool Response::isDirectoryEmpty()
 
 void Response::buildDelResponse()
 {
-    _response.str("");
-    _response.clear();
-
     _response << "HTTP/1.1 " << _status_code << "\r\n";
-    if (_status_code == "404 Not found") {
-        _responseBody = loadErrorPage("404.html");
-        _response << "Content-Type: text/html\r\n"; 
-    }
-    else if (_status_code == "403 Forbidden") {
-        _responseBody = loadErrorPage("403.html");
-        _response << "Content-Type: text/html\r\n";
-    }
-    else if (_status_code == "500 Internal Server Error") {
-        _responseBody = loadErrorPage("500.html");
-        _response << "Content-Type: text/html\r\n";
-    }
-    else if (_status_code == "409 Conflict") {
-        _responseBody = loadErrorPage("409.html");
-        _response << "Content-Type: text/html\r\n";
-    }
-    else if (_status_code == "415 Unsupported Media Type") {
-        _responseBody = loadErrorPage("415.html");
-        _response << "Content-Type: text/html\r\n";
-    }
-
     _response << "Content-Length: " << _responseBody.size() << "\r\n";
     _response << "Connection: keep-alive\r\n";
     _response << "\r\n";

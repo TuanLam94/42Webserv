@@ -99,3 +99,5 @@ Hello:
 sami
 message: Bonjour! Ça va bien?
 nom complet: Jean Dupont
+age: 10
+name: formdata
