@@ -76,6 +76,10 @@ void Response::handleCGIPost()
     oss << _request.getBody().size();
     std::string content_length_str = oss.str();
 
+	std::cout << "CONTENT LENGTH = " << content_length_str << std::endl;
+	std::cout << "CONTENT TYPE = " << _request.getContentType() << std::endl;
+	std::cout << "BOUNDARY = " << _request.getBoundary() << std::endl;
+
     setenv("REQUEST_METHOD", "POST", 1);
     setenv("CONTENT_LENGTH", content_length_str.c_str(), 1);
     setenv("CONTENT_TYPE", _request.getContentType().c_str(), 1);
