@@ -36,6 +36,7 @@ class Response
 		std::string _contentType;
 		std::string	_response_str;
 		std::string _responseBody;
+		std::string	_boundary_full;
 		Server		_server;
 		std::map<std::string, std::string>	_formDataName;
 		std::map<std::string, std::string>	_jsonParam;

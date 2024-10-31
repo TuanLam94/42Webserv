@@ -6,9 +6,12 @@
 	GET : 
 		- tests de parsing are good
 		- peut etre rajouter verif de securite sur les chemins
-	POST :
-		multipart/form-data : - parsing plutot good (tjsr boucle infini a regler (cf. plus haut)
-		application/json : 
+
+	POST : (refaire pleins de test a la fin pour verifier)
+		multipart/form-data : - parsing plutot good (tjrs boucle infini a regler (cf. plus haut)
+		application/json : - parsing semble ok (voir si on accepte les tableaux mais i dont think so)
+		urlencoded : - semble ok egalement
+		text/plain : - semble ok aussi
 		
 		
 text/plain :		
@@ -51,8 +54,8 @@ application/json
 POST /endpoint HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
-Content-Length: 42
+Content-Length: 41
 
-{"field1": "value1", "field2": "value2"}
+{"name":"dsad","age":"21","city":"dsa"}
 
 

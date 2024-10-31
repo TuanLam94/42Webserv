@@ -452,6 +452,11 @@ Request& Request::operator=(const Request& other)
 	return *this;
 }
 
+std::string	Request::getBoundary() const
+{
+	return (_boundary_full);
+}
+
 std::string	Request::getMethod() const
 {
 	return (_method);
