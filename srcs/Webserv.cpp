@@ -356,7 +356,7 @@ int	checkAllSize(Request request)
 
 void Webserv::handleClientRequest(int client_fd, Request& request)
 {
-	char buffer[1024] = {0};
+	unsigned char buffer[1024] = {0};
 
     int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
     if (bytes <= 0) {
@@ -364,31 +364,29 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
         epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
         return;
     }
+
+	for(size_t i = 0; i < sizeof(buffer); i++)
+	{
+		request._my_v.push_back(buffer[i]);
+		// request._buffer += buffer[i];
+		// std::cout << request._my_v[i] << std::endl;
+	}
+	std::vector<unsigned char>::iterator it;
+	std::vector<unsigned char>::iterator ite;
+	std::vector<unsigned char>::iterator ite1;
+
+	ite1 = std::find(it, ite, 'e');
+
 	// buffer[bytes] = 0;
 	std::cout << "BUFFER = " << buffer << "\n\n";
-	request._buffer += std::string(buffer);
-	std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
+	exit (1);
+	// std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
 
-	request.setStatusCode(checkAllSize(request));
+	// request.setStatusCode(checkAllSize(request));
 	if (request.getStatusCode() != 0)
 		return ;
 	if (request.isRequestComplete()) {
-		// size_t pos_t = request._buffer.find("\r\n\r\n");
-		// if (pos_t != std::string::npos)
-		// {
-		// 	pos_t += 4;
-		// 	size_t pos_s = request._buffer.find("\r\n", pos_t);
-		// 	if (pos_s != std::string::npos)
-		// 	{
-		// 		size_t i = pos_t;
-		// 		while (i < request._buffer.size())
-		// 		{
-		// 			std::cout << request._buffer[i];
-		// 			i++;
-		// 		}
-		// 	}
-		// 	exit (1);
-		// }
+
 		std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
 		request.parsRequest(request._buffer);			//PATH IS HERE
 		request.getClientIPPort(client_fd);

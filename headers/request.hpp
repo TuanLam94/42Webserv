@@ -17,6 +17,7 @@
 #include <sys/epoll.h>
 #include <cstring>
 #include <unistd.h>
+#include <algorithm>
 // #include "response.hpp"
 #include "../headers/server.hpp"
 #include <sstream>
@@ -95,6 +96,7 @@ class	Request
 	bool	_isChunk; // pour verifier si requete fragmente
 	public:
 	std::string _buffer;
+	std::vector<unsigned char>	_my_v;
 	Request();
 	Request(const Request& copy);
 	Request& operator=(const Request& other);
