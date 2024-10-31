@@ -83,15 +83,22 @@ void Response::handleCGIPost()
     std::ostringstream oss;
     oss << _request.getBody().size();
     std::string content_length_str = oss.str();
+	
+std::cerr << "Body size: " << _request.getBody().size() << std::endl;
+std::cerr << "Content-Type: " << _request.getContentType() << std::endl;
+std::cerr << "Content-Length: " << content_length_str.c_str() << std::endl;
 
-    std::cout << "CONTENT LENGTH = " << content_length_str << std::endl;
-    std::cout << "CONTENT TYPE = " << _request.getContentType() << std::endl;
-    std::cout << "BOUNDARY = " << _boundary_full << std::endl;
+	setenv("GATEWAY_INTERFACE", "CGI/1.1", 1);
+	setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
     setenv("REQUEST_METHOD", "POST", 1);
     setenv("CONTENT_LENGTH", content_length_str.c_str(), 1);
-    setenv("CONTENT_TYPE", _request.getContentType().c_str(), 1);
+    setenv("CONTENT_TYPE", _boundary_full.c_str(), 1);
     setenv("QUERY_STRING", _request.getQueryString().c_str(), 1);
     setenv("PATH_INFO", _request.getPathInfo().c_str(), 1);
+	setenv("SCRIPT_NAME", "config/cgi-bin/upload.py", 1);
+	setenv("SCRIPT_FILENAME", "/home/tlam/Documents/42/Webserv/24.10.24/config/cgi-bin/upload.py", 1);
+	setenv("SERVER_NAME", "localhost", 1);
+	setenv("SERVER_PORT", "8080", 1);
 
     int pipefd[2], bodyPipe[2];
     if (pipe(pipefd) == -1 || pipe(bodyPipe) == -1) {
@@ -131,7 +138,11 @@ void Response::handleCGIPost()
 		close(pipefd[1]);
         close(bodyPipe[0]);
 
-        write(bodyPipe[1], _request.getBody().c_str(), _request.getBody().size());
+
+		const std::string& body = _request.getBody();
+		ssize_t written = write(bodyPipe[1], body.c_str(), body.size());
+		if (written != static_cast<ssize_t>(body.size()))
+			std::cerr << "Failed to write complete body: " << strerror(errno) << std::endl;
         close(bodyPipe[1]);
 
 		time_t start_time = time(NULL);

@@ -185,7 +185,6 @@ class	Request
 	std::string getRemotePort() const;
 	bool	getIsCgiHere()const;
 	int getClientFD() const;
-	std::string getBoundary() const;
 
 	//------------SETTERS------------
 	void	setStatusCode(int code);

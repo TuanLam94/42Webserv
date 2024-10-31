@@ -573,11 +573,6 @@ int Request::getClientFD() const
 	return (_client_fd);
 }
 
-std::string Request::getBoundary() const
-{
-	return _boundary;
-}
-
 // std::string Request::getRemotePort() const
 // {
 // 	return _RemotePort;

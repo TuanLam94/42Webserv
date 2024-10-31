@@ -365,9 +365,9 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
         return;
     }
 	// buffer[bytes] = 0;
-	std::cout << "BUFFER = " << buffer << "\n\n";
+	// std::cout << "BUFFER = " << buffer << "\n\n";
 	request._buffer += std::string(buffer);
-	std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
+	// std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
 
 	request.setStatusCode(checkAllSize(request));
 	if (request.getStatusCode() != 0)
@@ -401,7 +401,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 			request.parsRequestBis(*correct_server, request._buffer);
 			// std::cout << "request succesfully parsed!\n";
 			// std::cout << "Request Path is " << request.getPath() << std::endl;
-			std::cout << "\nrequest parsed\n";
+			// std::cout << "\nrequest parsed\n";
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);
 				return ;
