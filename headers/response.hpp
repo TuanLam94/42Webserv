@@ -39,6 +39,7 @@ class Response
 		std::string	_boundary_full;
 		Server		_server;
 		std::map<std::string, std::string>	_formDataName;
+		std::map<std::string, std::string>	_FormDataFileName;
 		std::map<std::string, std::string>	_jsonParam;
 		std::map<std::string, std::string> _urlParam;
 		int _cgi_type;
@@ -102,6 +103,7 @@ class Response
 		std::string getResponseStr() const;
 		Request getRequest() const;
 		std::string getContentType() const;
+std::map<std::string, std::string> getFormDataFileName() const;
 			//setters
 		void setServer(Server& server);
 			//utils

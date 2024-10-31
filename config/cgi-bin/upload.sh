@@ -1,91 +1,82 @@
-# #!/bin/bash
-
-# upload_dir="config/uploads"
-# if [[ ! -d "$upload_dir" ]]; then
-#     mkdir -p "$upload_dir"
-# fi
-
-# # Read the file content from the request body
-# file_content=$(awk '/^Content-Disposition: form-data; name="file"; filename="/ {
-#     for (i = 2; i <= NF; i++) { 
-#         if ($i ~ /^filename=/) {
-#             filename = substr($i, 10, length($i)-10)
-#         }
-#     }
-#     getline; getline; print
-# }' /dev/stdin)
-
-# # Save the file to the server
-# file_path="$upload_dir/$filename"
-# echo "$file_content" > "$file_path"
-
-# echo "Content-Type: text/plain"
-# echo ""
-# echo "File uploaded successfully: $filename"
-
 #!/bin/bash
-
-# Send content type header
+# Set headers for the HTTP response
 echo "Content-type: text/html"
-echo
+echo ""
 
-# Configuration
-upload_dir="config/uploads"
-max_file_size=$((10 * 1024 * 1024))  # 10MB limit
-
-# Create upload directory if it doesn't exist
-if [[ ! -d "$upload_dir" ]]; then
-    mkdir -p "$upload_dir"
-    chmod 755 "$upload_dir"
-fi
-
-# Function to decode URL-encoded strings
-urldecode() {
-    echo -e "${1//+/ }" | sed 's/%\([0-9A-F][0-9A-F]\)/\\x\1/g'
+# Debug function
+debugmsg() {
+    echo "$1" >&2
 }
 
-# Function to clean filename
-clean_filename() {
-    echo "$1" | sed 's/[^a-zA-Z0-9._-]/_/g'
-}
+# Debug messages for environment variables
+debugmsg "HTTPS=$HTTPS"
+debugmsg "REQUEST_METHOD=$REQUEST_METHOD"
 
-# Read the content type header to get the boundary
-read -r content_type
-boundary=$(echo "$content_type" | sed -n 's/.*boundary=\(.*\)/\1/p')
-
-# Read and process the multipart form data
-temp_file=$(mktemp)
-cat > "$temp_file"
-
-# Extract filename and content
-filename=$(grep -m 1 -i "Content-Disposition: .*filename=" "$temp_file" | sed -n 's/.*filename="\([^"]*\)".*/\1/p')
-filename=$(clean_filename "$(urldecode "$filename")")
-
-if [ -z "$filename" ]; then
-    echo "<h2>Error: No file was uploaded</h2>"
-    rm "$temp_file"
-    exit 1
-fi
-
-# Extract the file content
-sed -n "/${boundary}/,\$p" "$temp_file" | sed -e "1,/^\r$/d" -e "\$d" -e "\$d" > "${upload_dir}/${filename}"
-
-# Check if file was successfully created
-if [ -f "${upload_dir}/${filename}" ]; then
-    file_size=$(stat -f%z "${upload_dir}/${filename}" 2>/dev/null || stat -c%s "${upload_dir}/${filename}")
+# Check if the request method is POST
+if [[ "$REQUEST_METHOD" == "POST" ]]; then
+    debugmsg "CONTENT_LENGTH=$CONTENT_LENGTH"
     
-    if [ "$file_size" -gt "$max_file_size" ]; then
-        rm "${upload_dir}/${filename}"
-        echo "<h2>Error: File size exceeds maximum limit of 10MB</h2>"
+    # Set a max upload size (for example, 10MB)
+    MAX_FILE_UPLOAD_SIZE=$((10 * 1024 * 1024))
+    
+    # Verify content length is within the allowed size
+    if [[ $CONTENT_LENGTH -gt 0 && $CONTENT_LENGTH -le $MAX_FILE_UPLOAD_SIZE ]]; then
+        echo "Uploading file, please wait..."
+        
+        # Read the entire POST data into a variable
+        raw_data=$(cat)
+        
+        # Extract boundary from CONTENT_TYPE
+        boundary=$(echo "$CONTENT_TYPE" | sed -n 's/.*boundary=\(.*\).*/\1/p')
+        debugmsg "Boundary: $boundary"
+        
+        # Create the output directory if it doesn't exist
+        mkdir -p "config/uploads"
+        
+        # Use awk to parse multipart form-data more accurately
+        file_name=$(echo "$raw_data" | awk -v boundary="$boundary" '
+            BEGIN { RS=boundary; FS="\r\n" }
+            /filename=/ {
+                sub(/^.*filename="/, "", $2)
+                sub(/".*$/, "", $2)
+                print $2
+            }
+        ')
+        
+        file_content=$(echo "$raw_data" | awk -v boundary="$boundary" '
+            BEGIN { RS=boundary; FS="\r\n"; content="" }
+            /filename=/ {
+                for (i=1; i<=NF; i++) {
+                    if ($i ~ /^$/) {
+                        for (j=i+1; j<=NF; j++) {
+                            if ($j ~ /^--/) break
+                            content = content $j "\n"
+                        }
+                        break
+                    }
+                }
+            }
+            END { 
+                gsub(/\r$/, "", content)
+                print content
+            }
+        ')
+        
+        # Default to a generic name if no filename is found
+        outfile="config/uploads/${file_name:-uploaded_file}"
+        
+        # Write the file content to the output file
+        echo -n "$file_content" > "$outfile"
+        
+        # Check for successful write
+        if [[ $? -eq 0 ]]; then
+            echo "<h2>File '${file_name:-uploaded_file}' has been uploaded successfully.</h2>"
+        else
+            echo "<h2>Error: Unable to write file!</h2>"
+        fi
     else
-        chmod 644 "${upload_dir}/${filename}"
-        echo "<h2>File uploaded successfully</h2>"
-        echo "<p>Filename: ${filename}</p>"
-        echo "<p>Size: ${file_size} bytes</p>"
+        echo "<h2>File is too big for uploading, maximum allowed file size is $MAX_FILE_UPLOAD_SIZE bytes</h2>"
     fi
 else
-    echo "<h2>Error: Failed to upload file</h2>"
+    echo "<h2>Error: Invalid method. Only POST requests are allowed.</h2>"
 fi
-
-# Clean up
-rm "$temp_file"

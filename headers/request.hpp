@@ -174,6 +174,7 @@ class	Request
 	int getPort() const;
 	int getStatusCode() const;
 	const std::map<std::string, std::string>& getFormDataName() const;
+	const std::map<std::string, std::string>& getFormDataFileName() const;
 	const std::map<std::string, std::string>& getJsonParam() const;
 	const std::map<std::string, std::string>& getUrlParam() const;
 	bool	isCgi() const;

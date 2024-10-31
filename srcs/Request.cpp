@@ -518,6 +518,12 @@ const std::map<std::string, std::string>& Request::getFormDataName() const
 	return (_FormDataName);
 }
 
+const std::map<std::string, std::string>& Request::getFormDataFileName() const
+{
+	return (_FormDataFilename);
+}
+
+
 const std::map<std::string, std::string>& Request::getJsonParam() const
 {
 	return (_jsonParam);

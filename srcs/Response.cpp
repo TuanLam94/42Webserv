@@ -3,7 +3,6 @@
 
 Response::Response(const Request& request)
 {
-
     std::cout << "CREATING RESPONSE\n";
     _method = request.getMethod();
     _path = request.getPath();
@@ -14,9 +13,13 @@ Response::Response(const Request& request)
     _contentType = request.getContentType();
     _server = request.getServer();
     _formDataName = request.getFormDataName();
+	_FormDataFileName = request.getFormDataFileName();
     _jsonParam = request.getJsonParam();
     _urlParam = request.getUrlParam();
     _cgi_type = responseSetCgiType();
+			
+	std::map<std::string, std::string>::const_iterator itt = getFormDataFileName().begin();
+	std::cout << "FILENAME = " << itt->first << std::endl;
 	// std::cout << "RESPONSE PATH = " << _path << std::endl;
 }
 
@@ -242,6 +245,11 @@ Request Response::getRequest() const
 std::string Response::getContentType() const
 {
     return _contentType;
+}
+
+std::map<std::string, std::string> Response::getFormDataFileName() const
+{
+	return _FormDataFileName;
 }
 //-------------------------------------------SETTERS----------------------------------
 
