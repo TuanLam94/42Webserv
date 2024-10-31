@@ -41,21 +41,27 @@ bool	Request::checkFirstAccolade(size_t pos)
 
 bool	Request::checkLastAccolade(size_t pos)
 {
-	if (_buffer[pos] != _body[_body.size() - 3])
+	size_t pos1 = _body.find("\r\n");
+	if (pos1 != std::string::npos)
+	{
+		std::cout << "ffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiin file \n";
+		exit (1);
+	}
+	if (_buffer[pos] != _body[_body.size() - 1])
 		return (false);
 	return (true);	
 }
 
 int	Request::checkIsDigit(size_t pos_start)
 {
-	while (pos_start < _buffer.size())
+	while (pos_start < _body.size())
 	{
-		if (!(_buffer[pos_start] >= 48 && _buffer[pos_start] <= 57)
-			&& _buffer[pos_start] != ','
-			&& _buffer[pos_start] != 32
-			&& _buffer[pos_start] != '}')
+		if (!(_body[pos_start] >= 48 && _body[pos_start] <= 57)
+			&& _body[pos_start] != ','
+			&& _body[pos_start] != 32
+			&& _body[pos_start] != '}')
 			return (-1);
-		if (_buffer[pos_start] == ',' || _buffer[pos_start] == '}' || _buffer[pos_start] == 32)
+		if (_body[pos_start] == ',' || _body[pos_start] == '}' || _body[pos_start] == 32)
 			break ;
 		pos_start++;
 	}
@@ -77,41 +83,41 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 	int	index_pts = 0;
 	int	index_g = 0;
 
-	pos_points = findPosition(":", _buffer, pos_start);
+	pos_points = findPosition(":", _body, pos_start);
 	if (pos_points == std::string::npos)
 		return (-1);
 	else
 	{
 		while (pos_start < pos_comma)
 		{
-			if (_buffer[pos_start] == ':')
+			if (_body[pos_start] == ':')
 			{
 				if (index_pts == 1)
 					return (-1);
 				index_pts = 1;
 			}
-			else if (_buffer[pos_start] == '\"')
+			else if (_body[pos_start] == '\"')
 				index_g = 1;
 			else if (index_pts == 0 && index_g == 1)
 			{
-				while (_buffer[pos_start] != '\"')
+				while (_body[pos_start] != '\"')
 				{
-					key += _buffer[pos_start];
+					key += _body[pos_start];
 					pos_start++;
 				}
 				index_g = 0;
 			}
 			else if (index_pts == 1 && index_g == 1)
 			{
-				while (_buffer[pos_start] != '\"')
+				while (_body[pos_start] != '\"')
 				{
-					value += _buffer[pos_start];
+					value += _body[pos_start];
 					pos_start++;
 				}
 				index_pts = 0;
 				index_g = 0;
 			}
-			else if (index_pts == 1 && isDigit(_buffer[pos_start]) == true)
+			else if (index_pts == 1 && isDigit(_body[pos_start]) == true)
 			{
 				size_t pos = pos_start;
 				pos_start = checkIsDigit(pos_start);
@@ -123,15 +129,18 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 				{
 					while (pos < pos_start)
 					{
-						value += _buffer[pos];
+						value += _body[pos];
 						pos++;
 					}
 				}
 				index_pts = 0;
 			}
-			else if (_buffer[pos_start] != 32 && _buffer[pos_start] != '{'
-				&& _buffer[pos_start] != '}')
+			else if (_body[pos_start] != 32 && _body[pos_start] != '{'
+				&& _body[pos_start] != '}')
+			{
+				std::cout << _body[pos_start] << std::endl;
 				return (-1);
+			}
 			pos_start++;
 		}
 		std::cout << key << std::endl;
@@ -156,7 +165,7 @@ void	Request::parserJson()
 	checkJsonAccolade();
 	if (checkStatusCode() == false)
 		return ;	
-	pos_start = findPosition("{", _buffer, 0);
+	pos_start = findPosition("{", _body, 0);
 	if (pos_start == std::string::npos)
 	{
 		_status_code = 400;
@@ -165,14 +174,14 @@ void	Request::parserJson()
 	}
 	else
 	{
-		if (checkFirstAccolade(pos_start) == false)
+		if (pos_start != 0)
 		{
 			_status_code = 400;
 			std::cerr << "parserJson4 Error 400: Bad Request.\n";
 			throw MyExcep();
 		}
 	}
-	pos_end = findPosition("}", _buffer, 0);
+	pos_end = findPosition("}", _body, 0);
 	if (pos_end == std::string::npos)
 	{
 		_status_code = 400;
@@ -181,16 +190,21 @@ void	Request::parserJson()
 	}
 	else
 	{
-		if (checkLastAccolade(pos_end) == false)
+		size_t pos_tmp = pos_end + 1;
+		while (pos_tmp < _body.size())
 		{
-			_status_code = 400;
-			std::cerr << "parserJson6 Error 400: Bad Request.\n";
-			throw MyExcep();
+			if (_body[pos_tmp] != '\r' && _body[pos_tmp] != '\n' && _body[pos_tmp] != 32)
+			{
+				_status_code = 400;
+				std::cerr << "parserJson6 Error 400: Bad Request.\n";
+				throw MyExcep();				
+			}
+			pos_tmp++;
 		}
 	}
 	while (pos_start != pos_end)
 	{
-		pos_comma = findPosition(",", _buffer, pos_start);
+		pos_comma = findPosition(",", _body, pos_start);
 		if (pos_comma != std::string::npos)
 		{
 			pos_start = parserJsonBis(pos_start, pos_comma);
@@ -610,6 +624,28 @@ void	Request::constructBody()
 	_body += strFinal;
 }
 
+void	Request::setBoundaryFull(std::string buffer)
+{
+	size_t	pos1;
+	size_t	pos2;
+
+	pos1 = findPosition("Content-Type:", buffer, 0);
+	if (pos1 != std::string::npos)
+	{
+		pos2 = findPosition("\r\n", buffer, pos1);
+		if (pos2 != std::string::npos)
+		{
+			size_t i = pos1;
+			while (i < pos2)
+			{
+				std::cout << buffer[i];
+				_boundary_full += buffer[i];
+				i++;
+			}
+		}
+	}
+}
+
 void	Request::parsingPOST_v2(const std::string& buffer)
 {
 	size_t	pos;
@@ -653,6 +689,7 @@ void	Request::parsingPOST_v2(const std::string& buffer)
 			else if (pos != std::string::npos)
 			{
 				it->second = "multipart/form-data";
+				setBoundaryFull(buffer);
 				parserFormData(buffer);
 				_contentType = it->second;
 			}
@@ -702,7 +739,7 @@ void	Request::parserTextPlain()
 		_dataBrut += _body[i];
 		i++;
 	}
-	std::cout << _body.size() << std::endl;
+	// std::cout << _body.size() << std::endl;
 }
 
 

@@ -8,6 +8,7 @@ Response::Response(const Request& request)
     _method = request.getMethod();
     _path = request.getPath();
     _version = request.getVersion();
+    _boundary_full = request.getBoundary();
     _request = request;
     setStatusCode(request);
     _contentType = request.getContentType();

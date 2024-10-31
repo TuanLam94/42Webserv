@@ -373,6 +373,22 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	if (request.getStatusCode() != 0)
 		return ;
 	if (request.isRequestComplete()) {
+		// size_t pos_t = request._buffer.find("\r\n\r\n");
+		// if (pos_t != std::string::npos)
+		// {
+		// 	pos_t += 4;
+		// 	size_t pos_s = request._buffer.find("\r\n", pos_t);
+		// 	if (pos_s != std::string::npos)
+		// 	{
+		// 		size_t i = pos_t;
+		// 		while (i < request._buffer.size())
+		// 		{
+		// 			std::cout << request._buffer[i];
+		// 			i++;
+		// 		}
+		// 	}
+		// 	exit (1);
+		// }
 		std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
 		request.parsRequest(request._buffer);			//PATH IS HERE
 		request.getClientIPPort(client_fd);

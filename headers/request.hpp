@@ -90,6 +90,7 @@ class	Request
 	std::map<std::string, std::string>	_jsonParam; // application/json
 	std::map<std::string, std::string>	_urlParam; // application/x-www-form-urlencoded
 	std::string	_boundary;
+	std::string	_boundary_full;
 	std::string	_dataBrut; // requete POST avec content-type -> text/plain
 	bool	_isChunk; // pour verifier si requete fragmente
 	public:
@@ -157,7 +158,9 @@ class	Request
 	void	fillBody(const std::string& buff);
 	bool	isBodySizeTooLarge();
 	int	checkIsDigit(size_t pos_start);
+	void	setBoundaryFull(std::string buffer);
 	// --------- GETTERS -------------
+	std::string	getBoundary() const;
 	std::string	getMethod() const;
 	std::string	getPath() const;
 	std::string	getVersion() const;
