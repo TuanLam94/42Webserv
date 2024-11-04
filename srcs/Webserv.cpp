@@ -326,7 +326,7 @@ void Webserv::handleClientWrite(int event_fd, Request& request)
 	response.handleRequest();
 	response.buildResponse();
 	// std::cout << "\n\n\nRESPONSE CONTENT TYPE == " << response.getContentType() << "\n\n";
-	std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
+	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(event_fd);
 }
 
@@ -390,7 +390,7 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 			for (; pos < bytes; pos++)
 			{
 				// if (buffer[pos] >= 0 && buffer[pos] <= 127)
-					// std::cout << buffer[pos] << std::endl;
+				// 	std::cout << buffer[pos] << std::endl;
 				_my_v.push_back(buffer[pos]);
 			}
 		}
@@ -400,7 +400,7 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		for (int i = 0; i < bytes; i++)
 		{
 			// if (buffer[i] >= 0 && buffer[i] <= 127)
-					// std::cout << buffer[i] << std::endl;
+			// 	std::cout << buffer[i] << std::endl;
 			_my_v.push_back(buffer[i]);
 		}
 	}
@@ -429,9 +429,15 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	if (request.getStatusCode() != 0)
 		return ;
 	if (request.isRequestComplete()) {
-		std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
+		// std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
+		// for (int i = 0; i < request._my_v.size(); i++)
+		// {
+			// if (buffer[i] >= 0 && buffer[i] <= 127)
+				// std::cout << request._my_v[i];
+			// _my_v.push_back(buffer[i]);
+		// }
 		// std::cout << "COMPLETE VECTOR = \n";
-
+		// exit (1);
 		request._here = 0;
 		request.parsRequest();		//PATH IS HERE
 		request.getClientIPPort(client_fd);

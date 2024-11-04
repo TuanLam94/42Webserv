@@ -138,7 +138,7 @@ void Response::buildResponse()
 
 bool Response::isErrorCode()
 {
-	std::cout << "STATUS CODE = " << _status_code << std::endl;
+	// std::cout << "STATUS CODE = " << _status_code << std::endl;
 
     if (_status_code == "404 Not Found" || _status_code == "415 Unsupported Media Type" || _status_code == "409 Conflict"
         || _status_code == "403 Forbidden" || _status_code == "504 Gateway Timeout" || _status_code == "400 Bad Request"

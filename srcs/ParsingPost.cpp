@@ -314,8 +314,8 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 		}
 		i++;
 	}
-	std::cout << "key : " << key << std::endl;
-	std::cout << "value : " << value << std::endl;
+	// std::cout << "key : " << key << std::endl;
+	// std::cout << "value : " << value << std::endl;
 	if (checkStatusCode() == true)
 		checkKeyUrl(key);
 	if (checkStatusCode() == true)
@@ -421,7 +421,7 @@ void	Request::formDataGetName(size_t pos)
 		if (static_cast<int>(pos1) == -1)
 		{
 			_status_code = 400;
-			std::cerr << "formDataGetFileName Error 400: Bad Request.\n";
+			std::cerr << "formDataGetName Error 400: Bad Request.\n";
 			throw MyExcep();
 		}
 		else
@@ -468,7 +468,7 @@ void	Request::formDataGetFilename(size_t pos)
 		}
 		else
 		{
-			while (pos < _my_v.size() && pos < pos1)
+			while (pos < _my_v.size()/* && pos < pos1*/)
 			{
 				value += _my_v[pos];
 				pos++;
@@ -476,6 +476,8 @@ void	Request::formDataGetFilename(size_t pos)
 		}
 		// std::cout << "FileName key : " << key << std::endl;
 		// std::cout << "FileName value : " << value << std::endl;
+		// std::ofstream file("/home/shelal/Desktop/webserv/tmp.txt", std::ios::binary);
+		// file.write(value.c_str(), value.size());
 		_FormDataFilename.insert(std::pair<std::string, std::string>(key, value));
 	}
 }
@@ -544,7 +546,6 @@ void	Request::parserFormData()
 		_boundary += _buffer[pos_b];
 		pos_b++;
 	}
-	// std::cout << _boundary << std::endl;
 	parserFormData_bis(pos_b);
 }
 
@@ -756,7 +757,7 @@ void	Request::initContentLength()
 				std::cerr << "initContentLength1 Error 400: Bad Request\n";
 				throw MyExcep();
 			}
-			std::istringstream ss(it->second);
+			std::istringstream ss(it->second); 
 			ss >> _contentLength;
 			// if (_contentLength != _body.size())
 			// {

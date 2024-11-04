@@ -439,6 +439,7 @@ Request::Request(const Request& copy)
     _dataBrut = copy._dataBrut;
     _isChunk = copy._isChunk;
     _buffer = copy._buffer;
+    _my_v = copy._my_v;
 }
 
 Request& Request::operator=(const Request& other)

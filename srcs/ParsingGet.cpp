@@ -217,7 +217,7 @@ void	Request::fillBody()
 		// {
 			// j++;
 		// }
-		std::cout << _my_v[i];
+		// std::cout << _my_v[i];
 		i++;
 	}
 }
