@@ -16,6 +16,7 @@ Request::Request()
 	_isChunk = false;
 	_status_code = 0;
 	_pos = 0;
+	_here = 0;
 	_RequestMethod = "REQUEST_METHOD="; // methode utilise oui
 	_ContentType = "CONTENT_TYPE="; // type de contenu de la requete oui
 	_ContentLength = "CONTENT_LENGTH="; // taille du body de la requete oui
@@ -59,38 +60,38 @@ bool	Request::checkValidCharRequest(char c)
 	return (true);
 }
 
-void	Request::parsRequestLine(std::string buff)
+void	Request::parsRequestLine()
 {
 	size_t	i = 0;
 	int	space = 0;
 
-	_pos = findPosition("\r\n", buff, _pos);
+	_pos = findPosition("\r\n", _buffer, _pos);
 	if (_pos != std::string::npos)
 	{
-		while (i < buff.size() && i < _pos)
+		while (i < _buffer.size() && i < _pos)
 		{
-			if (buff[i] == 32)
+			if (_buffer[i] == 32)
 				space++;
-			else if (space == 0 && checkValidCharRequest(buff[i]) == true)
-				_method += buff[i];
-			else if (space == 1 && checkValidCharRequest(buff[i]) == true)
-				_path += buff[i];
-			else if (space == 2 && checkValidCharRequest(buff[i]) == true)
-				_version += buff[i];
+			else if (space == 0 && checkValidCharRequest(_buffer[i]) == true)
+				_method += _buffer[i];
+			else if (space == 1 && checkValidCharRequest(_buffer[i]) == true)
+				_path += _buffer[i];
+			else if (space == 2 && checkValidCharRequest(_buffer[i]) == true)
+				_version += _buffer[i];
 			// else if (checkStatusCode() == true)
 			// 	return ;
 			i++;
 		}
 		_pos += 2;
 	}
+	// std::cout << _method << std::endl;
+	// std::cout << _path << std::endl;
+	// std::cout << _version << std::endl;
 	if (space != 2
 		|| _method.empty() == true
 		|| _path.empty() == true
 		|| _version.empty() == true)
 	{
-		// std::cout << "method = " << _method << std::endl;
-		// std::cout << "path = " << _path << std::endl;
-		// std::cout << "version = " << _version << std::endl;
 		_status_code = 400;
 		std::cerr << "parsRequestLine Error 400: Bad Request.\n";
 		throw MyExcep();
@@ -103,7 +104,6 @@ void	Request::checkMethod()
 		&& _method != "POST"
 		&& _method != "DELETE")
 		{
-			std::cout << "METHOD = " << _method << std::endl;
 			std::cerr << "checkMethod Error 405: Method Not Allowed.\n";
 			_status_code = 405;
 			throw MyExcep();
@@ -146,11 +146,11 @@ bool	Request::checkStatusCode()
 	return (false);
 }
 
-void	Request::parsRequest(const std::string& buffer)
+void	Request::parsRequest()
 {
 	try
 	{
-		parsRequestLine(buffer);
+		parsRequestLine();
 		checkMethod();
 		checkVersion();
 		checkUri();
@@ -160,29 +160,28 @@ void	Request::parsRequest(const std::string& buffer)
 	{
 		return ;
 	}
-	// std::cout << "parsRequest path = " << _path << std::endl;
 }
 
-void	Request::parsRequestBis(Server i, const std::string& buffer)
+void	Request::parsRequestBis(Server i)
 {
 	_max_client_body_size = i.getMaxBodySize();
 	if (checkStatusCode() == false)
 		return ;
 	if (_method == "GET")
 	{
-		parsingGET(i, buffer);
+		parsingGET(i);
 		if (_cgiIsHere == true)
 			fillCgiGet();
 	}
 	else if(_method == "POST")
 	{
-		parsingPOST_v1(i, buffer);
+		parsingPOST_v1(i);
 		if (_cgiIsHere == true)
 			fillCgiPost();
 	}
 	else if (_method == "DELETE") {
 		// std::cout << "Method is delete. Path is " << _path << std::endl;
-		parsingDELETE(i, buffer);
+		parsingDELETE(i);
 		// std::cout << "still delete, path is " << _path << std::endl;
 	}
 }
@@ -239,15 +238,19 @@ bool Request::isRequestComplete()
 			if (contentLengthPos != std::string::npos) {
 				size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
 				contentLengthStart = fillLength(_buffer, contentLengthStart);
-				size_t i = headerEnd + 4;
+				// size_t i = headerEnd + 4;
 				size_t j = 0;
-				for (; i < _buffer.size(); i++, j++);			
+				for (; j < _my_v.size(); j++);			
 				// std::cout << j << std::endl;
 				// std::cout << contentLengthStart << std::endl;
 				if (j == contentLengthStart)
+				{
 					return (true);
+				}
 				else
+				{
 					return false;
+				}
 			}
 			return true;
 		}
@@ -436,6 +439,7 @@ Request::Request(const Request& copy)
     _dataBrut = copy._dataBrut;
     _isChunk = copy._isChunk;
     _buffer = copy._buffer;
+    _my_v = copy._my_v;
 }
 
 Request& Request::operator=(const Request& other)

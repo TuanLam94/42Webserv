@@ -2,6 +2,9 @@
 
 int	checkUriSize(std::string buff)
 {
+	std::vector<unsigned char>::iterator it;
+	std::vector<unsigned char>::iterator ite;
+	std::vector<unsigned char>::iterator ite1;
 	size_t	pos;
 
 	pos = buff.find("\r\n");
@@ -168,7 +171,7 @@ int	checkContentLengthSize(std::string buff)
 				unsigned int	integer;
 				std::stringstream	ss(nbr);
 				ss >> integer;
-				std::cout << integer << std::endl;
+				// std::cout << integer << std::endl;
 				if (integer > 10485760)
 				{
 					std::cerr << "checkContentLengthSize Error 413: Payload Too Large.\n";
@@ -299,11 +302,11 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 			return &_requests[i];
 		}
 	}
-	std::cout << "CREATING NEW REQUEST\n";
-    _requests.push_back(Request());
-    _requests.back().setClientFD(event_fd);
+	// std::cout << "CREATING NEW REQUEST\n";
+    	_requests.push_back(Request());
+   	 _requests.back().setClientFD(event_fd);
 	// std::cout << "_requests.size() after == " << _requests.size() << std::endl;
-    return &_requests.back();
+    	return &_requests.back();
 }
 
 Request* Webserv::findAppropriateRequestToWrite(int event_fd)
@@ -323,7 +326,7 @@ void Webserv::handleClientWrite(int event_fd, Request& request)
 	response.handleRequest();
 	response.buildResponse();
 	// std::cout << "\n\n\nRESPONSE CONTENT TYPE == " << response.getContentType() << "\n\n";
-	std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
+	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(event_fd);
 }
 
@@ -332,7 +335,7 @@ void Webserv::removeRequest(int event_fd)
     for (std::vector<Request>::iterator it = _requests.begin(); it != _requests.end(); ++it) {
         if (it->getClientFD() == event_fd) {
             _requests.erase(it);
-			std::cout << "REMOVED REQUEST\n";
+			// std::cout << "REMOVED REQUEST\n";
             break;
         }
     }
@@ -354,43 +357,89 @@ int	checkAllSize(Request request)
 // echo -ne "POST /submit HTTP/1.1\r\nHost: localhost\r\nContent-Type: text/plain\r\nConnection:close\r\n\r\n" | nc localhost 8080
 
 
+int	findSubStr(unsigned char buffer[1024], const char *str)
+{
+	int	i = 0;
+	
+	while (buffer[i + 3] != '\0')
+	{
+		if (buffer[i] == str[0]
+			&& buffer[i + 1] == str[1]
+			&& buffer[i + 2] == str[2]
+			&& buffer[i + 3] == str[3])
+		{
+			return (i);
+		}
+		i++;
+	}
+	return (-1);
+}
+
+void	Request::createData(unsigned char buffer[1024], int bytes)
+{
+	int pos = findSubStr(buffer, "\r\n\r\n");
+
+	if (pos != -1 && _here == 0)
+	{
+		pos += 4;
+		_here = 1;
+		for (int i = 0; i < pos; i++)
+			_buffer += buffer[i];
+		if (pos < bytes)
+		{
+			for (; pos < bytes; pos++)
+			{
+				// if (buffer[pos] >= 0 && buffer[pos] <= 127)
+				// 	std::cout << buffer[pos] << std::endl;
+				_my_v.push_back(buffer[pos]);
+			}
+		}
+	}
+	else if (_here > 0)
+	{
+		for (int i = 0; i < bytes; i++)
+		{
+			// if (buffer[i] >= 0 && buffer[i] <= 127)
+			// 	std::cout << buffer[i] << std::endl;
+			_my_v.push_back(buffer[i]);
+		}
+	}
+	else
+	{
+		_buffer += std::string(reinterpret_cast<char*>(buffer));
+	}
+}
+
 void Webserv::handleClientRequest(int client_fd, Request& request)
 {
-	char buffer[1024] = {0};
+	unsigned char buffer[1024] = {0};
 
-    int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-    if (bytes <= 0) {
-        close(client_fd);
-        epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-        return;
-    }
-	// buffer[bytes] = 0;
-	// std::cout << "BUFFER = " << buffer << "\n\n";
-	request._buffer += std::string(buffer);
+	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+	if (bytes <= 0) {
+		exit (1);
+		close(client_fd);
+		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+		return;
+	}
+	request.createData(buffer, bytes);
+
 	// std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
-
+	// std::cout << request._my_v.size() << std::endl;
 	request.setStatusCode(checkAllSize(request));
 	if (request.getStatusCode() != 0)
 		return ;
 	if (request.isRequestComplete()) {
-		// size_t pos_t = request._buffer.find("\r\n\r\n");
-		// if (pos_t != std::string::npos)
+		// std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
+		// for (int i = 0; i < request._my_v.size(); i++)
 		// {
-		// 	pos_t += 4;
-		// 	size_t pos_s = request._buffer.find("\r\n", pos_t);
-		// 	if (pos_s != std::string::npos)
-		// 	{
-		// 		size_t i = pos_t;
-		// 		while (i < request._buffer.size())
-		// 		{
-		// 			std::cout << request._buffer[i];
-		// 			i++;
-		// 		}
-		// 	}
-		// 	exit (1);
+			// if (buffer[i] >= 0 && buffer[i] <= 127)
+				// std::cout << request._my_v[i];
+			// _my_v.push_back(buffer[i]);
 		// }
-		std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
-		request.parsRequest(request._buffer);			//PATH IS HERE
+		// std::cout << "COMPLETE VECTOR = \n";
+		// exit (1);
+		request._here = 0;
+		request.parsRequest();		//PATH IS HERE
 		request.getClientIPPort(client_fd);
 
 		Server* correct_server = findAppropriateServer(request);
@@ -398,7 +447,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		if (correct_server != NULL) {
 			// std::cout << "\nparsing again...\n\n";
 			request.setServer(*correct_server);
-			request.parsRequestBis(*correct_server, request._buffer);
+			request.parsRequestBis(*correct_server);
 			// std::cout << "request succesfully parsed!\n";
 			// std::cout << "Request Path is " << request.getPath() << std::endl;
 			// std::cout << "\nrequest parsed\n";

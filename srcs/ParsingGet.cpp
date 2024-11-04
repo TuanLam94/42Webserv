@@ -130,6 +130,7 @@ void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../"
 	_path = new_path;
 }
 
+// creer sa fonction findPosition std::string et std::vector
 
 size_t	Request::findPosition(std::string str, const std::string& buff, size_t start)
 {
@@ -137,6 +138,22 @@ size_t	Request::findPosition(std::string str, const std::string& buff, size_t st
 
 	pos = buff.find(str, start);
 	return (pos);
+}
+
+size_t	Request::findPositionVec(std::string str, size_t start)
+{
+	std::vector<unsigned char>::iterator	it;
+	std::vector<unsigned char> seq(str.begin(), str.end());
+	size_t	index;
+
+	it = std::search(_my_v.begin() + start, _my_v.end(), seq.begin(), seq.end());
+	if (it != _my_v.end())
+		index = std::distance(_my_v.begin(), it);
+	else
+	{
+		return (-1);
+	}
+	return (index);
 }
 
 std::string	Request::helpHeaderHost(std::string value, std::string line)
@@ -189,20 +206,23 @@ bool	Request::checkValidHeaderValue(char c)
 	return (true);
 }
 
-void	Request::fillBody(const std::string& buff)
+void	Request::fillBody()
 {
 	size_t	i = 0;
+	// size_t	j;
 
-	_pos += 4;
-	i = _pos;
-	while (i < buff.size())
+	while (i < _my_v.size())
 	{
-		_body += buff[i];
+		// while (j < _my_v[i].size())
+		// {
+			// j++;
+		// }
+		// std::cout << _my_v[i];
 		i++;
 	}
 }
 
-void	Request::parsHeaders(const std::string& buff)
+void	Request::parsHeaders()
 {
 	std::string	key;
 	std::string	value;
@@ -212,26 +232,26 @@ void	Request::parsHeaders(const std::string& buff)
 	size_t	pos;
 
 	i = _pos;
-	_pos = findPosition("\r\n\r\n", buff, i);
+	_pos = findPosition("\r\n\r\n", _buffer, i);
 	if (_pos != std::string::npos)
 	{
-		while (i < buff.size() && i < _pos)
+		while (i < _buffer.size() && i < _pos)
 		{
-			pos = findPosition("\r\n", buff, i);
-			while (i < buff.size() && i < pos)
+			pos = findPosition("\r\n", _buffer, i);
+			while (i < _buffer.size() && i < pos)
 			{
-				if (index == true && buff[i] == 58) // :
+				if (index == true && _buffer[i] == 58) // :
 				{
 					index = false;
-					key += buff[i];
+					key += _buffer[i];
 					i++;
-					while (i < buff.size() && buff[i] == 32)
+					while (i < _buffer.size() && _buffer[i] == 32)
 						i++;
 				}
 				if (index == true /*&& checkValidHeaderKey(buff[i]) == true*/)
-					key += buff[i];
-				else if (checkValidHeaderValue(buff[i]) == true)
-					value += buff[i];
+					key += _buffer[i];
+				else if (checkValidHeaderValue(_buffer[i]) == true)
+					value += _buffer[i];
 				else
 				{
 					_status_code = 400;
@@ -366,7 +386,7 @@ void	Request::fillVar()
 	}
 }
 
-void	Request::parsingGET(Server i, const std::string& buffer)
+void	Request::parsingGET(Server i)
 {
 	size_t	pos = _path.find("?");
 
@@ -375,8 +395,8 @@ void	Request::parsingGET(Server i, const std::string& buffer)
 		if (pos != std::string::npos)
 			parsParamPath(pos);
 		parsPath(i);
-		parsHeaders(buffer);
-		fillBody(buffer);
+		parsHeaders();
+		fillBody(); // supp fillBody --> deja defini vector
 		checkHeaderName();
 		fillVar();
 		initContentLength();

@@ -84,9 +84,6 @@ void Response::handleCGIPost()
     oss << _request.getBody().size();
     std::string content_length_str = oss.str();
 
-    // std::cout << "CONTENT LENGTH = " << content_length_str << std::endl;
-    // std::cout << "CONTENT TYPE = " << _request.getContentType() << std::endl;
-    // std::cout << "BOUNDARY = " << _boundary_full << std::endl;
 	// std::cout << "PATH_INFO = " << _request.getPathInfo() << std::endl;
 	// std::cout << "BODY = " << _request.getBody() << std::endl;
 	// std::cout << "size = " << _request.getFormDataFileName().size();

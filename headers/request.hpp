@@ -17,6 +17,8 @@
 #include <sys/epoll.h>
 #include <cstring>
 #include <unistd.h>
+#include <algorithm>
+#include <iterator>
 // #include "response.hpp"
 #include "../headers/server.hpp"
 #include <sstream>
@@ -94,14 +96,17 @@ class	Request
 	std::string	_dataBrut; // requete POST avec content-type -> text/plain
 	bool	_isChunk; // pour verifier si requete fragmente
 	public:
+	int	_here;
 	std::string _buffer;
+	// std::vector<std::vector<unsigned char> >	_my_v;x
+	std::vector<unsigned char> _my_v;
 	Request();
 	Request(const Request& copy);
 	Request& operator=(const Request& other);
 	~Request() {};
-	void	parsRequest(const std::string& buffer);
-	void	parsRequestBis(Server i, const std::string& buffer);
-	void	parsRequestLine(std::string buff);
+	void	parsRequest();
+	void	parsRequestBis(Server i);
+	void	parsRequestLine();
 	void	checkMethod();
 	void	checkVersion();
 	void	checkUri();
@@ -110,12 +115,11 @@ class	Request
 	void	parsParamPath(size_t pos);
 	std::string	parsParamPath_bis(std::string str);
 	void	parsPath(Server obj);
-	void	parsHeaders(const std::string& buff);
-	void	parsingGET(Server i, const std::string& buffer);
-	void	parsingPOST_v1(Server i, const std::string& buffer);
-	void	parsingPOST_v2(const std::string& buffer);
-	void	parsingDELETE(Server i, const std::string& buffer);
-	void	parsingPUT(Server i, const std::string& buffer);
+	void	parsHeaders();
+	void	parsingGET(Server i);
+	void	parsingPOST_v1(Server i);
+	void	parsingPOST_v2();
+	void	parsingDELETE(Server i);
 	void	parserJson();
 	int	parserJsonBis(size_t pos_start, size_t pos_comma);
 	bool	checkFirstAccolade(size_t pos);
@@ -123,15 +127,15 @@ class	Request
 	void	checkJsonAccolade();
 	void	parserUrlencoded();
 	void	parserUrlencoded_bis(std::string new_body);
-	void	parserFormData(const std::string& buff);
-	void	parserFormData_bis(const std::string& buff, size_t pos);
-	void	formDataGetName(const std::string& buff, size_t pos);
-	void	formDataGetFilename(const std::string& buff, size_t pos);
+	void	parserFormData();
+	void	parserFormData_bis(size_t pos);
+	void	formDataGetName(size_t pos);
+	void	formDataGetFilename(size_t pos);
 	void	parserTextPlain();
 	void	fillVar();
 	int	checkContentType();
 	void	getClientIPPort(int clientfd);
-	bool	parserFormData_help(const std::string& buff, unsigned long int i);
+	bool	parserFormData_help(unsigned long int i);
 	bool	isRequestComplete();
 	bool	isChunkedRequestComplete(const std::string& body);
 
@@ -154,13 +158,15 @@ class	Request
 	std::string	fillCgiToUpper(std::string fillvar, std::string var);
 	void	fillUserAgent();
 	size_t	findPosition(std::string str, const std::string& buff, size_t start);
+	size_t	findPositionVec(std::string str, size_t start);
 	std::string	helpHeaderHost(std::string value, std::string line);
-	void	fillBody(const std::string& buff);
+	void	fillBody();
 	bool	isBodySizeTooLarge();
 	int	checkIsDigit(size_t pos_start);
-	void	setBoundaryFull(std::string buffer);
+	void	setBoundaryFull();
+	void	createData(unsigned char buffer[1024], int bytes);
 	// --------- GETTERS -------------
-	std::string	getBoundary() const;
+	// std::string	getBoundary() const;
 	std::string	getMethod() const;
 	std::string	getPath() const;
 	std::string	getVersion() const;
