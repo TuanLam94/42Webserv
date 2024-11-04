@@ -468,7 +468,7 @@ void	Request::formDataGetFilename(size_t pos)
 		}
 		else
 		{
-			while (pos < _my_v.size()/* && pos < pos1*/)
+			while (pos < _my_v.size() && pos < pos1)
 			{
 				value += _my_v[pos];
 				pos++;
@@ -476,8 +476,6 @@ void	Request::formDataGetFilename(size_t pos)
 		}
 		// std::cout << "FileName key : " << key << std::endl;
 		// std::cout << "FileName value : " << value << std::endl;
-		// std::ofstream file("/home/shelal/Desktop/webserv/tmp.txt", std::ios::binary);
-		// file.write(value.c_str(), value.size());
 		_FormDataFilename.insert(std::pair<std::string, std::string>(key, value));
 	}
 }
@@ -621,7 +619,6 @@ void	Request::setBoundaryFull()
 			size_t i = pos1;
 			while (i < pos2)
 			{
-				// std::cout << _buffer[i];
 				_boundary_full += _buffer[i];
 				i++;
 			}
