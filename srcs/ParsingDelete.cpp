@@ -24,7 +24,7 @@ bool	Request::checkContentLength()
 }
 
 
-void	Request::parsingDELETE(Server i, const std::string& buffer)
+void	Request::parsingDELETE(Server i)
 {
 	size_t	pos = _path.find("?");
 
@@ -33,8 +33,8 @@ void	Request::parsingDELETE(Server i, const std::string& buffer)
 		if (pos != std::string::npos)
 			parsParamPath(pos);
 		parsPath(i);
-		parsHeaders(buffer);
-		fillBody(buffer);
+		parsHeaders();
+		fillBody();
 		checkHeaderName();
 		fillVar();
 		initContentLength();
