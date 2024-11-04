@@ -17,10 +17,6 @@ Response::Response(const Request& request)
     _jsonParam = request.getJsonParam();
     _urlParam = request.getUrlParam();
     _cgi_type = responseSetCgiType();
-			
-	std::map<std::string, std::string>::const_iterator itt = getFormDataFileName().begin();
-	std::cout << "FILENAME = " << itt->first << std::endl;
-	// std::cout << "RESPONSE PATH = " << _path << std::endl;
 }
 
 void Response::setStatusCode(const Request& request)

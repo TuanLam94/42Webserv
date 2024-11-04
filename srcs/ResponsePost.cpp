@@ -84,16 +84,15 @@ void Response::handleCGIPost()
     oss << _request.getBody().size();
     std::string content_length_str = oss.str();
 
-	// std::cout << "PATH_INFO = " << _request.getPathInfo() << std::endl;
-	// std::cout << "BODY = " << _request.getBody() << std::endl;
-	// std::cout << "size = " << _request.getFormDataFileName().size();
-	// std::cout << "HERE FILENAME = " << it->first << std::endl;
-	// std::cout << "FILE BODY = " << it->second << std::endl;
-	// std::map<std::string, std::string>::const_iterator it = _request.getFormDataFileName().begin();
-	// std::cout << "FILENAME = " << it->first << std::endl;
-
-
 	std::map<std::string, std::string>::const_iterator it = getFormDataFileName().begin();
+
+    // std::cout << "CONTENT_LENGTH = " << content_length_str.c_str() << std::endl;
+    // std::cout << "CONTENT_TYPE = " << _boundary_full.c_str() << std::endl;
+    // std::cout << "QUERY_STRING = " <<  _request.getQueryString().c_str() << std::endl;
+    // std::cout << "PATH_INFO = " <<  _request.getPathInfo().c_str() << std::endl;
+	// std::cout << "FILE_NAME = " <<  it->first.c_str() << std::endl;
+	// std::cout << "FILE_BODY = " <<  it->second.c_str() << std::endl;
+
 	
     setenv("REQUEST_METHOD", "POST", 1);
     setenv("CONTENT_LENGTH", content_length_str.c_str(), 1);

@@ -166,7 +166,7 @@ class	Request
 	void	setBoundaryFull();
 	void	createData(unsigned char buffer[1024], int bytes);
 	// --------- GETTERS -------------
-	// std::string	getBoundary() const;
+	std::string	getBoundary() const;
 	std::string	getMethod() const;
 	std::string	getPath() const;
 	std::string	getVersion() const;
