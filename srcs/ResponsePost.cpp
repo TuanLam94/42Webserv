@@ -98,6 +98,10 @@ void Response::handleCGIPost()
 
 	std::map<std::string, std::string>::const_iterator it = getFormDataFileName().begin();
 	
+	std::map<std::string, std::string>::const_iterator itt = getFormDataFileName().begin();
+	std::cout << "FILENAME = " << itt->first << std::endl;
+	std::cout << "Content = " << itt->second << std::endl;
+
     setenv("REQUEST_METHOD", "POST", 1);
     setenv("CONTENT_LENGTH", content_length_str.c_str(), 1);
     setenv("CONTENT_TYPE", _boundary_full.c_str(), 1);
