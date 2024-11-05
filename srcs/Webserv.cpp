@@ -384,13 +384,16 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		pos += 4;
 		_here = 1;
 		for (int i = 0; i < pos; i++)
+		{
 			_buffer += buffer[i];
+			std::cout << _buffer[i];
+		}
 		if (pos < bytes)
 		{
 			for (; pos < bytes; pos++)
 			{
-				// if (buffer[pos] >= 0 && buffer[pos] <= 127)
-					// std::cout << buffer[pos] << std::endl;
+				if (buffer[pos] >= 0 && buffer[pos] <= 127)
+					std::cout << buffer[pos];
 				_my_v.push_back(buffer[pos]);
 			}
 		}
@@ -399,8 +402,8 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 	{
 		for (int i = 0; i < bytes; i++)
 		{
-			// if (buffer[i] >= 0 && buffer[i] <= 127)
-				// std::cout << buffer[i] << std::endl;
+			if (buffer[i] >= 0 && buffer[i] <= 127)
+				std::cout << buffer[i];
 			_my_v.push_back(buffer[i]);
 		}
 	}
@@ -438,7 +441,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		Server* correct_server = findAppropriateServer(request);
 
 		if (correct_server != NULL) {
-			// std::cout << "\nparsing again...\n\n";
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);
 			// std::cout << "request succesfully parsed!\n";

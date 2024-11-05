@@ -137,7 +137,7 @@ class	Request
 	void	getClientIPPort(int clientfd);
 	bool	parserFormData_help(unsigned long int i);
 	bool	isRequestComplete();
-	bool	isChunkedRequestComplete(const std::string& body);
+	bool	isChunkedRequestComplete();
 
 	void	checkISS(char c1, char c2);
 	bool	checkValidHeader(char c);

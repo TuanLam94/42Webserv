@@ -642,9 +642,11 @@ void	Request::parsingPOST_v2()
 		if (it1->first == "Transfer-Encoding:")
 		{
 			if (it1->second == "chunked")
-			{				
+			{
 				_isChunk = true;
 				constructBody(); // reiquete chunk reconstruire body
+				for (size_t i = 0; i < _my_v.size(); i++)
+					std::cout << _my_v[i];
 			}
 		}
 		it1++;
