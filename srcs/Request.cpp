@@ -260,8 +260,9 @@ bool Request::isRequestComplete()
 
 bool Request::isChunkedRequestComplete()
 {
+	return (true);
 	size_t pos = 0;
-    	while (pos < _my_v.size()) 
+	while (pos < _my_v.size()) 
 	{
 		size_t chunkSizeEnd = findPositionVec("\r\n", pos);
 		if (static_cast<int>(chunkSizeEnd) == -1)

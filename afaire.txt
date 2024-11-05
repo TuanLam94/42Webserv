@@ -2,4 +2,4 @@ A faire :
 
 
 - checkAllSize() --> gerer lerreur quand le code de status et eviter la boucle infinie
-
+- revoir les requests chunks --> sassurer du bon format

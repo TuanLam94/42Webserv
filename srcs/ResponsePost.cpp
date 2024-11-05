@@ -80,6 +80,10 @@ void Response::handleCGIPost()
     //     _boundary += tmp[i];
     //     i++;
     // }
+    std::vector<unsigned char> test = _request.getMyV();
+    std::string str;
+    for (size_t i = 0; i < test.size(); i++)
+        str += test[i];
     std::ostringstream oss;
     oss << getContentLength();
     std::string content_length_str = oss.str();
@@ -141,7 +145,7 @@ void Response::handleCGIPost()
 		close(pipefd[1]);
         close(bodyPipe[0]);
 
-        write(bodyPipe[1], _request.getBody().c_str(), _request.getBody().size());
+        write(bodyPipe[1], str.c_str(), str.size());
         close(bodyPipe[1]);
 
 		time_t start_time = time(NULL);

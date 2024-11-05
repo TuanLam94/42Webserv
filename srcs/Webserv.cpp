@@ -408,8 +408,8 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 	{
 		for (int i = 0; i < bytes; i++)
 		{
-			// if (buffer[i] >= 0 && buffer[i] <= 127)
-				// std::cout << buffer[i];
+			if (buffer[i] >= 0 && buffer[i] <= 127)
+				std::cout << buffer[i];
 			_my_v.push_back(buffer[i]);
 		}
 	}
@@ -430,7 +430,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		return;
 	}
 	request.createData(buffer, bytes);
-
 
 	request.setStatusCode(checkAllSize(request));
 	if (request.getStatusCode() != 0) // send error Response

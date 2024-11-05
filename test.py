@@ -18,7 +18,6 @@ with socket.create_connection((host, port)) as s:
         "Wiki\r\n"
         "5\r\n"
         "pedia\r\n"
-        "E\r\n"
         "in\r\n"
         "chunks.\r\n"
         "0\r\n"
