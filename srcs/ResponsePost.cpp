@@ -73,14 +73,26 @@ bool Response::storeFormData()
 
 void Response::handleCGIPost()
 {
+    // std::string tmp = _boundary;
+    // _boundary.clear();
+    // size_t i = 2;
+    // while (i < tmp.size())
+    // {
+    //     _boundary += tmp[i];
+    //     i++;
+    // }
+    // std::string str;
+
+    std::string str;
+    for (size_t i = 0; i < _bodyVector.size(); i++)
+        str += _bodyVector[i];
+    std::cout << str.size();
+
     std::ostringstream oss;
     oss << getContentLength();
     std::string content_length_str = oss.str();
 
-    std::string bodyStr;
-    for (int i = 0; i < _bodyVector.size(); i++) {
-        bodyStr[i] = _bodyVector[i];
-    }
+    // std::cout << "STR = " << str << std::endl;
 
     std::map<std::string, std::string> tmp = getFormDataFileName();
     std::map<std::string, std::string>::const_iterator it = tmp.begin();
@@ -138,7 +150,7 @@ void Response::handleCGIPost()
 		close(pipefd[1]);
         close(bodyPipe[0]);
 
-        write(bodyPipe[1], bodyStr.c_str(), bodyStr.size());
+        write(bodyPipe[1], str.c_str(), str.size());
         close(bodyPipe[1]);
 
 		time_t start_time = time(NULL);
