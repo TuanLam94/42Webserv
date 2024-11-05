@@ -95,11 +95,12 @@ class	Request
 	std::string	_boundary_full;
 	std::string	_dataBrut; // requete POST avec content-type -> text/plain
 	bool	_isChunk; // pour verifier si requete fragmente
-	public:
 	int	_here;
-	std::string _buffer;
-	// std::vector<std::vector<unsigned char> >	_my_v;x
 	std::vector<unsigned char> _my_v;
+
+	std::string _buffer;
+	public:
+	// std::vector<std::vector<unsigned char> >	_my_v;x
 	Request();
 	Request(const Request& copy);
 	Request& operator=(const Request& other);
@@ -175,6 +176,8 @@ class	Request
 	std::string	getResponse() const;
 	std::string	getHost() const;
 	std::string	getServerName() const;
+	std::string	getBuffer() const;
+	int	getHere() const;
 	unsigned long int	getContentLength() const;
 	int getMaxBodySize() const;
 	const Server&	getServer() const;
@@ -193,12 +196,13 @@ class	Request
 	std::string getRemotePort() const;
 	bool	getIsCgiHere()const;
 	int getClientFD() const;
-
+	std::vector<unsigned char>	getMyV() const;
 	//------------SETTERS------------
 	void	setStatusCode(int code);
 	void	setServer(Server& server);
 	void	setRequestStatusCode(int status_code);
 	void	setClientFD(int fd);
+	void	setHere(int here);
 	//Utils
 	void	printRequest() const;
 

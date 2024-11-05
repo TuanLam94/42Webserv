@@ -121,22 +121,24 @@ int	checkHeadersSize(std::string buff)
 int	checkBodySize(Request request)
 {
 	size_t	pos;
+	std::string	buff;
 
-	pos = request._buffer.find("\r\n\r\n");
+	buff = request.getBuffer();
+	pos = buff.find("\r\n\r\n");
 	if (pos == std::string::npos)
 		return (0);
 	else
 	{
 		pos += 4;
-		for (size_t i = pos; i < request._buffer.size(); i++)
+		for (size_t i = pos; i < buff.size(); i++)
 		{
-			// if (static_cast<int>(i) > request.getMaxBodySize())
-			// {
-			// 	std::cout << i << std::endl;
-			// 	std::cout << request.getMaxBodySize() << std::endl;
-			// 	std::cerr << "checkBodySize Error 413: Payload Too Large.\n";
-			// 	return (413);
-			// }
+			if (static_cast<int>(i) > request.getMaxBodySize())
+			{
+				std::cout << i << std::endl;
+				std::cout << request.getMaxBodySize() << std::endl;
+				std::cerr << "checkBodySize Error 413: Payload Too Large.\n";
+				return (413);
+			}
 		}
 	}
 	return (0);
@@ -280,7 +282,7 @@ void Webserv::eventLoop() {
 				}
 				if (_events[i].events & EPOLLOUT) {
 					Request* request = findAppropriateRequestToWrite(event_fd);
-					if (request != NULL && request->isRequestComplete() && !request->_buffer.empty()) {
+					if (request != NULL && request->isRequestComplete() && !request->getBuffer().empty()) {
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
 					}
@@ -343,13 +345,17 @@ void Webserv::removeRequest(int event_fd)
 
 int	checkAllSize(Request request)
 {
-	if (checkUriSize(request._buffer) == 414)
+	std::string	buff;
+
+	buff = request.getBuffer();
+
+	if (checkUriSize(buff) == 414)
 		return (414);
-	if (checkHeadersSize(request._buffer) == 431)
+	if (checkHeadersSize(buff) == 431)
 		return (431);
 	if (checkBodySize(request) == 413) // revoir le body size pour avoir le bon
 		return (413);
-	if (checkContentLengthSize(request._buffer) == 413)
+	if (checkContentLengthSize(buff) == 413)
 		return (413);
 	return (0);
 }
@@ -434,7 +440,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		// std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
 		// std::cout << "COMPLETE VECTOR = \n";
 		// exit (1);
-		request._here = 0;
+		request.setHere(0);
 		request.parsRequest();		//PATH IS HERE
 		request.getClientIPPort(client_fd);
 

@@ -463,6 +463,11 @@ Request& Request::operator=(const Request& other)
 	return *this;
 }
 
+std::string	Request::getBuffer() const
+{
+	return (_buffer);
+}
+
 std::string	Request::getBoundary() const
 {
 	return (_boundary_full);
@@ -595,6 +600,16 @@ unsigned long int	Request::getContentLength() const
 	return (_contentLength);
 }
 
+int	Request::getHere() const
+{
+	return (_here);
+}
+
+std::vector<unsigned char>	Request::getMyV() const
+{
+	return (_my_v);
+}
+
 // std::string Request::getRemotePort() const
 // {
 // 	return _RemotePort;
@@ -605,6 +620,11 @@ unsigned long int	Request::getContentLength() const
 void	Request::setStatusCode(int code)
 {
 	_status_code = code;
+}
+
+void	Request::setHere(int here)
+{
+	_here = here;
 }
 
 void Request::setServer(Server& server)

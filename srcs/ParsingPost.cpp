@@ -645,8 +645,8 @@ void	Request::parsingPOST_v2()
 			{
 				_isChunk = true;
 				constructBody(); // reiquete chunk reconstruire body
-				for (size_t i = 0; i < _my_v.size(); i++)
-					std::cout << _my_v[i];
+				// for (size_t i = 0; i < _my_v.size(); i++)
+					// std::cout << _my_v[i];
 			}
 		}
 		it1++;
@@ -759,12 +759,12 @@ void	Request::initContentLength()
 			}
 			std::istringstream ss(it->second); 
 			ss >> _contentLength;
-			// if (_contentLength != _body.size())
-			// {
-			// 	_status_code = 400;
-			// 	std::cerr << "initContentLength2 Error 400: Bad Request\n";
-			// 	throw MyExcep();
-			// }
+			if (_contentLength != _my_v.size())
+			{
+				_status_code = 400;
+				std::cerr << "initContentLength2 Error 400: Bad Request\n";
+				throw MyExcep();
+			}
 			if (static_cast<int>(_contentLength) > _max_client_body_size)
 			{
  				_status_code = 413;
