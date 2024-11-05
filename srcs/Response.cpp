@@ -82,7 +82,7 @@ bool Response::isErrorResponse()
         || _request.getStatusCode() == 500 || _request.getStatusCode() == 505
         || _request.getStatusCode() == 404 || _request.getStatusCode() == 415
         || _request.getStatusCode() == 409 || _request.getStatusCode() == 403
-        || _request.getStatusCode() == 504)
+        || _request.getStatusCode() == 504 || _request.getStatusCode() == 431)
         return true;
     return false;
 }
@@ -200,6 +200,10 @@ void Response::handleErrorResponse()
             _responseBody = loadErrorPage("505.html");
             _response << "Content-Type: text/html\r\n";
             break;
+        case 431:
+            _responseBody = loadErrorPage("431.html");
+            _response << "Content-Type: text/html\r\n";
+            break;
     }
     _response << "Content-Length: " << _responseBody.size() << "\r\n";
     _response << "Connection: keep-alive\r\n";
@@ -260,6 +264,11 @@ unsigned long int   Response::getContentLength()const
 void Response::setServer(Server& server)
 {
     _server = server;
+}
+
+void Response::setStatusCode(std::string statuscode)
+{
+    _status_code = statuscode;
 }
 
 //---------------------------------------------UTILS-----------------------------------------------

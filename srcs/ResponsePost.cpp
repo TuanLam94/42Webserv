@@ -86,10 +86,15 @@ void Response::handleCGIPost()
     oss << getContentLength();
     std::string content_length_str = oss.str();
 
+    std::string bodyStr;
+    std::cout << "bodyvector size = " << _bodyVector.size() << std::endl;
+    for (int i = 0; i < _bodyVector.size(); i++) {
+        bodyStr[i] = _bodyVector[i];
+    }
+
     
     // std::cout << "STR = " << str << std::endl;
 
-	// std::map<std::string, std::string>::const_iterator it = getFormDataFileName().begin();
     std::map<std::string, std::string> tmp = getFormDataFileName();
     std::map<std::string, std::string>::const_iterator it = tmp.begin();
     std::cout << "CONTENT_LENGTH = " << content_length_str.c_str() << std::endl;
@@ -146,7 +151,7 @@ void Response::handleCGIPost()
 		close(pipefd[1]);
         close(bodyPipe[0]);
 
-        write(bodyPipe[1], _request.getBody().c_str(), _request.getBody().size());
+        write(bodyPipe[1], bodyStr.c_str(), bodyStr.size());
         close(bodyPipe[1]);
 
 		time_t start_time = time(NULL);

@@ -46,7 +46,7 @@ class Response
 		int _cgi_type;
 		unsigned long int	_contentLength;
 	public:
-		// Response() {};
+		Response() {};
 		Response(const Request& request);
 		Response(const Response& copy);
 		Response& operator=(const Response& other);
@@ -109,6 +109,7 @@ class Response
 		unsigned long int	getContentLength() const;
 std::map<std::string, std::string> getFormDataFileName() const;
 			//setters
+		void setStatusCode(std::string statuscode);
 		void setServer(Server& server);
 			//utils
 		void printResponse();
