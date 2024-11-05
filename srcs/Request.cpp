@@ -504,7 +504,6 @@ std::string Request::getResponse() const
 	return (_response);
 }
 
-
 std::string Request::getHost() const
 {
 	return (_host);

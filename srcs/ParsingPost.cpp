@@ -488,8 +488,8 @@ bool	Request::checkIfNext(size_t i)
 
 	pos = findPositionVec(_boundary, i);
 	if (static_cast<int>(pos) == -1)
-		return (true);
-	return (false);
+		return (false);
+	return (true);
 }
 
 void	Request::parserFormData_bis(size_t pos)
@@ -506,7 +506,10 @@ void	Request::parserFormData_bis(size_t pos)
 		if (static_cast<int>(pos_b) != -1)
 			i = pos_b;
 		else
+		{
+			std::cout << "parserFormData_bis1 Error 400 : Bad Request.\n";
 			throw MyExcep();
+		}
 		pos_info = findPositionVec("Content-Disposition: form-data; ", i);
 		if (static_cast<int>(pos_info) == -1)
 		{
@@ -674,7 +677,9 @@ void	Request::parsingPOST_v2()
 	{
 		if (it->first == "Content-Type:")
 		{
+			
 			pos = it->second.std::string::find("multipart/form-data;");
+			std::cout << pos << std::endl;
 			if (it->second == "application/json") // json utiliser pour la creation de ressource
 			{
 				_contentType = it->second;
@@ -689,9 +694,9 @@ void	Request::parsingPOST_v2()
 			else if (pos != std::string::npos)
 			{
 				it->second = "multipart/form-data";
+				_contentType = it->second;
 				setBoundaryFull();
 				parserFormData();
-				_contentType = it->second;
 			}
 			else if (it->second == "text/plain")
 			{

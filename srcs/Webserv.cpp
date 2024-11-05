@@ -327,9 +327,13 @@ void Webserv::handleClientWrite(int event_fd, Request& request)
 	Response response(request);
 	response.handleRequest();
 	response.buildResponse();
-	// std::cout << "\n\n\nRESPONSE CONTENT TYPE == " << response.getContentType() << "\n\n";
-	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
+	std::cout << "\n\n\nRESPONSE CONTENT TYPE == " << response.getContentType() << "\n\n";
+	std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(event_fd);
+	// std::vector<unsigned char> test = request.getMyV();
+	// std::string str;
+    	// std::cout << test.size() << std::endl;
+	// exit (1);
 }
 
 void Webserv::removeRequest(int event_fd)
@@ -392,14 +396,14 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		for (int i = 0; i < pos; i++)
 		{
 			_buffer += buffer[i];
-			std::cout << _buffer[i];
+			// std::cout << _buffer[i];
 		}
 		if (pos < bytes)
 		{
 			for (; pos < bytes; pos++)
 			{
-				if (buffer[pos] >= 0 && buffer[pos] <= 127)
-					std::cout << buffer[pos];
+				// if (buffer[pos] >= 0 && buffer[pos] <= 127)
+					// std::cout << buffer[pos];
 				_my_v.push_back(buffer[pos]);
 			}
 		}
@@ -408,8 +412,8 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 	{
 		for (int i = 0; i < bytes; i++)
 		{
-			if (buffer[i] >= 0 && buffer[i] <= 127)
-				std::cout << buffer[i];
+			// if (buffer[i] >= 0 && buffer[i] <= 127)
+				// std::cout << buffer[i];
 			_my_v.push_back(buffer[i]);
 		}
 	}
@@ -419,7 +423,7 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 	}
 }
 
-void Webserv::handleClientRequest(int client_fd, Request& request)
+void	Webserv::handleClientRequest(int client_fd, Request& request)
 {
 	unsigned char buffer[1024] = {0};
 
@@ -431,12 +435,12 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	}
 	request.createData(buffer, bytes);
 
-	request.setStatusCode(checkAllSize(request));
+	request.setStatusCode(checkAllSize(request)); // heeeeeeeeeeeeeeeeeeeeeeeere
 	if (request.getStatusCode() != 0) // send error Response
 		return ;
 
 	if (request.isRequestComplete()) {
-		// std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
+		std::cout << "COMPLETE BUFFER = \n" << request.getBuffer() << "\n\n";
 		// std::cout << "COMPLETE VECTOR = \n";
 		// exit (1);
 		request.setHere(0);
@@ -445,6 +449,8 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 
 		Server* correct_server = findAppropriateServer(request);
 
+			// std::cout << request.getContentType() << std::endl;
+			// exit (1);
 		if (correct_server != NULL) {
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);

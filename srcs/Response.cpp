@@ -8,7 +8,6 @@ Response::Response(const Request& request)
     _path = request.getPath();
     _version = request.getVersion();
     _boundary_full = request.getBoundary();
-    _request = request;
     setStatusCode(request);
     _contentType = request.getContentType();
     _server = request.getServer();
@@ -18,6 +17,8 @@ Response::Response(const Request& request)
     _urlParam = request.getUrlParam();
     _cgi_type = responseSetCgiType();
     _contentLength = request.getContentLength();
+    _bodyVector = request.getMyV();
+    _request = request;
 }
 
 void Response::setStatusCode(const Request& request)

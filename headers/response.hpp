@@ -42,6 +42,7 @@ class Response
 		std::map<std::string, std::string>	_FormDataFileName;
 		std::map<std::string, std::string>	_jsonParam;
 		std::map<std::string, std::string> _urlParam;
+		std::vector<unsigned char> _bodyVector;
 		int _cgi_type;
 		unsigned long int	_contentLength;
 	public:
@@ -104,6 +105,7 @@ class Response
 		std::string getResponseStr() const;
 		Request getRequest() const;
 		std::string getContentType() const;
+		std::vector<unsigned char> getMyVector() const;
 		unsigned long int	getContentLength() const;
 std::map<std::string, std::string> getFormDataFileName() const;
 			//setters
