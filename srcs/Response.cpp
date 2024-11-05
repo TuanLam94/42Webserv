@@ -91,7 +91,7 @@ bool Response::isErrorResponse()
 
 void Response::sendResponse(int fd)
 {
-    std::cout << "SENDING RESPONSE. STATUS CODE = " << _status_code << std::endl;
+    // std::cout << "SENDING RESPONSE. STATUS CODE = " << _status_code << std::endl;
     // write(fd, _response_str.c_str(), _response_str.size());
     ssize_t totalSent = 0;
     ssize_t toSend = _response_str.size();
@@ -286,7 +286,7 @@ void Response::setServer(Server& server)
     _server = server;
 }
 
-void Response::setStatusCode(std::string statuscode)
+void Response::setCode(std::string statuscode)
 {
     _status_code = statuscode;
 }

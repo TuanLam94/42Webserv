@@ -320,7 +320,7 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 
 void Webserv::handleClientWrite(int event_fd, Request& request)
 {
-	std::cout << "HANDLE CLIENT WRITE\n";
+	// std::cout << "HANDLE CLIENT WRITE\n";
 	Response response(request);
 	response.handleRequest();
 	response.buildResponse();
@@ -341,16 +341,18 @@ void Webserv::removeRequest(int event_fd)
 
 void Webserv::sendErrorResponse(int client_fd, int statusCode)
 {
+
 	Response response;
 	if (statusCode == 413)
-		response.setStatusCode("413 Content Too Large");
+		response.setCode("413 Content Too Large");
 	else if (statusCode == 431)
-		response.setStatusCode("431 Request Header Fields Too Large");
+		response.setCode("431 Request Header Fields Too Large");
 	else if (statusCode == 500)
-		response.setStatusCode("500 Internal Server Error");
+		response.setCode("500 Internal Server Error");
 
 	response.handleErrorResponse();
 	response.buildResponse();
+	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(client_fd);
 	removeRequest(client_fd);
 }

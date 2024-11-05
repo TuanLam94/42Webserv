@@ -109,7 +109,7 @@ class Response
 		unsigned long int	getContentLength() const;
 std::map<std::string, std::string> getFormDataFileName() const;
 			//setters
-		void setStatusCode(std::string statuscode);
+		void setCode(std::string statuscode);
 		void setServer(Server& server);
 			//utils
 		void printResponse();
