@@ -2,6 +2,7 @@
 
 void Response::handlePostResponse()
 {
+    std::cout << "content type = " << _contentType << std::endl;
     if (_contentType == "application/json")                         //json data submission
         handleDataSubmission();
     else if (_contentType == "application/x-www-form-urlencoded")   //form submission
@@ -84,6 +85,9 @@ void Response::handleCGIPost()
     std::ostringstream oss;
     oss << getContentLength();
     std::string content_length_str = oss.str();
+
+    
+    // std::cout << "STR = " << str << std::endl;
 
 	// std::map<std::string, std::string>::const_iterator it = getFormDataFileName().begin();
     std::map<std::string, std::string> tmp = getFormDataFileName();

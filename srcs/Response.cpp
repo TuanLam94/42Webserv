@@ -77,8 +77,8 @@ void Response::handleRequest()
 
 bool Response::isErrorResponse()
 {
-    if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405 
-        || _request.getStatusCode() == 413 || _request.getStatusCode() == 414 
+    if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405
+        || _request.getStatusCode() == 413 || _request.getStatusCode() == 414
         || _request.getStatusCode() == 500 || _request.getStatusCode() == 505
         || _request.getStatusCode() == 404 || _request.getStatusCode() == 415
         || _request.getStatusCode() == 409 || _request.getStatusCode() == 403
