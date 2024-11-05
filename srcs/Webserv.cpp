@@ -60,7 +60,7 @@ int	checkHeadersSize(std::string buff)
 				// 		std::cout << buff[k];
 				// 		if (k > 2048)
 				// 		{
-				// 			std::cerr << "checkHeadersSize1 Error 431: Header Field Too Large.\n";
+				// 			std::cerr << "checkHeadersSize1 Error 431: Header Fields Too Large.\n";
 				// 			return (431);
 				// 		}
 				// 	}
@@ -72,14 +72,14 @@ int	checkHeadersSize(std::string buff)
 					{
 						if (i > 2048)
 						{
-							std::cerr << "checkHeadersSize2 Error 431: Header Field Too Large.\n";
+							std::cerr << "checkHeadersSize2 Error 431: Header Fields Too Large.\n";
 							return (431);
 						}
 					}
 				}
 				if (i > 8192)
 				{
-					std::cerr << "checkHeadersSize3 Error 431: Header Field Too Large.\n";
+					std::cerr << "checkHeadersSize3 Error 431: Header Fields Too Large.\n";
 					return (431);
 				}
 				pos2 += 2;
@@ -100,14 +100,14 @@ int	checkHeadersSize(std::string buff)
 					{
 						if (i > 2048)
 						{
-							std::cerr << "checkHeadersSize4 Error 431: Header Field Too Large.\n";
+							std::cerr << "checkHeadersSize4 Error 431: Header Fields Too Large.\n";
 							return (431);
 						}
 					}
 				}
 				if (i > 8192)
 				{
-					std::cerr << "checkHeadersSize5 Error 431: Header Field Too Large.\n";
+					std::cerr << "checkHeadersSize5 Error 431: Header Fields Too Large.\n";
 					return (431);
 				}
 				pos2 += 2;
@@ -136,7 +136,7 @@ int	checkBodySize(Request request)
 			{
 				// std::cout << i << std::endl;
 				// std::cout << request.getMaxBodySize() << std::endl;
-				std::cerr << "checkBodySize Error 413: Payload Too Large.\n";
+				std::cerr << "checkBodySize Error 413: Content Too Large.\n";
 				return (413);
 			}
 		}
@@ -176,7 +176,7 @@ int	checkContentLengthSize(std::string buff)
 
 				if (integer > 10485760)
 				{
-					std::cerr << "checkContentLengthSize Error 413: Payload Too Large.\n";
+					std::cerr << "checkContentLengthSize Error 413: Content Too Large.\n";
 					return (413);
 				}
 			}
@@ -285,6 +285,7 @@ void Webserv::eventLoop() {
 					if (request != NULL && request->isRequestComplete() && !request->getBuffer().empty()) {
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
+						//add epoll_ctl_del ? 
 					}
 				}
 			}
@@ -294,11 +295,7 @@ void Webserv::eventLoop() {
 
 Request* Webserv::findAppropriateRequest(int event_fd)
 {
-	// std::cout << "EVENT FD = " << event_fd << std::endl;
-	// std::cout << "_requests.size() before == " << _requests.size() << std::endl;
-
 	for (size_t i = 0; i < _requests.size(); i++) {
-		// std::cout << "request[" << i << "]._client_fd = " << _requests[i].getClientFD() << std::endl;
 		if (_requests[i].getClientFD() == event_fd) {
 			// std::cout << "FOUND EXISTING REQUEST TO READ\n";
 			return &_requests[i];
@@ -307,7 +304,6 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 	// std::cout << "CREATING NEW REQUEST\n";
     	_requests.push_back(Request());
    	 _requests.back().setClientFD(event_fd);
-	// std::cout << "_requests.size() after == " << _requests.size() << std::endl;
     	return &_requests.back();
 }
 
@@ -315,7 +311,7 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			// std::cout << "FOUND EXIS?TING REQUEST TO WRITE\n";
+			// std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
 			return &_requests[i];
 		}
 	}
@@ -324,10 +320,10 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 
 void Webserv::handleClientWrite(int event_fd, Request& request)
 {
+	std::cout << "HANDLE CLIENT WRITE\n";
 	Response response(request);
 	response.handleRequest();
 	response.buildResponse();
-	// std::cout << "\n\n\nRESPONSE CONTENT TYPE == " << response.getContentType() << "\n\n";
 	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(event_fd);
 }
@@ -350,8 +346,11 @@ void Webserv::sendErrorResponse(int client_fd, int statusCode)
 		response.setStatusCode("413 Content Too Large");
 	else if (statusCode == 431)
 		response.setStatusCode("431 Request Header Fields Too Large");
+	else if (statusCode == 500)
+		response.setStatusCode("500 Internal Server Error");
 
 	response.handleErrorResponse();
+	response.buildResponse();
 	response.sendResponse(client_fd);
 	removeRequest(client_fd);
 }
@@ -455,8 +454,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 
 	if (request.isRequestComplete()) {
 		// std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
-		// std::cout << "COMPLETE VECTOR = \n";
-		// exit (1);
 		request.setHere(0);
 		request.parsRequest();		//PATH IS HERE
 		request.getClientIPPort(client_fd);
@@ -467,13 +464,10 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);
 			// std::cout << "request succesfully parsed!\n";
-			// std::cout << "Request Path is " << request.getPath() << std::endl;
-			// std::cout << "\nrequest parsed\n";
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);
 				return ;
 			}
-			// std::cout << "request path = " << request.getPath() << std::endl;
 		}
 		else
 			std::cout << "500 Internal Server Error\n";

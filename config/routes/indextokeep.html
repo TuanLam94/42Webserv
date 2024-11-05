@@ -136,7 +136,7 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`Network response was not ok (status: ${response.status})`);
+                    throw new Error('Network response was not ok');
                 }
                 return response.text(); // Assuming the CGI script returns text
             })
@@ -146,7 +146,7 @@
             })
             .catch(error => {
                 console.error(`Error calling ${script}:`, error);
-                handleErrorResponse(response.status, error.message); // Call the error handling function
+                alert(`Error calling ${script}: ${error.message}`);
             });
         }
 
@@ -166,9 +166,7 @@
                 })
                 .then(response => {
                     if (!response.ok) {
-                        // Handle non-2xx responses
-                        handleErrorResponse(response.status); // Pass the response status
-                        return Promise.reject(`Network response was not ok (status: ${response.status})`);
+                        throw new Error('Network response was not ok');
                     }
                     return response.text();
                 })
@@ -178,7 +176,6 @@
                 })
                 .catch(error => {
                     console.error(`Error uploading file to ${currentCgiScript}:`, error);
-                    // You can handle general errors here if needed
                 });
             }
         });
@@ -225,8 +222,9 @@
                 })
                 .catch((error) => {
                     console.error('Error:', error);
-                    handleErrorResponse(response.status, error.message); // Call the error handling function
                 });
+            } else {
+                alert("All fields must be filled out.");
             }
         }
 
@@ -270,10 +268,12 @@
                 })
                 .catch((error) => {
                     console.error('Error:', error);
-                    handleErrorResponse(response.status, error.message); // Call the error handling function
                 });
+            } else {
+                alert("All fields must be filled out.");
             }
         }
+
         // Function to reset the form data and hide it
         function resetForm() {
             document.getElementById("formName").value = '';
@@ -286,75 +286,41 @@
             dropdownContainer.style.display = dropdownContainer.style.display === 'none' ? 'block' : 'none';
         }
 
-        function handleErrorResponse(status, message = '') {
-            switch (status) {
-                case 400:
-                    window.location.href = '../errors/400.html';
-                    break;
-                case 403:
-                    window.location.href = '../errors/403.html';
-                    break;
-                case 404:
-                    window.location.href = '../errors/404.html';
-                    break;
-                case 405:
-                    window.location.href = '../errors/405.html';
-                    break;
-                case 409:
-                    window.location.href = '../errors/409.html';
-                    break;
-                case 413:
-                    window.location.href = '../errors/413.html';
-                    break;
-                case 414:
-                    window.location.href = '../errors/414.html';
-                    break;
-                case 415:
-                    window.location.href = '../errors/415.html';
-                    break;
-                case 431:
-                    window.location.href = '../errors/431.html';
-                    break;
-                case 500:
-                    window.location.href = '../errors/500.html';
-                    break;
-                case 502:
-                    window.location.href = '../errors/502.html';
-                    break;
-                case 504:
-                    window.location.href = '../errors/504.html';
-                    break;
-                case 505:
-                    window.location.href = '../errors/505.html';
-                    break;
-                default:
-                    alert(`Error: ${status} - ${message}`); // Default error handling with message
-        }
-    }
-
         // Function to send DELETE request for selected file
-        function deleteFile() {
-    const file = document.getElementById('fileSelect').value;
-    const deleteUrl = `http://localhost:8080/config/toDelete/${file}`;
+		function deleteFile() {
+			const file = document.getElementById('fileSelect').value;
+			const deleteUrl = `http://localhost:8080/config/toDelete/${file}`;
 
-    fetch(deleteUrl, {
-        method: 'DELETE',
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Network response was not ok (status: ${response.status})`);
+			fetch(deleteUrl, {
+			method: 'DELETE',
+			})
+			.then(response => {
+			if (response.status === 404) {
+				throw new Error('404 Not Found: The file you want to delete does not exist');
+			}
+			if (response.status === 403) {
+				throw new Error('403 Forbidden: You do not have permission to delete this file');
+			}
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+			return response.text();
+			})
+			.then(data => {
+			console.log(`File ${file} deleted successfully:`, data);
+			alert(`File ${file} deleted successfully!`);
+			})
+			.catch(error => {
+			console.error(`Error deleting file ${file}:`, error);
+			if (error.message.includes('404')) {
+				alert('404 Not Found: The file you want to delete does not exist'); // Removed the template literal and file name
+			} else if (error.message.includes('403')) {
+				alert('403 Forbidden: You do not have permission to delete this file');
+			} else {
+				alert(`Error deleting file ${file}: ${error.message}`);
+			}
+			});
         }
-        return response.text();
-    })
-    .then(data => {
-        console.log(`File ${file} deleted successfully:`, data);
-        alert(`File ${file} deleted successfully!`);
-    })
-    .catch(error => {
-        console.error(`Error deleting file ${file}:`, error);
-        handleErrorResponse(response.status, error.message); // Call the error handling function
-    });
-}
     </script>
 </body>
 </html>

@@ -77,6 +77,8 @@ void Response::handleRequest()
 
 bool Response::isErrorResponse()
 {
+    std::cout << "request status code = " << _request.getStatusCode() << std::endl;
+
     if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405
         || _request.getStatusCode() == 413 || _request.getStatusCode() == 414
         || _request.getStatusCode() == 500 || _request.getStatusCode() == 505
@@ -89,7 +91,20 @@ bool Response::isErrorResponse()
 
 void Response::sendResponse(int fd)
 {
-    write(fd, _response_str.c_str(), _response_str.size());
+    std::cout << "SENDING RESPONSE. STATUS CODE = " << _status_code << std::endl;
+    // write(fd, _response_str.c_str(), _response_str.size());
+    ssize_t totalSent = 0;
+    ssize_t toSend = _response_str.size();
+    while (totalSent < toSend) {
+        ssize_t sent = write(fd, _response_str.c_str() + totalSent, toSend - totalSent);
+        // std::cout << "SENT = " << sent << std::endl;
+        if (sent < 0) {
+            perror("Error writing response");
+            break;
+        }
+        totalSent += sent;
+    }
+
 }
 
 
@@ -144,7 +159,8 @@ bool Response::isErrorCode()
     if (_status_code == "404 Not Found" || _status_code == "415 Unsupported Media Type" || _status_code == "409 Conflict"
         || _status_code == "403 Forbidden" || _status_code == "504 Gateway Timeout" || _status_code == "400 Bad Request"
         || _status_code == "500 Internal Server Error" || _status_code == "413 Content Too Large" || _status_code == "414 URI Too Long"
-        || _status_code == "405 Method Not Allowed" || _status_code == "505 HTTP Version Not Supported")
+        || _status_code == "405 Method Not Allowed" || _status_code == "505 HTTP Version Not Supported" || _status_code == "431 Header Fields Too Large"
+        || _status_code == "502 Bad Gateway")
         return true;
     return false;
 }
@@ -202,6 +218,10 @@ void Response::handleErrorResponse()
             break;
         case 431:
             _responseBody = loadErrorPage("431.html");
+            _response << "Content-Type: text/html\r\n";
+            break;
+        case 502:
+            _responseBody = loadErrorPage("502.html");
             _response << "Content-Type: text/html\r\n";
             break;
     }

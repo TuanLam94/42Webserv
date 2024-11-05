@@ -790,7 +790,7 @@ void	Request::initContentLength()
 			if (static_cast<int>(_contentLength) > _max_client_body_size)
 			{
  				_status_code = 413;
-				std::cerr << "initContentLength3 Error 413 : Payload Too Large.\n";
+				std::cerr << "initContentLength3 Error 413 : Content Too Large.\n";
 				throw MyExcep();
 			}
 		}

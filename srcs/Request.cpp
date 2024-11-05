@@ -84,9 +84,9 @@ void	Request::parsRequestLine()
 		}
 		_pos += 2;
 	}
-	// std::cout << _method << std::endl;
-	// std::cout << _path << std::endl;
-	// std::cout << _version << std::endl;
+	std::cout << _method << std::endl;
+	std::cout << _path << std::endl;
+	std::cout << _version << std::endl;
 	if (space != 2
 		|| _method.empty() == true
 		|| _path.empty() == true
