@@ -53,6 +53,7 @@ class Webserv
 		Server* redirectServer(Request& request);
 		Request* findAppropriateRequest(int event_fd);
 		Request* findAppropriateRequestToWrite(int event_fd);
+		void sendErrorResponse(int client_fd, int statusCode);
 		void removeRequest(int event_fd);
 		//Getters
 		int getServerFd();

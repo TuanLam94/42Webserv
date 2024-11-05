@@ -327,13 +327,9 @@ void Webserv::handleClientWrite(int event_fd, Request& request)
 	Response response(request);
 	response.handleRequest();
 	response.buildResponse();
-	std::cout << "\n\n\nRESPONSE CONTENT TYPE == " << response.getContentType() << "\n\n";
-	std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
+	// std::cout << "\n\n\nRESPONSE CONTENT TYPE == " << response.getContentType() << "\n\n";
+	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(event_fd);
-	// std::vector<unsigned char> test = request.getMyV();
-	// std::string str;
-    	// std::cout << test.size() << std::endl;
-	// exit (1);
 }
 
 void Webserv::removeRequest(int event_fd)
@@ -345,6 +341,19 @@ void Webserv::removeRequest(int event_fd)
             break;
         }
     }
+}
+
+void Webserv::sendErrorResponse(int client_fd, int statusCode)
+{
+	Response response;
+	if (statusCode == 413)
+		response.setStatusCode("413 Content Too Large");
+	else if (statusCode == 431)
+		response.setStatusCode("431 Request Header Fields Too Large");
+
+	response.handleErrorResponse();
+	response.sendResponse(client_fd);
+	removeRequest(client_fd);
 }
 
 int	checkAllSize(Request request)
@@ -396,14 +405,14 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		for (int i = 0; i < pos; i++)
 		{
 			_buffer += buffer[i];
-			// std::cout << _buffer[i];
+			std::cout << _buffer[i];
 		}
 		if (pos < bytes)
 		{
 			for (; pos < bytes; pos++)
 			{
-				// if (buffer[pos] >= 0 && buffer[pos] <= 127)
-					// std::cout << buffer[pos];
+				if (buffer[pos] >= 0 && buffer[pos] <= 127)
+					std::cout << buffer[pos];
 				_my_v.push_back(buffer[pos]);
 			}
 		}
@@ -412,8 +421,8 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 	{
 		for (int i = 0; i < bytes; i++)
 		{
-			// if (buffer[i] >= 0 && buffer[i] <= 127)
-				// std::cout << buffer[i];
+			if (buffer[i] >= 0 && buffer[i] <= 127)
+				std::cout << buffer[i];
 			_my_v.push_back(buffer[i]);
 		}
 	}
@@ -423,7 +432,7 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 	}
 }
 
-void	Webserv::handleClientRequest(int client_fd, Request& request)
+void Webserv::handleClientRequest(int client_fd, Request& request)
 {
 	unsigned char buffer[1024] = {0};
 
@@ -435,7 +444,16 @@ void	Webserv::handleClientRequest(int client_fd, Request& request)
 	}
 	request.createData(buffer, bytes);
 	request.setStatusCode(checkAllSize(request));
-	if (request.isRequestComplete() || request.getStatusCode() != 0) {
+
+	if (request.getStatusCode() != 0) {
+		sendErrorResponse(client_fd, request.getStatusCode());
+		removeRequest(client_fd);
+		close(client_fd);
+		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+		return ;
+	}
+
+	if (request.isRequestComplete()) {
 		// std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
 		// std::cout << "COMPLETE VECTOR = \n";
 		// exit (1);
@@ -445,8 +463,6 @@ void	Webserv::handleClientRequest(int client_fd, Request& request)
 
 		Server* correct_server = findAppropriateServer(request);
 
-			// std::cout << request.getContentType() << std::endl;
-			// exit (1);
 		if (correct_server != NULL) {
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);
