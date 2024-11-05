@@ -435,7 +435,6 @@ void	Webserv::handleClientRequest(int client_fd, Request& request)
 	}
 	request.createData(buffer, bytes);
 	request.setStatusCode(checkAllSize(request));
-
 	if (request.isRequestComplete() || request.getStatusCode() != 0) {
 		// std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
 		// std::cout << "COMPLETE VECTOR = \n";
