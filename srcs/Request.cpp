@@ -447,7 +447,11 @@ Request::Request(const Request& copy)
     _dataBrut = copy._dataBrut;
     _isChunk = copy._isChunk;
     _buffer = copy._buffer;
-    _my_v = copy._my_v;
+    // _my_v = copy._my_v;
+	// std::cout << "myv size = " << copy._my_v.size() << std::endl;
+	_my_v.resize(copy._my_v.size());
+	for (size_t i = 0; i < copy._my_v.size(); i++)
+		_my_v[i] = copy._my_v[i];	
 }
 
 Request& Request::operator=(const Request& other)

@@ -315,7 +315,7 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			// std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
+			// std::cout << "FOUND EXIS?TING REQUEST TO WRITE\n";
 			return &_requests[i];
 		}
 	}
@@ -430,12 +430,9 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		return;
 	}
 	request.createData(buffer, bytes);
-
 	request.setStatusCode(checkAllSize(request));
-	if (request.getStatusCode() != 0) // send error Response
-		return ;
 
-	if (request.isRequestComplete()) {
+	if (request.isRequestComplete() || request.getStatusCode() != 0) {
 		// std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
 		// std::cout << "COMPLETE VECTOR = \n";
 		// exit (1);

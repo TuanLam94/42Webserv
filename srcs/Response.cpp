@@ -18,6 +18,13 @@ Response::Response(const Request& request)
     _urlParam = request.getUrlParam();
     _cgi_type = responseSetCgiType();
     _contentLength = request.getContentLength();
+
+        std::cout << "myv size response = " << _request.getMyV().size() << std::endl;
+
+	for (size_t i = 0; i < _request.getMyV().size(); i++) {	
+		std::cout << "myv[" << i << "] = "<< _request.getMyV()[i];
+		std::cout << std::endl;
+	}
 }
 
 void Response::setStatusCode(const Request& request)
@@ -76,8 +83,8 @@ void Response::handleRequest()
 
 bool Response::isErrorResponse()
 {
-    if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405 
-        || _request.getStatusCode() == 413 || _request.getStatusCode() == 414 
+    if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405
+        || _request.getStatusCode() == 413 || _request.getStatusCode() == 414
         || _request.getStatusCode() == 500 || _request.getStatusCode() == 505
         || _request.getStatusCode() == 404 || _request.getStatusCode() == 415
         || _request.getStatusCode() == 409 || _request.getStatusCode() == 403

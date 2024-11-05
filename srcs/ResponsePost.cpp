@@ -2,6 +2,7 @@
 
 void Response::handlePostResponse()
 {
+    std::cout << "content type = " << _contentType << std::endl;
     if (_contentType == "application/json")                         //json data submission
         handleDataSubmission();
     else if (_contentType == "application/x-www-form-urlencoded")   //form submission
@@ -80,13 +81,24 @@ void Response::handleCGIPost()
     //     _boundary += tmp[i];
     //     i++;
     // }
+    std::cout << "myv size = " << _request.getMyV().size() << std::endl;
+
+	for (size_t i = 0; i < _request.getMyV().size(); i++) {	
+		std::cout << "myv[" << i << "] = "<< _request.getMyV()[i];
+		std::cout << std::endl;
+	}
+
     std::vector<unsigned char> test = _request.getMyV();
     std::string str;
-    for (size_t i = 0; i < test.size(); i++)
-        str += test[i];
+    // for (size_t i = 0; i < test.size(); i++) {
+    //     str += test[i];
+    // }
     std::ostringstream oss;
     oss << getContentLength();
     std::string content_length_str = oss.str();
+
+    
+    std::cout << "STR = " << str << std::endl;
 
 	// std::map<std::string, std::string>::const_iterator it = getFormDataFileName().begin();
     std::map<std::string, std::string> tmp = getFormDataFileName();

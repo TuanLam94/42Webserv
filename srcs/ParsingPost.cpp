@@ -689,9 +689,9 @@ void	Request::parsingPOST_v2()
 			else if (pos != std::string::npos)
 			{
 				it->second = "multipart/form-data";
+				_contentType = it->second;
 				setBoundaryFull();
 				parserFormData();
-				_contentType = it->second;
 			}
 			else if (it->second == "text/plain")
 			{
