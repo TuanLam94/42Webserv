@@ -389,8 +389,8 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		{
 			for (; pos < bytes; pos++)
 			{
-				// if (buffer[pos] >= 0 && buffer[pos] <= 127)
-				// 	std::cout << buffer[pos] << std::endl;
+				if (buffer[pos] >= 0 && buffer[pos] <= 127)
+					std::cout << buffer[pos] << std::endl;
 				_my_v.push_back(buffer[pos]);
 			}
 		}
@@ -399,8 +399,8 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 	{
 		for (int i = 0; i < bytes; i++)
 		{
-			// if (buffer[i] >= 0 && buffer[i] <= 127)
-			// 	std::cout << buffer[i] << std::endl;
+			if (buffer[i] >= 0 && buffer[i] <= 127)
+				std::cout << buffer[i] << std::endl;
 			_my_v.push_back(buffer[i]);
 		}
 	}
@@ -416,7 +416,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 
 	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
-		exit (1);
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return;
@@ -430,11 +429,11 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		return ;
 	if (request.isRequestComplete()) {
 		// std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
-		// for (int i = 0; i < request._my_v.size(); i++)
+		// for (int i = 0; i < bytes; i++)
 		// {
-			// if (buffer[i] >= 0 && buffer[i] <= 127)
-				// std::cout << request._my_v[i];
-			// _my_v.push_back(buffer[i]);
+		// 	// if (buffer[i] >= 0 && buffer[i] <= 127)
+		// 		std::cout << request._my_v[i];
+		// 	// _my_v.push_back(buffer[i]);
 		// }
 		// std::cout << "COMPLETE VECTOR = \n";
 		// exit (1);

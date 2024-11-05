@@ -460,7 +460,7 @@ void	Request::formDataGetFilename(size_t pos)
 	{
 		pos += 4;
 		size_t pos1 = findPositionVec("\r\n", pos);
-		if (static_cast<unsigned int>(pos1) == -1)
+		if (static_cast<int>(pos1) == -1)
 		{
 			_status_code = 400;
 			std::cerr << "formDataGetFileName Error 400: Bad Request.\n";
@@ -557,11 +557,11 @@ void	Request::constructBody()
 	char	*end;
 	std::string	strFinal;
 
-	pos1 = findPosition("\r\n", _body, pos2);
-	if (pos1 != std::string::npos)
+	pos1 = findPositionVec("\r\n", pos2);
+	if (static_cast<int>(pos1) != -1)
 	{
 		for (size_t i = 0; i < pos1; i++)
-			str += _body[i];
+			str += _my_v[i];
 		pos1 += 2;
 	}
 	else
@@ -569,8 +569,8 @@ void	Request::constructBody()
 	pos2 = pos1;
 	hexa = strtol(str.c_str(), &end, 16);
 	str.clear();
-	pos3 = findPosition("0\r\n\r\n", _body, 0);
-	if (pos3 == std::string::npos)
+	pos3 = findPositionVec("0\r\n\r\n", 0);
+	if (static_cast<int>(pos3) == -1)
 	{
 		_status_code = 400;
 		std::cout << "constructBody Error 400: Bad Request.\n";
@@ -581,16 +581,16 @@ void	Request::constructBody()
 		size_t i = 0;
 		while (i < hexa && pos2 < pos3)
 		{
-			strFinal += _body[pos2];
+			strFinal += _my_v[pos2];
 			i++;
 			pos2++;
 		}
 		pos2 += 2;
-		pos1 = findPosition("\r\n", _body, pos2);
-		if (pos1 != std::string::npos)
+		pos1 = findPositionVec("\r\n", pos2);
+		if (static_cast<int>(pos1) != -1)
 		{
 			for (size_t i = pos2; i < pos1; i++)
-				str += _body[i];
+				str += _my_v[i];
 			pos1 += 2;
 		}
 		else
@@ -601,8 +601,9 @@ void	Request::constructBody()
 		str.clear();
 		pos2 = pos1;
 	}
-	_body.clear();
-	_body += strFinal;
+	_my_v.clear();
+	for (size_t i = 0; i < strFinal.size(); i++)
+		_my_v.push_back(strFinal[i]);
 }
 
 void	Request::setBoundaryFull()

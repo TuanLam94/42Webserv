@@ -84,8 +84,9 @@ void Response::handleCGIPost()
     oss << _request.getBody().size();
     std::string content_length_str = oss.str();
 
-	std::map<std::string, std::string>::const_iterator it = getFormDataFileName().begin();
-
+	// std::map<std::string, std::string>::const_iterator it = getFormDataFileName().begin();
+    std::map<std::string, std::string> tmp = getFormDataFileName();
+    std::map<std::string, std::string>::const_iterator it = tmp.begin();
     // std::cout << "CONTENT_LENGTH = " << content_length_str.c_str() << std::endl;
     // std::cout << "CONTENT_TYPE = " << _boundary_full.c_str() << std::endl;
     // std::cout << "QUERY_STRING = " <<  _request.getQueryString().c_str() << std::endl;
