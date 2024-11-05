@@ -43,6 +43,7 @@ class Response
 		std::map<std::string, std::string>	_jsonParam;
 		std::map<std::string, std::string> _urlParam;
 		int _cgi_type;
+		unsigned long int	_contentLength;
 	public:
 		// Response() {};
 		Response(const Request& request);
@@ -103,6 +104,7 @@ class Response
 		std::string getResponseStr() const;
 		Request getRequest() const;
 		std::string getContentType() const;
+		unsigned long int	getContentLength() const;
 std::map<std::string, std::string> getFormDataFileName() const;
 			//setters
 		void setServer(Server& server);

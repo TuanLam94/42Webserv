@@ -17,6 +17,7 @@ Response::Response(const Request& request)
     _jsonParam = request.getJsonParam();
     _urlParam = request.getUrlParam();
     _cgi_type = responseSetCgiType();
+    _contentLength = request.getContentLength();
 }
 
 void Response::setStatusCode(const Request& request)
@@ -247,6 +248,12 @@ std::map<std::string, std::string> Response::getFormDataFileName() const
 {
 	return _FormDataFileName;
 }
+
+unsigned long int   Response::getContentLength()const
+{
+    return (_contentLength);
+}
+
 //-------------------------------------------SETTERS----------------------------------
 
 void Response::setServer(Server& server)

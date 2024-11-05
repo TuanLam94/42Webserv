@@ -583,6 +583,11 @@ int Request::getClientFD() const
 	return (_client_fd);
 }
 
+unsigned long int	Request::getContentLength() const
+{
+	return (_contentLength);
+}
+
 // std::string Request::getRemotePort() const
 // {
 // 	return _RemotePort;

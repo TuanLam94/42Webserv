@@ -175,6 +175,7 @@ class	Request
 	std::string	getResponse() const;
 	std::string	getHost() const;
 	std::string	getServerName() const;
+	unsigned long int	getContentLength() const;
 	int getMaxBodySize() const;
 	const Server&	getServer() const;
 	int getPort() const;
