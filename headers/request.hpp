@@ -166,6 +166,8 @@ class	Request
 	int	checkIsDigit(size_t pos_start);
 	void	setBoundaryFull();
 	void	createData(unsigned char buffer[1024], int bytes);
+	bool	checkIfNext(size_t i);
+	std::string	constructBoundary();
 	// --------- GETTERS -------------
 	std::string	getBoundary() const;
 	std::string	getMethod() const;

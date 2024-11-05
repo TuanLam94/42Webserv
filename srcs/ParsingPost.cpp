@@ -391,6 +391,8 @@ bool	Request::parserFormData_help(size_t i)
 		i++;
 		j++;
 	}
+	// std::cout << new_boundary << std::endl;
+	// std::cout << final_boundary << std::endl;
 	if (new_boundary == final_boundary)
 		return (true);	
 	return (false);
@@ -480,17 +482,31 @@ void	Request::formDataGetFilename(size_t pos)
 	}
 }
 
+bool	Request::checkIfNext(size_t i)
+{
+	size_t pos;
+
+	pos = findPositionVec(_boundary, i);
+	if (static_cast<int>(pos) == -1)
+		return (true);
+	return (false);
+}
+
 void	Request::parserFormData_bis(size_t pos)
 {
+	std::string	boundary;
 	size_t	pos_b = 0;
 	size_t	pos_info = 0;
 	size_t	i = 0;
 
-	pos_b = findPositionVec(_boundary, 0);
-	if (pos_b != std::string::npos)
-		i = pos_b;
+	boundary = _boundary + "--";
 	while (true)
 	{
+		pos_b = findPositionVec(_boundary, i);
+		if (static_cast<int>(pos_b) != -1)
+			i = pos_b;
+		else
+			throw MyExcep();
 		pos_info = findPositionVec("Content-Disposition: form-data; ", i);
 		if (static_cast<int>(pos_info) == -1)
 		{
@@ -508,13 +524,14 @@ void	Request::parserFormData_bis(size_t pos)
 		pos_info = findPositionVec("\r\n\r\n", i);
 		if (static_cast<int>(pos_info) != -1)
 			i = pos_info + 5;
-		pos_info = findPositionVec("\r\n", i);
+		pos_info = findPositionVec(_boundary, i);
 		if (static_cast<int>(pos_info) != -1)
-			i = pos_info + 2;
-		if (parserFormData_help(i) == true)
+			i = pos_info + _boundary.size();
+		if (checkIfNext(i) == false)
 			break ;
 	}
 }
+
 
 void	Request::parserFormData()
 {

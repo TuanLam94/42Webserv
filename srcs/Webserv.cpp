@@ -134,8 +134,8 @@ int	checkBodySize(Request request)
 		{
 			if (static_cast<int>(i) > request.getMaxBodySize())
 			{
-				std::cout << i << std::endl;
-				std::cout << request.getMaxBodySize() << std::endl;
+				// std::cout << i << std::endl;
+				// std::cout << request.getMaxBodySize() << std::endl;
 				std::cerr << "checkBodySize Error 413: Payload Too Large.\n";
 				return (413);
 			}
@@ -173,7 +173,7 @@ int	checkContentLengthSize(std::string buff)
 				unsigned int	integer;
 				std::stringstream	ss(nbr);
 				ss >> integer;
-				// std::cout << integer << std::endl;
+
 				if (integer > 10485760)
 				{
 					std::cerr << "checkContentLengthSize Error 413: Payload Too Large.\n";
@@ -408,8 +408,8 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 	{
 		for (int i = 0; i < bytes; i++)
 		{
-			if (buffer[i] >= 0 && buffer[i] <= 127)
-				std::cout << buffer[i];
+			// if (buffer[i] >= 0 && buffer[i] <= 127)
+				// std::cout << buffer[i];
 			_my_v.push_back(buffer[i]);
 		}
 	}
@@ -431,11 +431,11 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	}
 	request.createData(buffer, bytes);
 
-	// std::cout << "INCOMPLETE BUFFER = " << request._buffer << "\n\n";
-	// std::cout << request._my_v.size() << std::endl;
+
 	request.setStatusCode(checkAllSize(request));
-	if (request.getStatusCode() != 0)
+	if (request.getStatusCode() != 0) // send error Response
 		return ;
+
 	if (request.isRequestComplete()) {
 		// std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
 		// std::cout << "COMPLETE VECTOR = \n";

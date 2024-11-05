@@ -1,1 +1,5 @@
-- regarder les requete chunks et remettre tout comme il faut
+A faire :
+
+
+- checkAllSize() --> gerer lerreur quand le code de status et eviter la boucle infinie
+
