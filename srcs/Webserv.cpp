@@ -277,6 +277,7 @@ void Webserv::eventLoop() {
 			// std::cout << "_requests size in loop == " << _requests.size() << std::endl;
 			if (!isServerSocket) {
 				if (_events[i].events & EPOLLIN) {
+					// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE\n";
 					Request* request = findAppropriateRequest(event_fd);
 					handleClientRequest(event_fd, *request);
 				}
@@ -284,10 +285,12 @@ void Webserv::eventLoop() {
 					Request* request = findAppropriateRequestToWrite(event_fd);
 					if (request != NULL && !request->getBuffer().empty() && request->getIsChunk() == true)
 					{
+						// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE1\n";
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
 					}
 					else if (request != NULL && request->isRequestComplete() && !request->getBuffer().empty()) {
+						// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE2\n";
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
 						//add epoll_ctl_del ? 
@@ -350,6 +353,8 @@ void Webserv::sendErrorResponse(int client_fd, int statusCode)
 	Response response;
 	if (statusCode == 413)
 		response.setCode("413 Content Too Large");
+	else if (statusCode == 414)
+		response.setCode("414 URI Too Long");
 	else if (statusCode == 431)
 		response.setCode("431 Request Header Fields Too Large");
 	else if (statusCode == 500)
@@ -403,7 +408,8 @@ int	findSubStr(unsigned char buffer[1024], const char *str)
 void	Request::createData(unsigned char buffer[1024], int bytes)
 {
 	int pos = findSubStr(buffer, "\r\n\r\n");
-
+	// std::cout << "HERE : " << _here << std::endl;
+	// exit (1);
 	if (pos != -1 && _here == 0)
 	{
 		pos += 4;
@@ -411,14 +417,14 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		for (int i = 0; i < pos; i++)
 		{
 			_buffer += buffer[i];
-			std::cout << _buffer[i];
+			// std::cout << _buffer[i];
 		}
 		if (pos < bytes)
 		{
 			for (; pos < bytes; pos++)
 			{
-				if (buffer[pos] >= 0 && buffer[pos] <= 127)
-					std::cout << buffer[pos];
+				// if (buffer[pos] >= 0 && buffer[pos] <= 127)
+					// std::cout << buffer[pos];
 				_my_v.push_back(buffer[pos]);
 			}
 		}
@@ -427,8 +433,8 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 	{
 		for (int i = 0; i < bytes; i++)
 		{
-			if (buffer[i] >= 0 && buffer[i] <= 127)
-				std::cout << buffer[i];
+			// if (buffer[i] >= 0 && buffer[i] <= 127)
+				// std::cout << buffer[i];
 			_my_v.push_back(buffer[i]);
 		}
 	}
@@ -448,7 +454,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return;
 	}
-
 
 	// for (size_t i = 0; i < request.getMyV().size(); i++)
 	// {
@@ -482,16 +487,18 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	request.setStatusCode(checkAllSize(request));
 
 	if (request.getStatusCode() != 0) {
-		std::cout << "\ntestssssssssssssssssssssssssssssssssssssssssssssssssss\n";
 		sendErrorResponse(client_fd, request.getStatusCode());
 		removeRequest(client_fd);
+		request.setHere(0);
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return ;
 	}
-
+	// std::cout << "\nICCCCCCCCCCCCCCCCCCCCCCCCCCCCCIIIIIIIIIIIIIII11111111111\n";
+	// std::cout << request.getBuffer() << std::endl;
 	if (request.isRequestComplete()) {
-		std::cout << "COMPLETE BUFFER = \n" << request.getBuffer() << "\n\n";
+		// std::cout << "\nICCCCCCCCCCCCCCCCCCCCCCCCCCCCCIIIIIIIIIIIIIII22222222222222222\n";
+		// std::cout << "COMPLETE BUFFER = \n" << request.getBuffer() << "\n\n";
 		request.setHere(0);
 		request.parsRequest();		//PATH IS HERE
 		request.getClientIPPort(client_fd);
@@ -501,6 +508,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		if (correct_server != NULL) {
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);
+			request.setHere(0);
 			// std::cout << "request succesfully parsed!\n";
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);
@@ -511,6 +519,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 			std::cout << "500 Internal Server Error\n";
 			// sendServerErrorResponse(client_fd); //tocode
 	}
+	// std::cout << "\nICCCCCCCCCCCCCCCCCCCCCCCCCCCCCIIIIIIIIIIIIIII3333333333333\n";
 }
 
 Server* Webserv::findAppropriateServer(Request& request)

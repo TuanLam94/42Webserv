@@ -198,7 +198,7 @@ class	Request
 	std::string getRemoteAddr() const;
 	std::string getRemotePort() const;
 	bool	getIsCgiHere()const;
-	int getClientFD() const;
+	int	getClientFD() const;
 	std::vector<unsigned char>	getMyV() const;
 	//------------SETTERS------------
 	void	setStatusCode(int code);
