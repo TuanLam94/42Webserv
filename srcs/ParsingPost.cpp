@@ -665,8 +665,6 @@ void	Request::parsingPOST_v2()
 			{
 				_isChunk = true;
 				constructBody(); // reiquete chunk reconstruire body
-				// for (size_t i = 0; i < _my_v.size(); i++)
-					// std::cout << _my_v[i];
 			}
 		}
 		it1++;
@@ -679,7 +677,7 @@ void	Request::parsingPOST_v2()
 		{
 			
 			pos = it->second.std::string::find("multipart/form-data;");
-			std::cout << pos << std::endl;
+			// std::cout << pos << std::endl;
 			if (it->second == "application/json") // json utiliser pour la creation de ressource
 			{
 				_contentType = it->second;

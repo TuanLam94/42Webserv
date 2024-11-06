@@ -84,9 +84,9 @@ void	Request::parsRequestLine()
 		}
 		_pos += 2;
 	}
-	std::cout << _method << std::endl;
-	std::cout << _path << std::endl;
-	std::cout << _version << std::endl;
+	// std::cout << _method << std::endl;
+	// std::cout << _path << std::endl;
+	// std::cout << _version << std::endl;
 	if (space != 2
 		|| _method.empty() == true
 		|| _path.empty() == true
@@ -226,8 +226,8 @@ size_t	fillLength(std::string buffer, size_t start)
 
 bool Request::isRequestComplete()
 {
-	if (_buffer.empty() == true)
-		return true;
+	// if (_buffer.empty() == true)
+	// 	return true;
 	size_t headerEnd = _buffer.find("\r\n\r\n");
 	if (headerEnd != std::string::npos) {
 		size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
@@ -260,131 +260,68 @@ bool Request::isRequestComplete()
 
 bool Request::isChunkedRequestComplete()
 {
-	return (true);
-	size_t pos = 0;
-	while (pos < _my_v.size()) 
+	size_t	pos1 = 0;
+	size_t	pos2 = 0;
+	size_t	pos3 = 0;
+	std::string	chunkSizeStr;
+	int chunkSize = 0; // hexStringToInt(chunkSizeStr);
+
+	while (true) 
 	{
-		size_t chunkSizeEnd = findPositionVec("\r\n", pos);
-		if (static_cast<int>(chunkSizeEnd) == -1)
-			return false;
-
-		// std::string chunkSizeStr = body.substr(pos, chunkSizeEnd - pos);
-		std::string chunkSizeStr;
-		while (pos < chunkSizeEnd)
+		pos1 = findPositionVec("\r\n", pos2);
+		if (pos1 == -1)
 		{
-			chunkSizeStr += _my_v[pos];
-			pos++;
+			_status_code = 400;
+			std::cout << "IsChunkComplete1 Error 400: Bad Request.\n";
+			return (true);
 		}
-		int chunkSize = hexStringToInt(chunkSizeStr);
-
-		if (chunkSize < 0)
-			return false;
-
-		if (chunkSize == 0)
+		else
 		{
-			size_t finalEnd = findPositionVec("\r\n", chunkSizeEnd + 2);
-			return static_cast<int>(finalEnd) != -1;
+			for (; pos2 < pos1; pos2++)
+			{
+				// std::cout << _my_v[pos2];
+				chunkSizeStr += _my_v[pos2];
+				// std::cout << "\nchunkdSizeStr : " << chunkSizeStr << std::endl;
+			}
+			// std::cout << "\n";
+			chunkSize = hexStringToInt(chunkSizeStr);
+			// std::cout << "\nhere1 : " << chunkSize << std::endl;
+			if (chunkSize == 0)
+				return (true);
 		}
-		size_t chunkEnd = chunkSizeEnd + 2 + chunkSize;
-		if (chunkEnd > _my_v.size())
+		pos1 += 2;
+		pos2 = pos1;
+		pos1 = findPositionVec("\r\n", pos2);
+		if (pos1 == -1)
 		{
-        		return false;
+			_status_code = 400;
+			std::cout << "IsChunkComplete2 Error 400: Bad Request.\n";
+			return (true);
 		}
-
-		pos = chunkEnd;
-    	}
-	return false;
+		else
+		{
+			size_t i = 0;
+			// std::cout << "pos1 : " << pos1 << std::endl;
+			// std::cout << "pos2 : " << pos2 << std::endl;
+			for (; pos2 < pos1; pos2++, i++);
+				// std::cout << _my_v[pos2];
+			// std::cout << "\n";
+			// std::cout << "\nhere2 : " << i << std::endl;
+			if (i != chunkSize)
+			{
+				// std::cout << i << std::endl;
+				// std::cout << chunkSize << std::endl;
+				_status_code = 400;
+				std::cout << "IsChunkComplete3 Error 400: Bad Request.\n";
+				return (true);
+			}
+		}
+		pos1 += 2;
+		pos2 = pos1;
+		chunkSizeStr.clear();
+	}
+	return (false);
 }
-
-// bool Request::isRequestComplete()
-// {
-//     // First check - empty buffer
-//     if (_buffer.empty())
-//         return false;
-
-//     // Find end of headers
-//     size_t headerEnd = _buffer.find("\r\n\r\n");
-//     if (headerEnd == std::string::npos)
-//         return false;  // Headers not complete yet
-
-//     // Get the expected content size from headers
-//     size_t expectedSize = 0;
-
-//     // Check for chunked encoding first
-//     size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
-//     if (chunkedPos != std::string::npos)
-//     {
-//         return isChunkedRequestComplete(_buffer.substr(headerEnd + 4));
-//     }
-//     // Check for Content-Length header
-//     else 
-//     {
-//         size_t contentLengthPos = _buffer.find("Content-Length:");
-//         if (contentLengthPos != std::string::npos)
-//         {
-//             size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
-//             expectedSize = fillLength(_buffer, contentLengthStart);
-
-            
-//             // Calculate actual body size
-//             size_t bodySize = _buffer.size() - (headerEnd + 4);  // +4 for \r\n\r\n
-            
-//             // Debug output
-//             std::cout << "Expected size: " << expectedSize << std::endl;
-//             std::cout << "Current body size: " << bodySize << std::endl;
-//         //     std::cout << "Expected size: " << expectedSize << std::endl;
-//         //     std::cout << "Current body size: " << bodySize << std::endl;
-            
-//             return (bodySize >= expectedSize);
-//         }
-//         // No Content-Length header - typically means no body (GET requests, etc)
-//         return true;
-//     }
-// }
-
-// bool Request::isChunkedRequestComplete(const std::string& body) 
-// {
-//     size_t pos = 0;
-//     size_t totalProcessed = 0;
-
-//     while (pos < body.size()) 
-//     {
-//         // Find chunk size end
-//         size_t chunkSizeEnd = body.find("\r\n", pos);
-//         if (chunkSizeEnd == std::string::npos)
-//             return false;
-
-//         // Get chunk size in hex
-//         std::string chunkSizeStr = body.substr(pos, chunkSizeEnd - pos);
-//         int chunkSize = hexStringToInt(chunkSizeStr);
-        
-//         // Debug output
-//         std::cout << "Processing chunk size: " << chunkSize << " (hex: " << chunkSizeStr << ")" << std::endl;
-
-//         if (chunkSize < 0)
-//             return false;
-
-//         // Found last chunk (size 0)
-//         if (chunkSize == 0) 
-//         {
-//             size_t finalEnd = body.find("\r\n", chunkSizeEnd + 2);
-//             return (finalEnd != std::string::npos);
-//         }
-
-//         // Calculate where this chunk should end
-//         size_t chunkEnd = chunkSizeEnd + 2 + chunkSize + 2;  // +2 for \r\n after size, +2 for \r\n after data
-//         if (chunkEnd > body.size()) 
-//         {
-//             std::cout << "Chunk incomplete. Expected end: " << chunkEnd << ", Current size: " << body.size() << std::endl;
-//             return false;
-//         }
-
-//         totalProcessed += chunkSize;
-//         pos = chunkEnd;
-//     }
-
-//     return false;  // If we get here, we haven't found the terminating chunk
-// }
 
 bool Request::isBodySizeTooLarge()
 {
@@ -612,6 +549,11 @@ int	Request::getHere() const
 std::vector<unsigned char>	Request::getMyV() const
 {
 	return (_my_v);
+}
+
+bool	Request::getIsChunk() const
+{
+	return (_isChunk);
 }
 
 // std::string Request::getRemotePort() const
