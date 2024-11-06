@@ -1,0 +1,6 @@
+*.a
+*.o
+webserv
+a.out
+core.*
+obj/
