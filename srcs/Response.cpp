@@ -91,8 +91,7 @@ bool Response::isErrorResponse()
 
 void Response::sendResponse(int fd)
 {
-    // std::cout << "SENDING RESPONSE. STATUS CODE = " << _status_code << std::endl;
-    // write(fd, _response_str.c_str(), _response_str.size());
+    // std::cout << "SENDING RESPONSE. PATH = " << getPath() << std::endl;
     ssize_t totalSent = 0;
     ssize_t toSend = _response_str.size();
     while (totalSent < toSend) {
