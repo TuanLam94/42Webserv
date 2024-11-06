@@ -282,7 +282,12 @@ void Webserv::eventLoop() {
 				}
 				if (_events[i].events & EPOLLOUT) {
 					Request* request = findAppropriateRequestToWrite(event_fd);
-					if (request != NULL && request->isRequestComplete() && !request->getBuffer().empty()) {
+					if (request != NULL && !request->getBuffer().empty() && request->getIsChunk() == true)
+					{
+						handleClientWrite(event_fd, *request);
+						removeRequest(event_fd);
+					}
+					else if (request != NULL && request->isRequestComplete() && !request->getBuffer().empty()) {
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
 						//add epoll_ctl_del ? 
@@ -352,7 +357,7 @@ void Webserv::sendErrorResponse(int client_fd, int statusCode)
 
 	response.handleErrorResponse();
 	response.buildResponse();
-	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
+	std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(client_fd);
 	removeRequest(client_fd);
 }
@@ -443,10 +448,41 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return;
 	}
+
+
+	// for (size_t i = 0; i < request.getMyV().size(); i++)
+	// {
+	// 	if (request.getMyV()[i] == 13)
+	// 		std::cout << "\nhere : " << request.getMyV()[i] << std::endl;
+	// 	else	
+	// 		std::cout << request.getMyV()[i];
+	// }
+	// size_t pos = 0;
+	// size_t pos1 = 0;
+	// while (true)
+	// {
+	// 	pos = request.findPositionVec("\r\n", pos1);
+	// 	// std::cout << pos << std::endl;
+	// 	// std::cout << request.getMyV().size() << std::endl;
+	// 	// exit (1);
+	// 	if (pos == -1)
+	// 		break ;
+	// 	for (size_t i = pos1; i < pos; i++)
+	// 	{
+	// 		// if (request.getMyV()[i] == 13)
+	// 		// 	std::cout << "\nhere : " << request.getMyV()[i] << std::endl;
+	// 		// else	
+	// 		std::cout << request.getMyV()[i];
+	// 	}		
+	// 	// exit (1);	
+	// 	pos1 = pos + 2;
+	// }
+
 	request.createData(buffer, bytes);
 	request.setStatusCode(checkAllSize(request));
 
 	if (request.getStatusCode() != 0) {
+		std::cout << "\ntestssssssssssssssssssssssssssssssssssssssssssssssssss\n";
 		sendErrorResponse(client_fd, request.getStatusCode());
 		removeRequest(client_fd);
 		close(client_fd);
@@ -455,7 +491,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	}
 
 	if (request.isRequestComplete()) {
-		// std::cout << "COMPLETE BUFFER = \n" << request._buffer << "\n\n";
+		std::cout << "COMPLETE BUFFER = \n" << request.getBuffer() << "\n\n";
 		request.setHere(0);
 		request.parsRequest();		//PATH IS HERE
 		request.getClientIPPort(client_fd);

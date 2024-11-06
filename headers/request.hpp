@@ -179,6 +179,7 @@ class	Request
 	std::string	getHost() const;
 	std::string	getServerName() const;
 	std::string	getBuffer() const;
+	bool	getIsChunk() const;
 	int	getHere() const;
 	unsigned long int	getContentLength() const;
 	int getMaxBodySize() const;
