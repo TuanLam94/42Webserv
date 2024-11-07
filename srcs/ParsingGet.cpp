@@ -123,6 +123,11 @@ void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../"
 			{
 				new_path = "config" + _path;
 			}
+			else if (_path.find("redirect/") != std::string::npos)
+			{
+				_isRedirect = true;
+				new_path = parsRedirectPath(obj);
+			}
 			else
 				new_path = obj.getRoutesPath() + _path;
 			// std::cout << _path << std::endl;
@@ -141,6 +146,22 @@ void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../"
 	_path = new_path;
 	std::cout << "PATH AFTER : " << _path << std::endl;
 }
+
+std::string Request::parsRedirectPath(Server& obj)
+{
+	std::cout << "SERVER REDIRECTION = " << obj.getRedirection() << std::endl;
+
+	size_t pos = _path.find(obj.getRedirection());
+
+	std::string prePath = _path.substr(0, pos);
+	std::string postPath = _path.substr(pos + obj.getRedirection().size());
+
+	std::string new_path = obj.getRoutesPath() + prePath + postPath;
+
+	std::cout << "NEWPATH = " << new_path << std::endl;
+	return new_path;
+}
+
 
 // creer sa fonction findPosition std::string et std::vector
 

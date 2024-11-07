@@ -14,6 +14,7 @@ Request::Request()
 {
 	_cgiIsHere = false;
 	_isChunk = false;
+	_isRedirect = false;
 	_status_code = 0;
 	_pos = 0;
 	_here = 0;
@@ -335,6 +336,7 @@ Request::Request(const Request& copy)
     _client_fd = copy._client_fd;
     _cgiIsHere = copy._cgiIsHere;
     _cgiType = copy._cgiType;
+	_isRedirect = copy._isRedirect;
     _RequestMethod = copy._RequestMethod;
     _ContentLength = copy._ContentLength;
     _ContentType = copy._ContentType;
@@ -555,6 +557,12 @@ bool	Request::getIsChunk() const
 {
 	return (_isChunk);
 }
+
+bool	Request::getIsRedirect() const
+{
+	return _isRedirect;
+}
+
 
 // std::string Request::getRemotePort() const
 // {

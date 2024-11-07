@@ -8,7 +8,6 @@ Response::Response(const Request& request)
     _path = request.getPath();
     _version = request.getVersion();
     _boundary_full = request.getBoundary();
-    setStatusCode(request);
     _contentType = request.getContentType();
     _server = request.getServer();
     _formDataName = request.getFormDataName();
@@ -19,6 +18,12 @@ Response::Response(const Request& request)
     _contentLength = request.getContentLength();
     _bodyVector = request.getMyV();
     _request = request;
+	_isRedirect = request.getIsRedirect();
+	_host = request.getHost();
+	if (_isRedirect)
+		_status_code = "301 Moved Permanently";
+	else
+    	setStatusCode(request);
 }
 
 void Response::setStatusCode(const Request& request)
@@ -62,7 +67,7 @@ void Response::setStatusCode(const Request& request)
 
 void Response::handleRequest()
 {
-    if (isErrorResponse())
+    if (isErrorResponse() || getIsRedirect())
         return ;
     else
     {
@@ -77,8 +82,6 @@ void Response::handleRequest()
 
 bool Response::isErrorResponse()
 {
-    std::cout << "request status code = " << _request.getStatusCode() << std::endl;
-
     if (_request.getStatusCode() == 400 || _request.getStatusCode() == 405
         || _request.getStatusCode() == 413 || _request.getStatusCode() == 414
         || _request.getStatusCode() == 500 || _request.getStatusCode() == 505
@@ -91,7 +94,8 @@ bool Response::isErrorResponse()
 
 void Response::sendResponse(int fd)
 {
-    // std::cout << "SENDING RESPONSE. PATH = " << getPath() << std::endl;
+	std::cout << "full response = " << _response_str << std::endl;
+
     ssize_t totalSent = 0;
     ssize_t toSend = _response_str.size();
     while (totalSent < toSend) {
@@ -143,6 +147,8 @@ void Response::buildResponse()
     // _response << "HTTP/1.1 " << _status_code << "/r/n";
     if (isErrorCode())
         handleErrorResponse();
+	else if (getIsRedirect())
+		buildRedirectResponse();
     else if (_method == "GET")
         buildGetResponse();
     else if (_method == "POST")
@@ -162,6 +168,23 @@ bool Response::isErrorCode()
         || _status_code == "502 Bad Gateway")
         return true;
     return false;
+}
+
+void Response::buildRedirectResponse()
+{
+	size_t pos = _path.find_last_of("/");
+	std::string endURL = _path.substr(pos);
+
+	_response << "HTTP/1.1 " << _status_code << "\r\n";
+	_response << "Location: http://localhost:8080" << endURL << std::endl;
+	_responseBody = _request.getBody();
+	_response << "Content-Type: " << _request.getContentType() << "\r\n";
+	// _response << "Content-Type: text/html" << "\r\n";
+    _response << "Content-Length: " << _responseBody.size() << "\r\n";
+    _response << "Connection: keep-alive\r\n";
+    _response << "\r\n";
+    _response << _responseBody;
+    _response_str = _response.str();
 }
 
 void Response::handleErrorResponse()
@@ -276,6 +299,11 @@ std::map<std::string, std::string> Response::getFormDataFileName() const
 unsigned long int   Response::getContentLength()const
 {
     return (_contentLength);
+}
+
+bool	Response::getIsRedirect() const
+{
+	return _isRedirect;
 }
 
 //-------------------------------------------SETTERS----------------------------------

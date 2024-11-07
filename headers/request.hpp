@@ -39,6 +39,7 @@ class	Request
 	private:
 	int		_client_fd;
 	bool	_cgiIsHere;
+	bool	_isRedirect;
 	// attributs execution CGI (mandatory + bonus)
 	std::string	_cgiType;
 	std::string	_RequestMethod; // yes
@@ -116,6 +117,7 @@ class	Request
 	void	parsParamPath(size_t pos);
 	std::string	parsParamPath_bis(std::string str);
 	void	parsPath(Server obj);
+	std::string parsRedirectPath(Server& obj);
 	void	parsHeaders();
 	void	parsingGET(Server i);
 	void	parsingPOST_v1(Server i);
@@ -198,6 +200,7 @@ class	Request
 	std::string getRemoteAddr() const;
 	std::string getRemotePort() const;
 	bool	getIsCgiHere()const;
+	bool	getIsRedirect() const;
 	int	getClientFD() const;
 	std::vector<unsigned char>	getMyV() const;
 	//------------SETTERS------------

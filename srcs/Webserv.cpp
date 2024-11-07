@@ -417,7 +417,7 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		for (int i = 0; i < pos; i++)
 		{
 			_buffer += buffer[i];
-			// std::cout << _buffer[i];
+			std::cout << _buffer[i];
 		}
 		if (pos < bytes)
 		{

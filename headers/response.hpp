@@ -45,6 +45,8 @@ class Response
 		std::vector<unsigned char> _bodyVector;
 		int _cgi_type;
 		unsigned long int	_contentLength;
+		bool	_isRedirect;
+		std::string _host;
 	public:
 		Response() {};
 		Response(const Request& request);
@@ -64,6 +66,7 @@ class Response
 		int		GET_CheckFile();
 		bool	fileIsReg();
 		void	buildGetResponse();
+		void	buildRedirectResponse();
 			//post
 		void handlePostResponse();
 		void handleDataSubmission();
@@ -107,7 +110,8 @@ class Response
 		std::string getContentType() const;
 		std::vector<unsigned char> getMyVector() const;
 		unsigned long int	getContentLength() const;
-std::map<std::string, std::string> getFormDataFileName() const;
+		std::map<std::string, std::string> getFormDataFileName() const;
+		bool getIsRedirect() const;
 			//setters
 		void setCode(std::string statuscode);
 		void setServer(Server& server);
