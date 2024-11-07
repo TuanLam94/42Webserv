@@ -7,7 +7,7 @@ void	Request::checkJsonAccolade()
 
 	for (size_t i = 0; i < _my_v.size(); i++)
 	{
-		if (_body[i] == '"')
+		if (_my_v[i] == '"')
 			count++;
 	}
 	if ((count % 2) != 0)
