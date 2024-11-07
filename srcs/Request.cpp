@@ -65,6 +65,7 @@ void	Request::parsRequestLine()
 	size_t	i = 0;
 	int	space = 0;
 
+	std::cout << _buffer << std::endl;
 	_pos = findPosition("\r\n", _buffer, _pos);
 	if (_pos != std::string::npos)
 	{
@@ -84,9 +85,9 @@ void	Request::parsRequestLine()
 		}
 		_pos += 2;
 	}
-	// std::cout << _method << std::endl;
-	// std::cout << _path << std::endl;
-	// std::cout << _version << std::endl;
+	std::cout << _method << std::endl;
+	std::cout << _path << std::endl;
+	std::cout << _version << std::endl;
 	if (space != 2
 		|| _method.empty() == true
 		|| _path.empty() == true
@@ -224,16 +225,30 @@ size_t	fillLength(std::string buffer, size_t start)
 // si content-length pas egal a body --> return error 400 bad request ou 500 internal errror timeout
 // si pas de \r\n\r\n a la fin --> boucle infinie request never complete return error 400 bad request
 
-bool Request::isRequestComplete()
+bool Request::isRequestCompleteBis(unsigned char buffer[1024])
 {
 	// if (_buffer.empty() == true)
-	// 	return true;
+		// return true;
 	size_t headerEnd = _buffer.find("\r\n\r\n");
-	if (headerEnd != std::string::npos) {
+	if (headerEnd == std::string::npos && _my_v.size() != 0)
+	{
+		_status_code = 400;
+		std::cerr << "isRequestComplete Error 400: Bad Request.\n";
+		return (true);
+	}
+	if (headerEnd == std::string::npos && buffer[0] == '\0')
+	{
+		_status_code = 400;
+		std::cerr << "isRequestComplete Error 400: Bad Request.\n";
+		return (true);		
+	}
+	if (headerEnd != std::string::npos)
+	{
 		size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
 		if (chunkedPos != std::string::npos)
 			return isChunkedRequestComplete();
-		else {
+		else
+		{
 			size_t contentLengthPos = _buffer.find("Content-Length:");
 			if (contentLengthPos != std::string::npos) {
 				size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
@@ -244,9 +259,44 @@ bool Request::isRequestComplete()
 				// std::cout << j << std::endl;
 				// std::cout << contentLengthStart << std::endl;
 				if (j == contentLengthStart)
-				{
 					return (true);
+				else
+				{
+					std::cout << "test\n";
+					return false;
 				}
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Request::isRequestComplete()
+{
+	// std::cout << "test\n";
+	size_t headerEnd = _buffer.find("\r\n\r\n");
+	// std::cout << headerEnd << std::endl;
+	if (headerEnd == std::string::npos)
+		return (true);
+	if (headerEnd != std::string::npos)
+	{
+		size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
+		if (chunkedPos != std::string::npos)
+			return isChunkedRequestComplete();
+		else
+		{
+			size_t contentLengthPos = _buffer.find("Content-Length:");
+			if (contentLengthPos != std::string::npos) {
+				size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
+				contentLengthStart = fillLength(_buffer, contentLengthStart);
+				// size_t i = headerEnd + 4;
+				size_t j = 0;
+				for (; j < _my_v.size(); j++);			
+				// std::cout << j << std::endl;
+				// std::cout << contentLengthStart << std::endl;
+				if (j == contentLengthStart)
+					return (true);
 				else
 				{
 					return false;
@@ -255,6 +305,7 @@ bool Request::isRequestComplete()
 			return true;
 		}
 	}
+		// std::cout << "test\n";
 	return false;
 }
 
@@ -326,6 +377,11 @@ bool Request::isChunkedRequestComplete()
 bool Request::isBodySizeTooLarge()
 {
 	return _body.size() > static_cast<unsigned long>(_server.getMaxBodySize());
+}
+
+void	Request::makeClear()
+{
+	_buffer.clear();
 }
 
 //-----------------------------GETTERS-----------------------------//

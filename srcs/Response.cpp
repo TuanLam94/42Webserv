@@ -91,12 +91,12 @@ bool Response::isErrorResponse()
 
 void Response::sendResponse(int fd)
 {
-    // std::cout << "SENDING RESPONSE. PATH = " << getPath() << std::endl;
+    std::cout << "SENDING RESPONSE. PATH = " << getPath() << std::endl;
     ssize_t totalSent = 0;
     ssize_t toSend = _response_str.size();
     while (totalSent < toSend) {
         ssize_t sent = write(fd, _response_str.c_str() + totalSent, toSend - totalSent);
-        // std::cout << "SENT = " << sent << std::endl;
+        std::cout << "SENT = " << sent << std::endl;
         if (sent < 0) {
             perror("Error writing response");
             break;
