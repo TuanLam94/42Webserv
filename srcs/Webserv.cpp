@@ -1,14 +1,14 @@
 #include "../headers/Webserv.hpp"
 
-int	checkUriSize(std::string buff)
+int	Request::checkUriSize()
 {
 	std::vector<unsigned char>::iterator it;
 	std::vector<unsigned char>::iterator ite;
 	std::vector<unsigned char>::iterator ite1;
 	size_t	pos;
 
-	pos = buff.find("\r\n");
-	if (pos != std::string::npos)
+	pos = findPositionVec("\r\n", 0);
+	if (pos != -1)
 	{
 		for (size_t i = 0; i < pos; i++)
 		{
@@ -21,7 +21,7 @@ int	checkUriSize(std::string buff)
 	}
 	else
 	{
-		for (size_t i = 0; i < buff.size(); i++)
+		for (size_t i = 0; i < _my_v.size(); i++)
 		{
 			if (i > 2048)
 			{
@@ -33,25 +33,25 @@ int	checkUriSize(std::string buff)
 	return (0);
 }
 
-int	checkHeadersSize(std::string buff)
+int	Request::checkHeadersSize()
 {
 	size_t	pos;
 	size_t	pos1;
 	size_t	pos2;
 
-	pos = buff.find("\r\n");
-	if (pos == std::string::npos)
+	pos = findPositionVec("\r\n", 0);
+	if (pos == -1)
 		return (0);
 	else
 	{
 		pos += 2;
-		pos1 = buff.find("\r\n\r\n", pos);
-		if (pos1 == std::string::npos)
+		pos1 = findPositionVec("\r\n\r\n", pos);
+		if (pos1 == -1)
 		{
-			for (size_t i = 0; i < buff.size(); i++)
+			for (size_t i = 0; i < _my_v.size(); i++)
 			{
-				pos2 = buff.find("\r\n", pos1);
-				if (pos2 == std::string::npos)
+				pos2 = findPositionVec("\r\n", pos1);
+				if (pos2 == -1)
 					return (0);
 				// {
 				// 	int k = 0;
@@ -90,8 +90,8 @@ int	checkHeadersSize(std::string buff)
 		{
 			for (size_t i = 0; i < pos1; i++)
 			{
-				pos2 = buff.find("\r\n", pos1);
-				if (pos2 == std::string::npos)
+				pos2 = findPositionVec("\r\n", pos1);
+				if (pos2 == -1)
 					return (0);
 				else
 				{
@@ -118,54 +118,56 @@ int	checkHeadersSize(std::string buff)
 	return (0);
 }
 
-int	checkBodySize(Request request)
+int	Request::checkBodySize()
 {
 	size_t	pos;
 	std::string	buff;
 
-	buff = request.getBuffer();
-	pos = buff.find("\r\n\r\n");
-	if (pos == std::string::npos)
+	// buff = request.getBuffer();
+	pos = findPositionVec("\r\n\r\n", 0);
+	if (pos == -1)
 		return (0);
 	else
 	{
 		pos += 4;
-		for (size_t i = pos; i < buff.size(); i++)
+		for (size_t i = pos; i < _my_v.size(); i++)
 		{
-			if (static_cast<int>(i) > request.getMaxBodySize())
-			{
-				// std::cout << i << std::endl;
-				// std::cout << request.getMaxBodySize() << std::endl;
-				std::cerr << "checkBodySize Error 413: Content Too Large.\n";
-				return (413);
-			}
+			// std::cout << "SIZE : " << getMaxBodySize() << std::endl;
+			// exit (1);
+			// if (static_cast<int>(i) > getMaxBodySize())
+			// {
+			// 	// std::cout << i << std::endl;
+			// 	// std::cout << request.getMaxBodySize() << std::endl;
+			// 	std::cerr << "checkBodySize Error 413: Content Too Large.\n";
+			// 	return (413);
+			// }
 		}
 	}
 	return (0);
 }
 
-int	checkContentLengthSize(std::string buff)
+int	Request::checkContentLengthSize()
 {
 	size_t	pos;
 	std::string	content = "Content-Length: ";
 	std::string	nbr;
 
-	pos = buff.find(content);
-	if (pos == std::string::npos)
+	pos = findPositionVec(content, 0);
+	if (pos == -1)
 		return (0);
 	else
 	{
 		pos += content.size();
-		size_t	pos1 = buff.find("\r\n", pos);
-		if (pos1 == std::string::npos)
+		size_t	pos1 = findPositionVec("\r\n", pos);
+		if (pos1 == -1)
 			return (0);
 		else
 		{
 			for (size_t i = pos; i < pos1; i++)
 			{
-				if (buff[i] >= 48 && buff[i] <= 57)
+				if (_my_v[i] >= 48 && _my_v[i] <= 57)
 				{
-					nbr += buff[i];
+					nbr += _my_v[i];
 				}
 			}
 			if (nbr.empty() == false)
@@ -277,21 +279,21 @@ void Webserv::eventLoop() {
 			// std::cout << "_requests size in loop == " << _requests.size() << std::endl;
 			if (!isServerSocket) {
 				if (_events[i].events & EPOLLIN) {
-					// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE\n";
 					Request* request = findAppropriateRequest(event_fd);
 					handleClientRequest(event_fd, *request);
 				}
-				else if (_events[i].events & EPOLLOUT) {
+				if (_events[i].events & EPOLLOUT) {
+					// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE\n";
 					Request* request = findAppropriateRequestToWrite(event_fd);
 					// std::cout << request->getBuffer().empty() << std::endl;
 					// std::cout << request->getBuffer() << std::endl;
-					if (request != NULL && !request->getBuffer().empty() && request->getIsChunk() == true)
+					if (request != NULL && !request->getMyV().empty() && request->getIsChunk() == true)
 					{
 						// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE1\n";
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
 					}
-					else if (request != NULL && request->isRequestComplete() && !request->getBuffer().empty()) {
+					else if (request != NULL/* && request->isRequestComplete()*/ && !request->getMyV().empty()) {
 						// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE2\n";
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
@@ -374,18 +376,20 @@ void Webserv::sendErrorResponse(int client_fd, int statusCode)
 
 int	checkAllSize(Request request)
 {
-	std::string	buff;
+	std::vector<unsigned char>	my_v;
 
-	buff = request.getBuffer();
-
-	if (checkUriSize(buff) == 414)
-		return (414);
-	if (checkHeadersSize(buff) == 431)
-		return (431);
-	if (checkBodySize(request) == 413) // revoir le body size pour avoir le bon
-		return (413);
-	if (checkContentLengthSize(buff) == 413)
-		return (413);
+	my_v = request.getMyV();
+	if (request.getMyV().size() > 0)
+	{
+		if (request.checkUriSize() == 414)
+			return (414);
+		if (request.checkHeadersSize() == 431)
+			return (431);
+		if (request.checkBodySize() == 413) // revoir le body size pour avoir le bon
+			return (413);
+		if (request.checkContentLengthSize() == 413)
+			return (413);
+	}
 	return (0);
 }
 
@@ -457,30 +461,22 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	// int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
 	// // std::cout << "\n\nBYTES = " << bytes << std::endl;
 	// if (bytes <= 0) {
-	// 	close(client_fd);
-	// 	epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 	// 	return;
 	// }
 	while (true)
 	{
 		int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
 		if (bytes <= 0)
+		{
+			// close(client_fd);
+			// epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+			// return ;
 			break ;
+		}
 		request.createData(buffer, bytes);
 	}
-	for (size_t i = 0; i < request.getMyV().size(); i++)
-		std::cout << request.getMyV()[i];
-	exit (1);
-	// if (request.getStatusCode() != 0)
-	// {
-	// 	request.makeClear();
-	// 	sendErrorResponse(client_fd, request.getStatusCode());
-	// 	request.setHere(0);
-	// 	// removeRequest(client_fd);
-	// 	close(client_fd);
-	// 	epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-	// 	return ;
-	// }
+	// for (size_t i = 0; i < request.getMyV().size(); i++)
+	// 	std::cout << request.getMyV()[i];
 	// std::cout << "\n\n\n\n" << request.getBuffer() << "\n\n\n\n";
 	request.setStatusCode(checkAllSize(request));
 	if (request.getStatusCode() != 0)
@@ -493,18 +489,17 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return ;
 	}
-	if (request.isRequestCompleteBis(buffer)) {
-		std::cout << "HEEEEEEEEEEEEEEEEEEEEEERE\n";
+	if (request.getMyV().size() > 0) {
 		// std::cout << request.getBuffer() << std::endl;
 		request.setHere(0);
 		request.parsRequest();		// PATH IS HERE
 		request.getClientIPPort(client_fd);
-
 		Server* correct_server = findAppropriateServer(request);
 
 		if (correct_server != NULL) {
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);
+			// exit (1);
 			request.setHere(0);
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);

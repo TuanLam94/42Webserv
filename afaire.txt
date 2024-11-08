@@ -3,3 +3,7 @@ A faire :
 - mettre tous les html dans le meme sous dossier ?
 - set un fichier par defaut comme reponse si la requete est une repertoire
 - mettre la partie ouverture de fichier et favicon dans reponse ?
+
+
+- voir la partie requete chunk pour le body --> json/ urlencoded/ 
+- 

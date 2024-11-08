@@ -173,6 +173,11 @@ class	Request
 	bool	checkIfNext(size_t i);
 	std::string	constructBoundary();
 	void	makeClear();
+	int	checkUriSize();
+	int	checkHeadersSize();
+	int	checkBodySize();
+	int	checkContentLengthSize();
+	int	checkUrlEncoded();
 	// --------- GETTERS -------------
 	std::string	getBoundary() const;
 	std::string	getMethod() const;

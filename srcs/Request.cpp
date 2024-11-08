@@ -68,19 +68,19 @@ void	Request::parsRequestLine()
 	int	space = 0;
 
 	// std::cout << _buffer << std::endl;
-	_pos = findPosition("\r\n", _buffer, _pos);
-	if (_pos != std::string::npos)
+	_pos = findPositionVec("\r\n", _pos);
+	if (_pos != -1)
 	{
-		while (i < _buffer.size() && i < _pos)
+		while (i < _my_v.size() && i < _pos)
 		{
-			if (_buffer[i] == 32)
+			if (_my_v[i] == 32)
 				space++;
-			else if (space == 0 && checkValidCharRequest(_buffer[i]) == true)
-				_method += _buffer[i];
-			else if (space == 1 && checkValidCharRequest(_buffer[i]) == true)
-				_path += _buffer[i];
-			else if (space == 2 && checkValidCharRequest(_buffer[i]) == true)
-				_version += _buffer[i];
+			else if (space == 0 && checkValidCharRequest(_my_v[i]) == true)
+				_method += _my_v[i];
+			else if (space == 1 && checkValidCharRequest(_my_v[i]) == true)
+				_path += _my_v[i];
+			else if (space == 2 && checkValidCharRequest(_my_v[i]) == true)
+				_version += _my_v[i];
 			// else if (checkStatusCode() == true)
 			// 	return ;
 			i++;

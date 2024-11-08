@@ -146,8 +146,15 @@ void	Request::parserJson()
 	checkJsonAccolade();
 	if (checkStatusCode() == false)
 		return ;
-	pos_start = findPositionVec("{", 0);
-	if (pos_start != 0)
+	pos_start = findPositionVec("\r\n\r\n", 0);
+	if (pos_start == -1)
+	{
+		std::cerr << "parserJson19 Error 400: Bad Request.\n";
+		throw MyExcep();
+	}
+	pos_start += 4;
+	pos_start = findPositionVec("{", pos_start);
+	if (pos_start == -1)
 	{
 		_status_code = 400;
 		std::cerr << "parserJson4 Error 400: Bad Request.\n";
@@ -313,20 +320,21 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 	
 }
 
-int	checkUrlEncoded(std::vector<unsigned char> body)
+int	Request::checkUrlEncoded()
 {
 	unsigned long int i = 0;
-
-	while (i < body.size())
+	
+	i = findPositionVec("\r\n\r\n", 0) + 4;
+	while (i < _my_v.size())
 	{
-		if ((!(body[i] >= 48 && body[i] <= 57)
-			&& !(body[i] >= 65 && body[i] <= 90)
-			&& !(body[i] >= 97 && body[i] <= 122)
-			&& !(body[i] == 10) && !(body[i] == 13)
-			&& !(body[i] == 37) && !(body[i] == 38)
-			&& !(body[i] == 43) && !(body[i] == 45)
-			&& !(body[i] == 46) && !(body[i] == 61)
-			&& !(body[i] == 95) && !(body[i] == 126)))
+		if ((!(_my_v[i] >= 48 && _my_v[i] <= 57)
+			&& !(_my_v[i] >= 65 && _my_v[i] <= 90)
+			&& !(_my_v[i] >= 97 && _my_v[i] <= 122)
+			&& !(_my_v[i] == 10) && !(_my_v[i] == 13)
+			&& !(_my_v[i] == 37) && !(_my_v[i] == 38)
+			&& !(_my_v[i] == 43) && !(_my_v[i] == 45)
+			&& !(_my_v[i] == 46) && !(_my_v[i] == 61)
+			&& !(_my_v[i] == 95) && !(_my_v[i] == 126)))
 		{
 			std::cerr << "checkUrlencoded Error 400: Bad Request.\n";
 			return (400);
@@ -341,7 +349,7 @@ void	Request::parserUrlencoded()
 	std::string	new_body;
 	unsigned long int	i = 0;
 	
-	_status_code = checkUrlEncoded(_my_v);
+	_status_code = checkUrlEncoded();
 	if (checkStatusCode() == false)
 		throw MyExcep();
 	while (i < _my_v.size())
@@ -524,8 +532,8 @@ void	Request::parserFormData()
 	size_t	j = 0;
 	std::string	boundary = "boundary=";
 
-	pos_b = findPosition(boundary, _buffer, 0);
-	if (pos_b == std::string::npos)
+	pos_b = findPositionVec(boundary, 0);
+	if (pos_b == -1)
 	{
 		_status_code = 400;
 		std::cerr << "parserFormData Error 400: Bad request.\n";
@@ -538,10 +546,10 @@ void	Request::parserFormData()
 		pos_b++;
 	}
 	_boundary += "--";
-	pos_end = findPosition("\r\n", _buffer, pos_b);
-	while (pos_b < _buffer.size() && pos_b < pos_end)
+	pos_end = findPositionVec("\r\n", pos_b);
+	while (pos_b < _my_v.size() && pos_b < pos_end)
 	{
-		_boundary += _buffer[pos_b];
+		_boundary += _my_v[pos_b];
 		pos_b++;
 	}
 	parserFormData_bis(pos_b);
@@ -611,16 +619,16 @@ void	Request::setBoundaryFull()
 	size_t	pos1;
 	size_t	pos2;
 
-	pos1 = findPosition("Content-Type:", _buffer, 0);
-	if (pos1 != std::string::npos)
+	pos1 = findPositionVec("Content-Type:", 0);
+	if (pos1 != -1)
 	{
-		pos2 = findPosition("\r\n", _buffer, pos1);
-		if (pos2 != std::string::npos)
+		pos2 = findPositionVec("\r\n", pos1);
+		if (pos2 != -1)
 		{
 			size_t i = pos1;
 			while (i < pos2)
 			{
-				_boundary_full += _buffer[i];
+				_boundary_full += _my_v[i];
 				i++;
 			}
 		}
@@ -644,7 +652,7 @@ void	Request::parsingPOST_v2()
 			if (it1->second == "chunked")
 			{
 				_isChunk = true;
-				constructBody(); // reiquete chunk reconstruire body
+				constructBody(); // reiquete chunk reconstruire _my_v
 			}
 		}
 		it1++;
@@ -743,7 +751,19 @@ void	Request::initContentLength()
 {
 	std::vector<std::pair<std::string, std::string> >::iterator it;
 	std::vector<std::pair<std::string, std::string> >::iterator ite;
+	size_t i = 0;
 
+	size_t pos = findPositionVec("\r\n\r\n", 0);
+	if (pos == -1)
+	{
+		std::cerr << "InitContentLength4 Error 400: Bad Request.\n";
+		throw MyExcep();
+	}
+	else
+	{
+		pos += 4;
+		for (; pos < _my_v.size(); pos++, i++);
+	}
 	it = _headersHttp.begin();
 	ite = _headersHttp.end();
 	while (it != ite)
@@ -758,7 +778,9 @@ void	Request::initContentLength()
 			}
 			std::istringstream ss(it->second); 
 			ss >> _contentLength;
-			if (_contentLength != _my_v.size())
+			std::cout << _contentLength << std::endl;
+			std::cout << i << std::endl;
+			if (_contentLength != i)
 			{
 				_status_code = 400;
 				std::cerr << "initContentLength2 Error 400: Bad Request\n";

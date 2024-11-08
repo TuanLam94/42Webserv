@@ -265,26 +265,26 @@ void	Request::parsHeaders()
 	size_t	pos;
 
 	i = _pos;
-	_pos = findPosition("\r\n\r\n", _buffer, i);
-	if (_pos != std::string::npos)
+	_pos = findPositionVec("\r\n\r\n", i);
+	if (_pos != -1)
 	{
-		while (i < _buffer.size() && i < _pos)
+		while (i < _my_v.size() && i < _pos)
 		{
-			pos = findPosition("\r\n", _buffer, i);
-			while (i < _buffer.size() && i < pos)
+			pos = findPositionVec("\r\n", i);
+			while (i < _my_v.size() && i < pos)
 			{
-				if (index == true && _buffer[i] == 58) // :
+				if (index == true && _my_v[i] == 58) // :
 				{
 					index = false;
-					key += _buffer[i];
+					key += _my_v[i];
 					i++;
-					while (i < _buffer.size() && _buffer[i] == 32)
+					while (i < _my_v.size() && _my_v[i] == 32)
 						i++;
 				}
 				if (index == true /*&& checkValidHeaderKey(buff[i]) == true*/)
-					key += _buffer[i];
-				else if (checkValidHeaderValue(_buffer[i]) == true)
-					value += _buffer[i];
+					key += _my_v[i];
+				else if (checkValidHeaderValue(_my_v[i]) == true)
+					value += _my_v[i];
 				else
 				{
 					_status_code = 400;
