@@ -1,3 +1,5 @@
 A faire :
 
-- revoir les requests chunks --> sassurer du bon format
+- mettre tous les html dans le meme sous dossier ?
+- set un fichier par defaut comme reponse si la requete est une repertoire
+- mettre la partie ouverture de fichier et favicon dans reponse ?

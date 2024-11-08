@@ -16,6 +16,7 @@
 #include <fcntl.h>
 #include <sys/epoll.h>
 #include <cstring>
+#include <string.h>
 #include <unistd.h>
 #include <algorithm>
 #include <iterator>
@@ -141,7 +142,7 @@ class	Request
 	bool	parserFormData_help(unsigned long int i);
 	bool	isRequestComplete();
 	bool	isChunkedRequestComplete();
-
+	bool	isRequestCompleteBis(unsigned char buffer[1024]);
 	void	checkISS(char c1, char c2);
 	bool	checkValidHeader(char c);
 	bool	checkValidHeaderValue(char c);
@@ -170,6 +171,7 @@ class	Request
 	void	createData(unsigned char buffer[1024], int bytes);
 	bool	checkIfNext(size_t i);
 	std::string	constructBoundary();
+	void	makeClear();
 	// --------- GETTERS -------------
 	std::string	getBoundary() const;
 	std::string	getMethod() const;

@@ -111,7 +111,7 @@ void	Request::parsParamPath(size_t pos)
 void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../" -> dans l'uri 
 {
 	std::string	new_path;
-	std::cout << "PATH BEFORE : " << _path << std::endl;
+	// std::cout << "PATH BEFORE : " << _path << std::endl;
 	if (_method == "GET") {
 		if (_cgiIsHere)
 		{
@@ -144,7 +144,7 @@ void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../"
 		new_path = _path.substr(1);
 	_path.clear();
 	_path = new_path;
-	std::cout << "PATH AFTER : " << _path << std::endl;
+	// std::cout << "PATH AFTER : " << _path << std::endl;
 }
 
 std::string Request::parsRedirectPath(Server& obj)
@@ -442,6 +442,7 @@ void	Request::parsingGET(Server i)
 	// std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
+		_status_code = 400;
 		std::cerr << "Can't open input\n";
 	}
 	std::string	line;

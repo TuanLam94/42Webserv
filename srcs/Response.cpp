@@ -100,7 +100,7 @@ void Response::sendResponse(int fd)
     ssize_t toSend = _response_str.size();
     while (totalSent < toSend) {
         ssize_t sent = write(fd, _response_str.c_str() + totalSent, toSend - totalSent);
-        // std::cout << "SENT = " << sent << std::endl;
+        std::cout << "SENT = " << sent << std::endl;
         if (sent < 0) {
             perror("Error writing response");
             break;
