@@ -149,7 +149,7 @@ void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../"
 
 std::string Request::parsRedirectPath(Server& obj)
 {
-	std::cout << "SERVER REDIRECTION = " << obj.getRedirection() << std::endl;
+	// std::cout << "SERVER REDIRECTION = " << obj.getRedirection() << std::endl;
 
 	size_t pos = _path.find(obj.getRedirection());
 
@@ -158,7 +158,7 @@ std::string Request::parsRedirectPath(Server& obj)
 
 	std::string new_path = obj.getRoutesPath() + prePath + postPath;
 
-	std::cout << "NEWPATH = " << new_path << std::endl;
+	// std::cout << "NEWPATH = " << new_path << std::endl;
 	return new_path;
 }
 
@@ -248,7 +248,7 @@ void	Request::fillBody()
 	{
 		// while (j < _my_v[i].size())
 		// {
-			// j++;
+		// 	j++;
 		// }
 		// std::cout << _my_v[i];
 		i++;

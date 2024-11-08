@@ -281,7 +281,7 @@ void Webserv::eventLoop() {
 					Request* request = findAppropriateRequest(event_fd);
 					handleClientRequest(event_fd, *request);
 				}
-				if (_events[i].events & EPOLLOUT) {
+				else if (_events[i].events & EPOLLOUT) {
 					Request* request = findAppropriateRequestToWrite(event_fd);
 					// std::cout << request->getBuffer().empty() << std::endl;
 					// std::cout << request->getBuffer() << std::endl;
@@ -336,7 +336,7 @@ void Webserv::handleClientWrite(int event_fd, Request& request)
 	response.buildResponse();
 	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(event_fd);
-	request.makeClear();
+	// request.makeClear();
 }
 
 void Webserv::removeRequest(int event_fd)
@@ -365,7 +365,7 @@ void Webserv::sendErrorResponse(int client_fd, int statusCode)
 	else if (statusCode == 400)
 		response.setCode("400 Bad Request");
 
-	response.handleErrorResponse();
+	response.handleErrorResponse(); // passe deux fois dans handleErrorResponse;
 	response.buildResponse();
 	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(client_fd);
@@ -422,7 +422,7 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		for (int i = 0; i < pos; i++)
 		{
 			_buffer += buffer[i];
-			std::cout << _buffer[i];
+			// std::cout << _buffer[i];
 		}
 		if (pos < bytes)
 		{
@@ -439,13 +439,14 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		for (int i = 0; i < bytes; i++)
 		{
 			// if (buffer[i] >= 0 && buffer[i] <= 127)
-				// std::cout << buffer[i];
+			// 	std::cout << buffer[i];
 			_my_v.push_back(buffer[i]);
 		}
 	}
 	else
 	{
 		_buffer += std::string(reinterpret_cast<char*>(buffer));
+		// std::cout << _buffer << std::endl;
 	}
 }
 
@@ -454,6 +455,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	unsigned char buffer[1024] = {'\0'};
 
 	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+	// std::cout << "\n\nBYTES = " << bytes << std::endl;
 	if (bytes <= 0) {
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
@@ -461,28 +463,33 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	}
 
 	request.createData(buffer, bytes);
-	if (request.getStatusCode() != 0)
-	{
-		sendErrorResponse(client_fd, request.getStatusCode());
-		request.setHere(0);
-		removeRequest(client_fd);
-		close(client_fd);
-		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-		return ;
-	}
+	// if (request.getStatusCode() != 0)
+	// {
+	// 	request.makeClear();
+	// 	sendErrorResponse(client_fd, request.getStatusCode());
+	// 	request.setHere(0);
+	// 	// removeRequest(client_fd);
+	// 	close(client_fd);
+	// 	epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+	// 	return ;
+	// }
+	// std::cout << "\n\n\n\n" << request.getBuffer() << "\n\n\n\n";
 	request.setStatusCode(checkAllSize(request));
 	if (request.getStatusCode() != 0)
 	{
+		// request.makeClear();
 		sendErrorResponse(client_fd, request.getStatusCode());
 		request.setHere(0);
-		removeRequest(client_fd);
+		// removeRequest(client_fd);
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return ;
 	}
 	if (request.isRequestCompleteBis(buffer)) {
+		std::cout << "HEEEEEEEEEEEEEEEEEEEEEERE\n";
+		// std::cout << request.getBuffer() << std::endl;
 		request.setHere(0);
-		request.parsRequest();		//PATH IS HERE
+		request.parsRequest();		// PATH IS HERE
 		request.getClientIPPort(client_fd);
 
 		Server* correct_server = findAppropriateServer(request);

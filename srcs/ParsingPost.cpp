@@ -29,26 +29,6 @@ bool	Request::checkMap(std::string key, std::map<std::string,std::string>::itera
 	return (false);
 }
 
-bool	Request::checkFirstAccolade(size_t pos)
-{
-	if (_buffer[pos] != _body[0])
-		return (false);
-	return (true);
-}
-
-
-bool	Request::checkLastAccolade(size_t pos)
-{
-	size_t pos1 = _body.find("\r\n");
-	if (pos1 != std::string::npos)
-	{
-		std::cout << "ffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiin file \n";
-		exit (1);
-	}
-	if (_buffer[pos] != _body[_body.size() - 1])
-		return (false);
-	return (true);	
-}
 
 int	Request::checkIsDigit(size_t pos_start)
 {
@@ -138,7 +118,7 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 		else if (_my_v[pos_start] != 32 && _my_v[pos_start] != '{'
 			&& _my_v[pos_start] != '}')
 		{
-			std::cout << _my_v[pos_start] << std::endl;
+			// std::cout << _my_v[pos_start] << std::endl;
 			return (-1);
 		}
 		pos_start++;
@@ -677,11 +657,9 @@ void	Request::parsingPOST_v2()
 		{
 			
 			pos = it->second.std::string::find("multipart/form-data;");
-			// std::cout << pos << std::endl;
 			if (it->second == "application/json") // json utiliser pour la creation de ressource
 			{
 				_contentType = it->second;
-				// std::cout << it->second << std::endl;
 				parserJson();
 			}
 			else if (it->second == "application/x-www-form-urlencoded")
@@ -736,12 +714,13 @@ void	Request::parserTextPlain()
 {
 	unsigned long int	i = 0;
 
-	while (i < _contentLength && i < _body.size())
+	while (i < _contentLength && i < _my_v.size())
 	{
 		_dataBrut += _my_v[i];
 		i++;
 	}
-	// std::cout << _body.size() << std::endl;
+	std::cout << _dataBrut << std::endl;
+	
 }
 
 

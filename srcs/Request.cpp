@@ -18,6 +18,7 @@ Request::Request()
 	_status_code = 0;
 	_pos = 0;
 	_here = 0;
+	_isComplete = 0;
 	_RequestMethod = "REQUEST_METHOD="; // methode utilise oui
 	_ContentType = "CONTENT_TYPE="; // type de contenu de la requete oui
 	_ContentLength = "CONTENT_LENGTH="; // taille du body de la requete oui
@@ -66,7 +67,7 @@ void	Request::parsRequestLine()
 	size_t	i = 0;
 	int	space = 0;
 
-	std::cout << _buffer << std::endl;
+	// std::cout << _buffer << std::endl;
 	_pos = findPosition("\r\n", _buffer, _pos);
 	if (_pos != std::string::npos)
 	{
@@ -86,9 +87,9 @@ void	Request::parsRequestLine()
 		}
 		_pos += 2;
 	}
-	std::cout << _method << std::endl;
-	std::cout << _path << std::endl;
-	std::cout << _version << std::endl;
+	// std::cout << _method << std::endl;
+	// std::cout << _path << std::endl;
+	// std::cout << _version << std::endl;
 	if (space != 2
 		|| _method.empty() == true
 		|| _path.empty() == true
@@ -237,11 +238,12 @@ bool Request::isRequestCompleteBis(unsigned char buffer[1024])
 	// 	std::cerr << "isRequestComplete Error 400: Bad Request.\n";
 	// 	return (true);
 	// }
+	std::cout << _buffer << std::endl;
 	if (headerEnd == std::string::npos && buffer[0] == '\0')
 	{
 		_status_code = 400;
 		std::cerr << "isRequestComplete Error 400: Bad Request.\n";
-		return (true);		
+		return (true);
 	}
 	if (headerEnd != std::string::npos)
 	{
@@ -275,6 +277,7 @@ bool Request::isRequestCompleteBis(unsigned char buffer[1024])
 
 bool Request::isRequestComplete()
 {
+	std::cout << "test\n";
 	size_t headerEnd = _buffer.find("\r\n\r\n");
 	// std::cout << headerEnd << std::endl;
 	if (headerEnd == std::string::npos)
@@ -618,6 +621,10 @@ bool	Request::getIsRedirect() const
 	return _isRedirect;
 }
 
+int	Request::getComplete() const
+{
+	return (_isComplete);
+}
 
 // std::string Request::getRemotePort() const
 // {
@@ -625,6 +632,11 @@ bool	Request::getIsRedirect() const
 // }
 
 //-----------------------------------------------------SETTERS--------------------------------------
+
+void	Request::setComplete(int complete)
+{
+	_isComplete = complete;
+}
 
 void	Request::setStatusCode(int code)
 {

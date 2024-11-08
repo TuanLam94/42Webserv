@@ -101,6 +101,7 @@ class	Request
 	std::vector<unsigned char> _my_v;
 
 	std::string _buffer;
+	int	_isComplete;
 	public:
 	// std::vector<std::vector<unsigned char> >	_my_v;x
 	Request();
@@ -204,8 +205,10 @@ class	Request
 	bool	getIsCgiHere()const;
 	bool	getIsRedirect() const;
 	int	getClientFD() const;
+	int	getComplete() const;
 	std::vector<unsigned char>	getMyV() const;
 	//------------SETTERS------------
+	void	setComplete(int complete);
 	void	setStatusCode(int code);
 	void	setServer(Server& server);
 	void	setRequestStatusCode(int status_code);

@@ -94,7 +94,7 @@ bool Response::isErrorResponse()
 
 void Response::sendResponse(int fd)
 {
-	std::cout << "full response = " << _response_str << std::endl;
+	// std::cout << "full response = " << _response_str << std::endl;
 
     ssize_t totalSent = 0;
     ssize_t toSend = _response_str.size();
