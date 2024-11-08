@@ -3,6 +3,11 @@
 #include "../headers/Webserv.hpp"
 #include "../headers/utils.hpp"
 
+void    signalHandler(int sig)
+{
+    return ;
+}
+
 int main(int argc, char **argv)
 {
     if (argc != 2) {
@@ -10,7 +15,7 @@ int main(int argc, char **argv)
         return -1;
     }
     signal(SIGPIPE, SIG_IGN);           //ignore sigpipes for the whole program(even new process)
-
+    // signal(SIGINT, SIG_IGN);
     std::string config(argv[1]);
 
 	Webserv Webserv(config);

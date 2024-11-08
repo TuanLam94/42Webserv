@@ -367,7 +367,7 @@ void Webserv::sendErrorResponse(int client_fd, int statusCode)
 
 	response.handleErrorResponse();
 	response.buildResponse();
-	std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
+	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(client_fd);
 	removeRequest(client_fd);
 }
@@ -446,9 +446,7 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 	else
 	{
 		_buffer += std::string(reinterpret_cast<char*>(buffer));
-		// std::cout << "\nBUFFER == " << _buffer << std::endl;
 	}
-	// return (0);
 }
 
 void Webserv::handleClientRequest(int client_fd, Request& request)
@@ -461,19 +459,17 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return;
 	}
-	// std::cout << "here\n";
+
 	request.createData(buffer, bytes);
-	// std::cout << "not here\n";
-	// std::cout << request.getStatusCode() << std::endl;
-	// if (request.getStatusCode() != 0)
-	// {
-	// 	sendErrorResponse(client_fd, request.getStatusCode());
-	// 	request.setHere(0);
-	// 	removeRequest(client_fd);
-	// 	close(client_fd);
-	// 	epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-	// 	return ;
-	// }
+	if (request.getStatusCode() != 0)
+	{
+		sendErrorResponse(client_fd, request.getStatusCode());
+		request.setHere(0);
+		removeRequest(client_fd);
+		close(client_fd);
+		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+		return ;
+	}
 	request.setStatusCode(checkAllSize(request));
 	if (request.getStatusCode() != 0)
 	{
@@ -484,11 +480,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return ;
 	}
-	// std::cout << "\nICCCCCCCCCCCCCCCCCCCCCCCCCCCCCIIIIIIIIIIIIIII11111111111\n";
-	// std::cout << request.getBuffer() << std::endl;
 	if (request.isRequestCompleteBis(buffer)) {
-		// std::cout << "\nICCCCCCCCCCCCCCCCCCCCCCCCCCCCCIIIIIIIIIIIIIII22222222222222222\n";
-		// std::cout << "COMPLETE BUFFER = \n" << request.getBuffer() << "\n\n";
 		request.setHere(0);
 		request.parsRequest();		//PATH IS HERE
 		request.getClientIPPort(client_fd);
@@ -499,8 +491,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);
 			request.setHere(0);
-			// std::cout << "\nBUFFER_BIS == " << request.getBuffer() << std::endl;
-			// std::cout << "request succesfully parsed!\n";
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);
 				return ;
@@ -508,9 +498,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		}
 		else
 			std::cout << "500 Internal Server Error\n";
-			// sendServerErrorResponse(client_fd); //tocode
 	}
-	// std::cout << "\nICCCCCCCCCCCCCCCCCCCCCCCCCCCCCIIIIIIIIIIIIIII3333333333333\n";
 }
 
 Server* Webserv::findAppropriateServer(Request& request)

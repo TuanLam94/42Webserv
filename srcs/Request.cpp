@@ -230,12 +230,12 @@ bool Request::isRequestCompleteBis(unsigned char buffer[1024])
 	// if (_buffer.empty() == true)
 		// return true;
 	size_t headerEnd = _buffer.find("\r\n\r\n");
-	if (headerEnd == std::string::npos && _my_v.size() != 0)
-	{
-		_status_code = 400;
-		std::cerr << "isRequestComplete Error 400: Bad Request.\n";
-		return (true);
-	}
+	// if (headerEnd == std::string::npos)
+	// {
+	// 	_status_code = 400;
+	// 	std::cerr << "isRequestComplete Error 400: Bad Request.\n";
+	// 	return (true);
+	// }
 	if (headerEnd == std::string::npos && buffer[0] == '\0')
 	{
 		_status_code = 400;
@@ -262,7 +262,7 @@ bool Request::isRequestCompleteBis(unsigned char buffer[1024])
 					return (true);
 				else
 				{
-					std::cout << "test\n";
+					// std::cout << "test\n";
 					return false;
 				}
 			}
@@ -274,7 +274,6 @@ bool Request::isRequestCompleteBis(unsigned char buffer[1024])
 
 bool Request::isRequestComplete()
 {
-	// std::cout << "test\n";
 	size_t headerEnd = _buffer.find("\r\n\r\n");
 	// std::cout << headerEnd << std::endl;
 	if (headerEnd == std::string::npos)
