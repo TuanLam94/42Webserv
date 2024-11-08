@@ -413,56 +413,64 @@ int	findSubStr(unsigned char buffer[1024], const char *str)
 
 void	Request::createData(unsigned char buffer[1024], int bytes)
 {
-	int pos = findSubStr(buffer, "\r\n\r\n");
+	// int pos = findSubStr(buffer, "\r\n\r\n");
 
-	if (pos != -1 && _here == 0)
-	{
-		pos += 4;
-		_here = 1;
-		for (int i = 0; i < pos; i++)
-		{
-			_buffer += buffer[i];
-			// std::cout << _buffer[i];
-		}
-		if (pos < bytes)
-		{
-			for (; pos < bytes; pos++)
-			{
-				// if (buffer[pos] >= 0 && buffer[pos] <= 127)
-					// std::cout << buffer[pos]; 
-				_my_v.push_back(buffer[pos]);
-			}
-		}
-	}
-	else if (_here > 0)
-	{
+	// if (pos != -1 && _here == 0)
+	// {
+	// 	pos += 4;
+	// 	_here = 1;
+	// 	for (int i = 0; i < pos; i++)
+	// 	{
+	// 		_buffer += buffer[i];
+	// 		// std::cout << _buffer[i];
+	// 	}
+	// 	if (pos < bytes)
+	// 	{
+	// 		for (; pos < bytes; pos++)
+	// 		{
+	// 			// if (buffer[pos] >= 0 && buffer[pos] <= 127)
+	// 				// std::cout << buffer[pos]; 
+	// 			_my_v.push_back(buffer[pos]);
+	// 		}
+	// 	}
+	// }
+	// else if (_here > 0)
+	// {
 		for (int i = 0; i < bytes; i++)
 		{
 			// if (buffer[i] >= 0 && buffer[i] <= 127)
 			// 	std::cout << buffer[i];
 			_my_v.push_back(buffer[i]);
 		}
-	}
-	else
-	{
-		_buffer += std::string(reinterpret_cast<char*>(buffer));
+	// }
+	// else
+	// {
+		// _buffer += std::string(reinterpret_cast<char*>(buffer));
 		// std::cout << _buffer << std::endl;
-	}
+	// }
 }
 
 void Webserv::handleClientRequest(int client_fd, Request& request)
 {
 	unsigned char buffer[1024] = {'\0'};
 
-	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-	// std::cout << "\n\nBYTES = " << bytes << std::endl;
-	if (bytes <= 0) {
-		close(client_fd);
-		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-		return;
+	// int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+	// // std::cout << "\n\nBYTES = " << bytes << std::endl;
+	// if (bytes <= 0) {
+	// 	close(client_fd);
+	// 	epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+	// 	return;
+	// }
+	while (true)
+	{
+		int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+		if (bytes <= 0)
+			break ;
+		request.createData(buffer, bytes);
 	}
-
-	request.createData(buffer, bytes);
+	for (size_t i = 0; i < request.getMyV().size(); i++)
+		std::cout << request.getMyV()[i];
+	exit (1);
 	// if (request.getStatusCode() != 0)
 	// {
 	// 	request.makeClear();

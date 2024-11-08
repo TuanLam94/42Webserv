@@ -11,7 +11,7 @@ with socket.create_connection((host, port)) as s:
         "Host: localhost:8080\r\n"
         "User-Agent: custom-client\r\n"
         "Accept: */*\r\n"
-        "\r\n"
+        "\r"
     )
     # Envoyer la requête
     s.sendall(request.encode())
