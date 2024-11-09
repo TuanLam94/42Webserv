@@ -345,8 +345,9 @@ void Webserv::removeRequest(int event_fd)
 {
     for (std::vector<Request>::iterator it = _requests.begin(); it != _requests.end(); ++it) {
         if (it->getClientFD() == event_fd) {
+		close (event_fd);
             _requests.erase(it);
-			// std::cout << "REMOVED REQUEST\n";
+			std::cout << "REMOVED REQUEST\n";
             break;
         }
     }
@@ -419,14 +420,14 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		{
 			sendErrorResponse(client_fd, request.getStatusCode());
 			request.setHere(0);
-			removeRequest(client_fd);
+			// removeRequest(client_fd);
 			close(client_fd);
 			epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 			return ;
 		}
 	}
-	// for (size_t i = 0; i < request.getMyV().size(); i++)
-		// std::cout << request.getMyV()[i];
+	for (size_t i = 0; i < request.getMyV().size(); i++)
+		std::cout << request.getMyV()[i];
 	if (request.getMyV().size() > 0)
 	{
 		request.setHere(0);

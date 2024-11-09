@@ -32,14 +32,14 @@ bool	Request::checkMap(std::string key, std::map<std::string,std::string>::itera
 
 int	Request::checkIsDigit(size_t pos_start)
 {
-	while (pos_start < _my_v.size())
+	while (pos_start < _my_body.size())
 	{
-		if (!(_my_v[pos_start] >= 48 && _my_v[pos_start] <= 57)
-			&& _my_v[pos_start] != ','
-			&& _my_v[pos_start] != 32
-			&& _my_v[pos_start] != '}')
+		if (!(_my_body[pos_start] >= 48 && _my_body[pos_start] <= 57)
+			&& _my_body[pos_start] != ','
+			&& _my_body[pos_start] != 32
+			&& _my_body[pos_start] != '}')
 			return (-1);
-		if (_my_v[pos_start] == ',' || _my_v[pos_start] == '}' || _my_v[pos_start] == 32)
+		if (_my_body[pos_start] == ',' || _my_body[pos_start] == '}' || _my_body[pos_start] == 32)
 			break ;
 		pos_start++;
 	}
@@ -64,6 +64,7 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 	pos_points = findPositionBody(":", pos_start);
 	if (static_cast<int>(pos_points) == -1)
 	{
+		std::cout << "here1" << std::endl;
 		return (-1);
 	}
 	while (pos_start < pos_comma)
@@ -72,6 +73,7 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 		{
 			if (index_pts == 1)
 			{
+				std::cout << "here2" << std::endl;
 				return (-1);
 			}
 			index_pts = 1;
@@ -103,6 +105,7 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 			pos_start = checkIsDigit(pos_start);
 			if (static_cast<int>(pos_start) == -1)
 			{
+				std::cout << "here3" << std::endl;
 				return (-1);
 			}
 			else
@@ -116,15 +119,15 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 			index_pts = 0;
 		}
 		else if (_my_body[pos_start] != 32 && _my_body[pos_start] != '{'
-			&& _my_body[pos_start] != '}')
+			&& _my_body[pos_start] != '}' )//&& _my_body[pos_start] != 10 && _my_body[pos_start] != 13)
 		{
-			// std::cout << _my_v[pos_start] << std::endl;
+			std::cout << "here4" << std::endl;
 			return (-1);
 		}
 		pos_start++;
 	}
-	// std::cout << key << std::endl;
-	// std::cout << value << std::endl;
+	// std::cout << "key : " << key << std::endl;
+	// std::cout << "value : " << value << std::endl;
 	if (checkMap(key, _jsonParam.begin(), _jsonParam.end()) == false
 		&& key.empty() == false && value.empty() == false)
 		_jsonParam.insert(std::pair<std::string, std::string>(key, value));
@@ -460,8 +463,6 @@ void	Request::parserFormData_bis(size_t pos)
 	size_t	pos_info = 0;
 	size_t	i = 0;
 
-	// for (size_t i = 0; i < _my_body.size(); i++)
-	// 	std::cout << _my_body[i];
 	boundary = _boundary + "--";
 	while (true)
 	{
@@ -540,11 +541,11 @@ void	Request::constructBody()
 	char	*end;
 	std::string	strFinal;
 
-	pos1 = findPositionVec("\r\n", pos2);
+	pos1 = findPositionBody("\r\n", pos2);
 	if (static_cast<int>(pos1) != -1)
 	{
 		for (size_t i = 0; i < pos1; i++)
-			str += _my_v[i];
+			str += _my_body[i];
 		pos1 += 2;
 	}
 	else
@@ -552,7 +553,7 @@ void	Request::constructBody()
 	pos2 = pos1;
 	hexa = strtol(str.c_str(), &end, 16);
 	str.clear();
-	pos3 = findPositionVec("0\r\n\r\n", 0);
+	pos3 = findPositionBody("0\r\n\r\n", 0);
 	if (static_cast<int>(pos3) == -1)
 	{
 		_status_code = 400;
@@ -564,16 +565,16 @@ void	Request::constructBody()
 		size_t i = 0;
 		while (i < hexa && pos2 < pos3)
 		{
-			strFinal += _my_v[pos2];
+			strFinal += _my_body[pos2];
 			i++;
 			pos2++;
 		}
 		pos2 += 2;
-		pos1 = findPositionVec("\r\n", pos2);
+		pos1 = findPositionBody("\r\n", pos2);
 		if (static_cast<int>(pos1) != -1)
 		{
 			for (size_t i = pos2; i < pos1; i++)
-				str += _my_v[i];
+				str += _my_body[i];
 			pos1 += 2;
 		}
 		else
@@ -584,9 +585,13 @@ void	Request::constructBody()
 		str.clear();
 		pos2 = pos1;
 	}
-	_my_v.clear();
+	_my_body.clear();
+	std::cout << std::endl;
 	for (size_t i = 0; i < strFinal.size(); i++)
-		_my_v.push_back(strFinal[i]);
+	{
+		_my_body.push_back(strFinal[i]);
+		// std::cout << _my_body[i];
+	}
 }
 
 void	Request::setBoundaryFull()
