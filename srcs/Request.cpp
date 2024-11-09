@@ -67,7 +67,6 @@ void	Request::parsRequestLine()
 	size_t	i = 0;
 	int	space = 0;
 
-	// std::cout << _buffer << std::endl;
 	_pos = findPositionVec("\r\n", _pos);
 	if (_pos != -1)
 	{
@@ -87,9 +86,9 @@ void	Request::parsRequestLine()
 		}
 		_pos += 2;
 	}
-	std::cout << _method << std::endl;
-	std::cout << _path << std::endl;
-	std::cout << _version << std::endl;
+	// std::cout << _method << std::endl;
+	// std::cout << _path << std::endl;
+	// std::cout << _version << std::endl;
 	if (space != 2
 		|| _method.empty() == true
 		|| _path.empty() == true
@@ -227,59 +226,10 @@ size_t	fillLength(std::vector<unsigned char> my_v, size_t start)
 // si content-length pas egal a body --> return error 400 bad request ou 500 internal errror timeout
 // si pas de \r\n\r\n a la fin --> boucle infinie request never complete return error 400 bad request
 
-// bool Request::isRequestCompleteBis(unsigned char buffer[1024])
-// {
-// 	// if (_buffer.empty() == true)
-// 		// return true;
-// 	size_t headerEnd = findPositionVec("\r\n\r\n", 0);
-// 	// if (headerEnd == std::string::npos)
-// 	// {
-// 	// 	_status_code = 400;
-// 	// 	std::cerr << "isRequestComplete Error 400: Bad Request.\n";
-// 	// 	return (true);
-// 	// }
-// 	// std::cout << _buffer << std::endl;
-// 	if (headerEnd == -1 && buffer[0] == '\0')
-// 	{
-// 		_status_code = 400;
-// 		std::cerr << "isRequestComplete Error 400: Bad Request.\n";
-// 		return (true);
-// 	}
-// 	if (headerEnd != std::string::npos)
-// 	{
-// 		size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
-// 		if (chunkedPos != std::string::npos)
-// 			return isChunkedRequestComplete(headerEnd);
-// 		else
-// 		{
-// 			size_t contentLengthPos = _buffer.find("Content-Length:");
-// 			if (contentLengthPos != std::string::npos) {
-// 				size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
-// 				contentLengthStart = fillLength(_my_v, contentLengthStart);
-// 				// size_t i = headerEnd + 4;
-// 				size_t j = 0;
-// 				for (; j < _my_v.size(); j++);			
-// 				// std::cout << j << std::endl;
-// 				// std::cout << contentLengthStart << std::endl;
-// 				if (j == contentLengthStart)
-// 					return (true);
-// 				else
-// 				{
-// 					// std::cout << "test\n";
-// 					return false;
-// 				}
-// 			}
-// 			return true;
-// 		}
-// 	}
-// 	return false;
-// }
 
 bool Request::isRequestComplete()
 {
-	std::cout << "test\n";
 	size_t headerEnd = findPositionVec("\r\n\r\n", 0);
-	// std::cout << headerEnd << std::endl;
 	if (headerEnd == -1)
 		return (true);
 	if (headerEnd != -1)
@@ -297,20 +247,20 @@ bool Request::isRequestComplete()
 				size_t j = headerEnd + 4;
 				size_t i = 0;
 				for (; j < _my_v.size(); j++, i++);			
-				std::cout << i << std::endl;
-				std::cout << contentLengthStart << std::endl;
+				// std::cout << i << std::endl;
+				// std::cout << contentLengthStart << std::endl;
 				if (i == contentLengthStart)
 					return (true);
 				else
 				{
-					return false;
+					return (false);
 				}
 			}
-			return true;
+			else
+				return (true);
 		}
 	}
-		// std::cout << "test\n";
-	return false;
+	return (false);
 }
 
 bool Request::isChunkedRequestComplete(size_t pos)
@@ -319,7 +269,7 @@ bool Request::isChunkedRequestComplete(size_t pos)
 	size_t	pos2 = pos + 4;
 	size_t	pos3 = 0;
 	std::string	chunkSizeStr;
-	int chunkSize = 0; // hexStringToInt(chunkSizeStr);
+	int chunkSize = 0;
 
 	while (true) 
 	{

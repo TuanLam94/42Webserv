@@ -359,26 +359,6 @@ void	Request::parserUrlencoded()
 	parserUrlencoded_bis(new_body);
 }
 
-// bool	Request::parserFormData_help(size_t i)
-// {
-// 	std::string	new_boundary;
-// 	std::string	final_boundary;
-// 	unsigned long int j = 0;
-
-// 	new_boundary = _boundary + "--";
-// 	while (j < new_boundary.size() && i < _my_v.size())
-// 	{
-// 		final_boundary += _my_v[i];
-// 		i++;
-// 		j++;
-// 	}
-// 	// std::cout << new_boundary << std::endl;
-// 	// std::cout << final_boundary << std::endl;
-// 	if (new_boundary == final_boundary)
-// 		return (true);	
-// 	return (false);
-// }
-
 void	Request::formDataGetName(size_t pos)
 {
 	std::string	key;
@@ -415,8 +395,8 @@ void	Request::formDataGetName(size_t pos)
 				pos++;
 			}
 		}
-		std::cout << "Name key : " << key << std::endl;
-		std::cout << "Name value : " << value << std::endl;
+		// std::cout << "Name key : " << key << std::endl;
+		// std::cout << "Name value : " << value << std::endl;
 		_FormDataName.insert(std::pair<std::string, std::string>(key, value));
 	}
 }
@@ -457,8 +437,8 @@ void	Request::formDataGetFilename(size_t pos)
 				pos++;
 			}
 		}
-		std::cout << "FileName key : " << key << std::endl;
-		std::cout << "FileName value : " << value << std::endl;
+		// std::cout << "FileName key : " << key << std::endl;
+		// std::cout << "FileName value : " << value << std::endl;
 		_FormDataFilename.insert(std::pair<std::string, std::string>(key, value));
 	}
 }
@@ -480,8 +460,8 @@ void	Request::parserFormData_bis(size_t pos)
 	size_t	pos_info = 0;
 	size_t	i = 0;
 
-	for (size_t i = 0; i < _my_body.size(); i++)
-		std::cout << _my_body[i];
+	// for (size_t i = 0; i < _my_body.size(); i++)
+	// 	std::cout << _my_body[i];
 	boundary = _boundary + "--";
 	while (true)
 	{
@@ -722,8 +702,7 @@ void	Request::parserTextPlain()
 		_dataBrut += _my_body[i];
 		i++;
 	}
-	std::cout << _dataBrut << std::endl;
-	
+	// std::cout << _dataBrut << std::endl;
 }
 
 
@@ -773,8 +752,8 @@ void	Request::initContentLength()
 			}
 			std::istringstream ss(it->second); 
 			ss >> _contentLength;
-			std::cout << _contentLength << std::endl;
-			std::cout << i << std::endl;
+			// std::cout << _contentLength << std::endl;
+			// std::cout << i << std::endl;
 			if (_contentLength != i)
 			{
 				_status_code = 400;

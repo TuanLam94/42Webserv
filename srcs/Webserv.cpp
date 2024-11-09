@@ -396,73 +396,16 @@ int	checkAllSize(Request request)
 // echo -ne "POST /submit HTTP/1.1\r\nHost: localhost\r\nContent-Type: text/plain\r\nConnection:close\r\n\r\n" | nc localhost 8080
 
 
-int	findSubStr(unsigned char buffer[1024], const char *str)
-{
-	int	i = 0;
-	
-	while (buffer[i + 3] != '\0')
-	{
-		if (buffer[i] == str[0]
-			&& buffer[i + 1] == str[1]
-			&& buffer[i + 2] == str[2]
-			&& buffer[i + 3] == str[3])
-		{
-			return (i);
-		}
-		i++;
-	}
-	return (-1);
-}
-
-
 void	Request::createData(unsigned char buffer[1024], int bytes)
 {
-	// int pos = findSubStr(buffer, "\r\n\r\n");
-
-	// if (pos != -1 && _here == 0)
-	// {
-	// 	pos += 4;
-	// 	_here = 1;
-	// 	for (int i = 0; i < pos; i++)
-	// 	{
-	// 		_buffer += buffer[i];
-	// 		// std::cout << _buffer[i];
-	// 	}
-	// 	if (pos < bytes)
-	// 	{
-	// 		for (; pos < bytes; pos++)
-	// 		{
-	// 			// if (buffer[pos] >= 0 && buffer[pos] <= 127)
-	// 				// std::cout << buffer[pos]; 
-	// 			_my_v.push_back(buffer[pos]);
-	// 		}
-	// 	}
-	// }
-	// else if (_here > 0)
-	// {
-		for (int i = 0; i < bytes; i++)
-		{
-			// if (buffer[i] >= 0 && buffer[i] <= 127)
-			// 	std::cout << buffer[i];
-			_my_v.push_back(buffer[i]);
-		}
-	// }
-	// else
-	// {
-		// _buffer += std::string(reinterpret_cast<char*>(buffer));
-		// std::cout << _buffer << std::endl;
-	// }
+	for (int i = 0; i < bytes; i++)
+		_my_v.push_back(buffer[i]);
 }
 
 void Webserv::handleClientRequest(int client_fd, Request& request)
 {
 	unsigned char buffer[1024] = {'\0'};
 
-	// int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-	// // std::cout << "\n\nBYTES = " << bytes << std::endl;
-	// if (bytes <= 0) {
-	// 	return;
-	// }
 	while (true)
 	{
 		int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
@@ -474,26 +417,25 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		request.setStatusCode(checkAllSize(request));
 		if (request.getStatusCode() != 0)
 		{
-			// request.makeClear();
 			sendErrorResponse(client_fd, request.getStatusCode());
 			request.setHere(0);
-			// removeRequest(client_fd);
+			removeRequest(client_fd);
 			close(client_fd);
 			epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 			return ;
 		}
 	}
 	// for (size_t i = 0; i < request.getMyV().size(); i++)
-	// 	std::cout << request.getMyV()[i];
-	// std::cout << "\n\n\n\n" << request.getBuffer() << "\n\n\n\n";
-	if (request.getMyV().size() > 0) {
-		// std::cout << request.getBuffer() << std::endl;
+		// std::cout << request.getMyV()[i];
+	if (request.getMyV().size() > 0)
+	{
 		request.setHere(0);
 		request.parsRequest();		// PATH IS HERE
 		request.getClientIPPort(client_fd);
 		Server* correct_server = findAppropriateServer(request);
 
-		if (correct_server != NULL) {
+		if (correct_server != NULL)
+		{
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);
 			// exit (1);
