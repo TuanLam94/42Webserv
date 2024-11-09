@@ -189,6 +189,22 @@ size_t	Request::findPositionVec(std::string str, size_t start)
 	return (index);
 }
 
+size_t	Request::findPositionBody(std::string str, size_t start)
+{
+	std::vector<unsigned char>::iterator	it;
+	std::vector<unsigned char> seq(str.begin(), str.end());
+	size_t	index;
+
+	it = std::search(_my_body.begin() + start, _my_body.end(), seq.begin(), seq.end());
+	if (it != _my_body.end())
+		index = std::distance(_my_body.begin(), it);
+	else
+	{
+		return (-1);
+	}
+	return (index);
+}
+
 std::string	Request::helpHeaderHost(std::string value, std::string line)
 {
 	size_t	pos = 0;
@@ -241,17 +257,19 @@ bool	Request::checkValidHeaderValue(char c)
 
 void	Request::fillBody()
 {
-	size_t	i = 0;
-	// size_t	j;
+	size_t	j;
 
-	while (i < _my_v.size())
+	j = findPositionVec("\r\n\r\n", 0);
+	if (j == -1)
 	{
-		// while (j < _my_v[i].size())
-		// {
-		// 	j++;
-		// }
-		// std::cout << _my_v[i];
-		i++;
+		std::cerr << "fillBody Error 400: Bad Request.\n" << std::endl;
+		throw MyExcep();
+	}
+	j += 4;
+	while (j < _my_v.size())
+	{
+		_my_body.push_back(_my_v[j]);
+		j++;
 	}
 }
 
@@ -448,6 +466,7 @@ void	Request::parsingGET(Server i)
 	std::string	line;
 	while (std::getline(_input, line))
 	{
+
 		_body += line;
 		_body += "\n";
 		if (line == "  <head>")

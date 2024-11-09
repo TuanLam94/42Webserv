@@ -99,8 +99,8 @@ class	Request
 	bool	_isChunk; // pour verifier si requete fragmente
 	int	_here;
 	std::vector<unsigned char> _my_v;
-
-	std::string _buffer;
+	std::vector<unsigned char> _my_body;
+	// std::string _buffer;
 	int	_isComplete;
 	public:
 	// std::vector<std::vector<unsigned char> >	_my_v;x
@@ -142,7 +142,7 @@ class	Request
 	void	getClientIPPort(int clientfd);
 	bool	parserFormData_help(unsigned long int i);
 	bool	isRequestComplete();
-	bool	isChunkedRequestComplete();
+	bool	isChunkedRequestComplete(size_t pos);
 	bool	isRequestCompleteBis(unsigned char buffer[1024]);
 	void	checkISS(char c1, char c2);
 	bool	checkValidHeader(char c);
@@ -164,6 +164,7 @@ class	Request
 	void	fillUserAgent();
 	size_t	findPosition(std::string str, const std::string& buff, size_t start);
 	size_t	findPositionVec(std::string str, size_t start);
+	size_t	findPositionBody(std::string str, size_t start);
 	std::string	helpHeaderHost(std::string value, std::string line);
 	void	fillBody();
 	bool	isBodySizeTooLarge();
@@ -179,6 +180,7 @@ class	Request
 	int	checkContentLengthSize();
 	int	checkUrlEncoded();
 	// --------- GETTERS -------------
+	std::vector<unsigned char>	getMyBodyV() const;
 	std::string	getBoundary() const;
 	std::string	getMethod() const;
 	std::string	getPath() const;

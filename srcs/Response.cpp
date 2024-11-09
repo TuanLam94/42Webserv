@@ -16,7 +16,7 @@ Response::Response(const Request& request)
     _urlParam = request.getUrlParam();
     _cgi_type = responseSetCgiType();
     _contentLength = request.getContentLength();
-    _bodyVector = request.getMyV();
+    _bodyVector = request.getMyBodyV();
     _request = request;
 	_isRedirect = request.getIsRedirect();
 	_host = request.getHost();

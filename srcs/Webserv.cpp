@@ -293,7 +293,7 @@ void Webserv::eventLoop() {
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
 					}
-					else if (request != NULL/* && request->isRequestComplete()*/ && !request->getMyV().empty()) {
+					else if (request != NULL && request->isRequestComplete() && !request->getMyV().empty()) {
 						// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE2\n";
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
@@ -468,27 +468,24 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
 		if (bytes <= 0)
 		{
-			// close(client_fd);
-			// epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-			// return ;
 			break ;
 		}
 		request.createData(buffer, bytes);
+		request.setStatusCode(checkAllSize(request));
+		if (request.getStatusCode() != 0)
+		{
+			// request.makeClear();
+			sendErrorResponse(client_fd, request.getStatusCode());
+			request.setHere(0);
+			// removeRequest(client_fd);
+			close(client_fd);
+			epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+			return ;
+		}
 	}
 	// for (size_t i = 0; i < request.getMyV().size(); i++)
 	// 	std::cout << request.getMyV()[i];
 	// std::cout << "\n\n\n\n" << request.getBuffer() << "\n\n\n\n";
-	request.setStatusCode(checkAllSize(request));
-	if (request.getStatusCode() != 0)
-	{
-		// request.makeClear();
-		sendErrorResponse(client_fd, request.getStatusCode());
-		request.setHere(0);
-		// removeRequest(client_fd);
-		close(client_fd);
-		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-		return ;
-	}
 	if (request.getMyV().size() > 0) {
 		// std::cout << request.getBuffer() << std::endl;
 		request.setHere(0);

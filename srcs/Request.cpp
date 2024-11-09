@@ -87,9 +87,9 @@ void	Request::parsRequestLine()
 		}
 		_pos += 2;
 	}
-	// std::cout << _method << std::endl;
-	// std::cout << _path << std::endl;
-	// std::cout << _version << std::endl;
+	std::cout << _method << std::endl;
+	std::cout << _path << std::endl;
+	std::cout << _version << std::endl;
 	if (space != 2
 		|| _method.empty() == true
 		|| _path.empty() == true
@@ -207,16 +207,16 @@ void	Request::getClientIPPort(int clientfd)
 	_host = oss.str();
 }
 
-size_t	fillLength(std::string buffer, size_t start)
+size_t	fillLength(std::vector<unsigned char> my_v, size_t start)
 {
 	size_t res;
 	std::string	str;
 
-	while (start < buffer.size() && buffer[start] == 32)
+	while (start < my_v.size() && my_v[start] == 32)
 		start++;
-	while (buffer[start] >= 48 && buffer[start] <= 57)
+	while (my_v[start] >= 48 && my_v[start] <= 57)
 	{
-		str += buffer[start];
+		str += my_v[start];
 		start++;
 	}
 	std::istringstream	ss(str);
@@ -227,78 +227,79 @@ size_t	fillLength(std::string buffer, size_t start)
 // si content-length pas egal a body --> return error 400 bad request ou 500 internal errror timeout
 // si pas de \r\n\r\n a la fin --> boucle infinie request never complete return error 400 bad request
 
-bool Request::isRequestCompleteBis(unsigned char buffer[1024])
-{
-	// if (_buffer.empty() == true)
-		// return true;
-	size_t headerEnd = _buffer.find("\r\n\r\n");
-	// if (headerEnd == std::string::npos)
-	// {
-	// 	_status_code = 400;
-	// 	std::cerr << "isRequestComplete Error 400: Bad Request.\n";
-	// 	return (true);
-	// }
-	std::cout << _buffer << std::endl;
-	if (headerEnd == std::string::npos && buffer[0] == '\0')
-	{
-		_status_code = 400;
-		std::cerr << "isRequestComplete Error 400: Bad Request.\n";
-		return (true);
-	}
-	if (headerEnd != std::string::npos)
-	{
-		size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
-		if (chunkedPos != std::string::npos)
-			return isChunkedRequestComplete();
-		else
-		{
-			size_t contentLengthPos = _buffer.find("Content-Length:");
-			if (contentLengthPos != std::string::npos) {
-				size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
-				contentLengthStart = fillLength(_buffer, contentLengthStart);
-				// size_t i = headerEnd + 4;
-				size_t j = 0;
-				for (; j < _my_v.size(); j++);			
-				// std::cout << j << std::endl;
-				// std::cout << contentLengthStart << std::endl;
-				if (j == contentLengthStart)
-					return (true);
-				else
-				{
-					// std::cout << "test\n";
-					return false;
-				}
-			}
-			return true;
-		}
-	}
-	return false;
-}
+// bool Request::isRequestCompleteBis(unsigned char buffer[1024])
+// {
+// 	// if (_buffer.empty() == true)
+// 		// return true;
+// 	size_t headerEnd = findPositionVec("\r\n\r\n", 0);
+// 	// if (headerEnd == std::string::npos)
+// 	// {
+// 	// 	_status_code = 400;
+// 	// 	std::cerr << "isRequestComplete Error 400: Bad Request.\n";
+// 	// 	return (true);
+// 	// }
+// 	// std::cout << _buffer << std::endl;
+// 	if (headerEnd == -1 && buffer[0] == '\0')
+// 	{
+// 		_status_code = 400;
+// 		std::cerr << "isRequestComplete Error 400: Bad Request.\n";
+// 		return (true);
+// 	}
+// 	if (headerEnd != std::string::npos)
+// 	{
+// 		size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
+// 		if (chunkedPos != std::string::npos)
+// 			return isChunkedRequestComplete(headerEnd);
+// 		else
+// 		{
+// 			size_t contentLengthPos = _buffer.find("Content-Length:");
+// 			if (contentLengthPos != std::string::npos) {
+// 				size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
+// 				contentLengthStart = fillLength(_my_v, contentLengthStart);
+// 				// size_t i = headerEnd + 4;
+// 				size_t j = 0;
+// 				for (; j < _my_v.size(); j++);			
+// 				// std::cout << j << std::endl;
+// 				// std::cout << contentLengthStart << std::endl;
+// 				if (j == contentLengthStart)
+// 					return (true);
+// 				else
+// 				{
+// 					// std::cout << "test\n";
+// 					return false;
+// 				}
+// 			}
+// 			return true;
+// 		}
+// 	}
+// 	return false;
+// }
 
 bool Request::isRequestComplete()
 {
 	std::cout << "test\n";
-	size_t headerEnd = _buffer.find("\r\n\r\n");
+	size_t headerEnd = findPositionVec("\r\n\r\n", 0);
 	// std::cout << headerEnd << std::endl;
-	if (headerEnd == std::string::npos)
+	if (headerEnd == -1)
 		return (true);
-	if (headerEnd != std::string::npos)
+	if (headerEnd != -1)
 	{
-		size_t chunkedPos = _buffer.find("Transfer-Encoding: chunked");
-		if (chunkedPos != std::string::npos)
-			return isChunkedRequestComplete();
+		size_t chunkedPos = findPositionVec("Transfer-Encoding: chunked", 0);
+		if (chunkedPos != -1)
+			return isChunkedRequestComplete(headerEnd);
 		else
 		{
-			size_t contentLengthPos = _buffer.find("Content-Length:");
-			if (contentLengthPos != std::string::npos) {
+			size_t contentLengthPos = findPositionVec("Content-Length:", 0);
+			if (contentLengthPos != -1)
+			{
 				size_t contentLengthStart = contentLengthPos + strlen("Content-Length: ");
-				contentLengthStart = fillLength(_buffer, contentLengthStart);
-				// size_t i = headerEnd + 4;
-				size_t j = 0;
-				for (; j < _my_v.size(); j++);			
-				// std::cout << j << std::endl;
-				// std::cout << contentLengthStart << std::endl;
-				if (j == contentLengthStart)
+				contentLengthStart = fillLength(_my_v, contentLengthStart);
+				size_t j = headerEnd + 4;
+				size_t i = 0;
+				for (; j < _my_v.size(); j++, i++);			
+				std::cout << i << std::endl;
+				std::cout << contentLengthStart << std::endl;
+				if (i == contentLengthStart)
 					return (true);
 				else
 				{
@@ -312,10 +313,10 @@ bool Request::isRequestComplete()
 	return false;
 }
 
-bool Request::isChunkedRequestComplete()
+bool Request::isChunkedRequestComplete(size_t pos)
 {
 	size_t	pos1 = 0;
-	size_t	pos2 = 0;
+	size_t	pos2 = pos + 4;
 	size_t	pos3 = 0;
 	std::string	chunkSizeStr;
 	int chunkSize = 0; // hexStringToInt(chunkSizeStr);
@@ -382,10 +383,10 @@ bool Request::isBodySizeTooLarge()
 	return _body.size() > static_cast<unsigned long>(_server.getMaxBodySize());
 }
 
-void	Request::makeClear()
-{
-	_buffer.clear();
-}
+// void	Request::makeClear()
+// {
+// 	_buffer.clear();
+// }
 
 //-----------------------------GETTERS-----------------------------//
 
@@ -443,7 +444,8 @@ Request::Request(const Request& copy)
     _boundary = copy._boundary;
     _dataBrut = copy._dataBrut;
     _isChunk = copy._isChunk;
-    _buffer = copy._buffer;
+//     _my_v = copy._my_v;
+//     _buffer = copy._buffer;
     // _my_v = copy._my_v;
 	// std::cout << "myv size = " << copy._my_v.size() << std::endl;
 	_my_v.resize(copy._my_v.size());
@@ -465,10 +467,10 @@ Request& Request::operator=(const Request& other)
 	return *this;
 }
 
-std::string	Request::getBuffer() const
-{
-	return (_buffer);
-}
+// std::string	Request::getBuffer() const
+// {
+// 	return (_buffer);
+// }
 
 std::string	Request::getBoundary() const
 {
@@ -624,6 +626,11 @@ bool	Request::getIsRedirect() const
 int	Request::getComplete() const
 {
 	return (_isComplete);
+}
+
+std::vector<unsigned char>	Request::getMyBodyV() const
+{
+	return (_my_body);
 }
 
 // std::string Request::getRemotePort() const
