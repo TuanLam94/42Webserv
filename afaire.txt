@@ -12,3 +12,5 @@ A faire :
 - activer / desactiver le listing des repertoires --> utiliser opendir, readdir and closedir
 
 - peut on utiliser usleep ? 
+
+- mettre en place la gestin des signaux ?

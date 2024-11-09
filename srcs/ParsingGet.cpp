@@ -447,7 +447,7 @@ void	Request::parsingGET(Server i)
 			parsParamPath(pos);
 		parsPath(i);
 		parsHeaders();
-		fillBody(); // supp fillBody --> deja defini vector
+		fillBody();
 		checkHeaderName();
 		fillVar();
 		initContentLength();
