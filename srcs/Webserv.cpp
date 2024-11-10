@@ -281,9 +281,10 @@ void Webserv::eventLoop() {
 				if (_events[i].events & EPOLLIN) {
 					Request* request = findAppropriateRequest(event_fd);
 					handleClientRequest(event_fd, *request);
+					// removeRequest(event_fd);
 				}
 				if (_events[i].events & EPOLLOUT) {
-					// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE\n";
+					std::cout << "\nHEEEEEEEEEEEEEEEEEEERE\n";
 					Request* request = findAppropriateRequestToWrite(event_fd);
 					// std::cout << request->getBuffer().empty() << std::endl;
 					// std::cout << request->getBuffer() << std::endl;
@@ -403,32 +404,53 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		_my_v.push_back(buffer[i]);
 }
 
-void Webserv::handleClientRequest(int client_fd, Request& request)
+const int REQUEST_TIMEOUT_SECONDS = 5;  // Délai maximal en secondes pour recevoir une requête complète
+std::map<int, time_t> client_start_times;
+
+void Webserv::handleClientRequest(int client_fd, Request& request) // chaque requete doit etre faite au fur et a mesure -->> don't block the stream
 {
 	unsigned char buffer[1024] = {'\0'};
 
-	while (true)
+	std::cerr << "client_fd : " << client_fd << std::endl;
+	if (client_start_times.find(client_fd) == client_start_times.end())
 	{
-		int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-		if (bytes <= 0)
-		{
-			break ;
-		}
-		request.createData(buffer, bytes);
-		request.setStatusCode(checkAllSize(request));
-		if (request.getStatusCode() != 0)
-		{
-			sendErrorResponse(client_fd, request.getStatusCode());
-			request.setHere(0);
-			// removeRequest(client_fd);
-			close(client_fd);
-			epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-			return ;
-		}
+		client_start_times[client_fd] = time(NULL);  // Enregistrer le temps actuel comme début de réception
 	}
+
+	// 2. Vérifier le timeout avant de lire les données
+	time_t current_time = time(NULL);
+    	if (difftime(current_time, client_start_times[client_fd]) > REQUEST_TIMEOUT_SECONDS)
+	{
+	        std::cerr << "Timeout: Requête incomplète reçue dans le délai imparti pour le client " << client_fd << std::endl;
+        	client_start_times.erase(client_fd);  // Supprimer l'entrée du client
+		close(client_fd);
+		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+        	return ;
+	}
+
+	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+	if (bytes <= 0)
+	{
+		close(client_fd);
+		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+		return ;
+	}
+	request.createData(buffer, bytes);
+	request.setStatusCode(checkAllSize(request));
+	if (request.getStatusCode() != 0)
+	{
+		sendErrorResponse(client_fd, request.getStatusCode());
+		request.setHere(0);
+		// removeRequest(client_fd);
+		close(client_fd);
+		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+		return ;
+	}
+	std::cout << "\n\n\n\n\n";
 	for (size_t i = 0; i < request.getMyV().size(); i++)
 		std::cout << request.getMyV()[i];
-	if (request.getMyV().size() > 0)
+	std::cout << "\n\n\n\n\n";
+	if (request.isRequestComplete())
 	{
 		request.setHere(0);
 		request.parsRequest();		// PATH IS HERE
@@ -439,7 +461,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		{
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);
-			// exit (1);
 			request.setHere(0);
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);

@@ -13,4 +13,6 @@ A faire :
 
 - peut on utiliser usleep ? 
 
-- mettre en place la gestin des signaux ?
+- mettre en place la gestion des signaux ?
+- on doit pouvoir fermer la connection si requete incomplete dans tous les cas
+	- mettre client_fd et event_fd en attributs de clase WebServ pour handleClose plus facilement
