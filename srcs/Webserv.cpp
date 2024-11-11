@@ -48,6 +48,7 @@ int	Request::checkHeadersSize()
 		pos1 = findPositionVec("\r\n\r\n", pos);
 		if (pos1 == -1)
 		{
+			pos1 = pos;
 			for (size_t i = 0; i < _my_v.size(); i++)
 			{
 				pos2 = findPositionVec("\r\n", pos1);
@@ -258,33 +259,54 @@ void Webserv::epollInit()
 void Webserv::eventLoop() {
 	int maxEvents = 10;// originally 10
 	_events.resize(maxEvents);
-	while (true) {
+	
+	while (true)
+	{
+		std::cout << "test\n";
 		int fd_number = epoll_wait(_epoll_fd, _events.data(), maxEvents, _servers[0].getTimeout());
-		if (fd_number < 0) {
+		if (fd_number < 0)
+		{
 			std::cerr << "epoll_wait failed\n";
 			exit (-1);
 		}
 
-		for (int i = 0; i < fd_number; i++) {
+		// std::cout << "fd = " << fd_number << std::endl;
+		// time_t start_time = time(NULL);
+		// const time_t timeout = 10;
+		// bool timedout = false;
+		for (int i = 0; i < fd_number; i++)
+		{
 			int event_fd = _events[i].data.fd;
 
+			// if (time(NULL) - start_time >= timeout && timedout == false)
+			// {
+			// 	timedout = true;
+			// 	std::cerr << "Time Out\n";
+			// 	exit (1);
+			// }
+			// std::cout << "i = " << i << " event_fd = " << event_fd << std::endl;
 			bool isServerSocket = false;
-			for (size_t j = 0; j < _servers.size(); j++) {
-				if (_servers[j].getServerFd() == event_fd) {
+			for (size_t j = 0; j < _servers.size(); j++)
+			{
+				if (_servers[j].getServerFd() == event_fd)
+				{
 					_servers[j].handleNewConnection();
 					isServerSocket = true;
-					break;
+					break ;
 				}
 			}
 			// std::cout << "_requests size in loop == " << _requests.size() << std::endl;
-			if (!isServerSocket) {
-				if (_events[i].events & EPOLLIN) {
+			if (!isServerSocket) 
+			{
+				if (_events[i].events & EPOLLIN)
+				{
 					Request* request = findAppropriateRequest(event_fd);
 					handleClientRequest(event_fd, *request);
 					// removeRequest(event_fd);
 				}
-				if (_events[i].events & EPOLLOUT) {
-					std::cout << "\nHEEEEEEEEEEEEEEEEEEERE\n";
+				if (_events[i].events & EPOLLOUT)
+				{
+					// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE\n";
 					Request* request = findAppropriateRequestToWrite(event_fd);
 					// std::cout << request->getBuffer().empty() << std::endl;
 					// std::cout << request->getBuffer() << std::endl;
@@ -294,7 +316,8 @@ void Webserv::eventLoop() {
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
 					}
-					else if (request != NULL && request->isRequestComplete() && !request->getMyV().empty()) {
+					else if (request != NULL && request->isRequestComplete() && !request->getMyV().empty())
+					{
 						// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE2\n";
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
@@ -310,11 +333,11 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			// std::cout << "FOUND EXISTING REQUEST TO READ\n";
+			std::cout << "FOUND EXISTING REQUEST TO READ\n";
 			return &_requests[i];
 		}
 	}
-	// std::cout << "CREATING NEW REQUEST\n";
+	std::cout << "CREATING NEW REQUEST\n";
     	_requests.push_back(Request());
    	 _requests.back().setClientFD(event_fd);
     	return &_requests.back();
@@ -324,7 +347,7 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			// std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
+			std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
 			return &_requests[i];
 		}
 	}
@@ -395,41 +418,24 @@ int	checkAllSize(Request request)
 	return (0);
 }
 
-// echo -ne "POST /submit HTTP/1.1\r\nHost: localhost\r\nContent-Type: text/plain\r\nConnection:close\r\n\r\n" | nc localhost 8080
-
-
 void	Request::createData(unsigned char buffer[1024], int bytes)
 {
 	for (int i = 0; i < bytes; i++)
 		_my_v.push_back(buffer[i]);
 }
 
-const int REQUEST_TIMEOUT_SECONDS = 5;  // Délai maximal en secondes pour recevoir une requête complète
-std::map<int, time_t> client_start_times;
-
 void Webserv::handleClientRequest(int client_fd, Request& request) // chaque requete doit etre faite au fur et a mesure -->> don't block the stream
 {
 	unsigned char buffer[1024] = {'\0'};
 
-	std::cerr << "client_fd : " << client_fd << std::endl;
-	if (client_start_times.find(client_fd) == client_start_times.end())
+	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+	if (bytes < 0)
 	{
-		client_start_times[client_fd] = time(NULL);  // Enregistrer le temps actuel comme début de réception
-	}
-
-	// 2. Vérifier le timeout avant de lire les données
-	time_t current_time = time(NULL);
-    	if (difftime(current_time, client_start_times[client_fd]) > REQUEST_TIMEOUT_SECONDS)
-	{
-	        std::cerr << "Timeout: Requête incomplète reçue dans le délai imparti pour le client " << client_fd << std::endl;
-        	client_start_times.erase(client_fd);  // Supprimer l'entrée du client
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-        	return ;
+		return ;
 	}
-
-	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-	if (bytes <= 0)
+	if (bytes == 0)
 	{
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
@@ -446,10 +452,10 @@ void Webserv::handleClientRequest(int client_fd, Request& request) // chaque req
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return ;
 	}
-	std::cout << "\n\n\n\n\n";
-	for (size_t i = 0; i < request.getMyV().size(); i++)
-		std::cout << request.getMyV()[i];
-	std::cout << "\n\n\n\n\n";
+	// std::cout << "\n";
+	// for (size_t i = 0; i < request.getMyV().size(); i++)
+	// 	std::cout << request.getMyV()[i];
+	// std::cout << "\n";
 	if (request.isRequestComplete())
 	{
 		request.setHere(0);

@@ -643,8 +643,9 @@ void	Request::parsingPOST_v2()
 	{
 		if (it->first == "Content-Type:")
 		{
-			
-			pos = it->second.std::string::find("multipart/form-data;");
+			std::cout << it->first << std::endl;
+			std::cout << it->second << std::endl;
+			pos = it->second.std::string::find("multipart/form-data");
 			if (it->second == "application/json") // json utiliser pour la creation de ressource
 			{
 				_contentType = it->second;

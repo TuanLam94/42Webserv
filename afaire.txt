@@ -16,3 +16,6 @@ A faire :
 - mettre en place la gestion des signaux ?
 - on doit pouvoir fermer la connection si requete incomplete dans tous les cas
 	- mettre client_fd et event_fd en attributs de clase WebServ pour handleClose plus facilement
+	
+- voir comment mettre un timeout si requete incomplete 
+- passe deux fois dans handleerrorresponse --> dans webserv.cpp l. 394

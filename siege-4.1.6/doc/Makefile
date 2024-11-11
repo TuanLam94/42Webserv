@@ -164,7 +164,7 @@ CXXCPP = g++ -E
 CXXDEPMODE = depmode=none
 CXXFLAGS = -g -O2
 CYGPATH_W = echo
-DATE = November-09-2024
+DATE = November-11-2024
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 ECHO = echo
@@ -261,7 +261,7 @@ mandir = ${datarootdir}/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /home/shelal/siege-local
+prefix = /home/shelal/programmes/siege
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin

@@ -23,10 +23,10 @@
 #ifndef  JOEDOG_PATH_H
 #define  JOEDOG_PATH_H
 
-#define SIEGE_HOME     "/home/shelal/siege-local"
-#define URL_FILE       "/home/shelal/siege-local/etc/urls.txt"
-#define CNF_FILE       "/home/shelal/siege-local/etc/siegerc"
-#define LOG_FILE       "/home/shelal/siege-local/var/log/siege.log"
+#define SIEGE_HOME     "/home/shelal/programmes/siege"
+#define URL_FILE       "/home/shelal/programmes/siege/etc/urls.txt"
+#define CNF_FILE       "/home/shelal/programmes/siege/etc/siegerc"
+#define LOG_FILE       "/home/shelal/programmes/siege/var/log/siege.log"
 #define PLATFORM       "pc-x86_64-linux-gnu"
 
 #endif/*JOEDOG_PATH_H*/
