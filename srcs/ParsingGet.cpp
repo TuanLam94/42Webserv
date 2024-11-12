@@ -490,6 +490,12 @@ void	Request::parsingGET(Server i)
 		listing(dir);
 
 	_input.open(_path.c_str());
+	_input.open(_path.c_str());
+
+	_input.open(_path.c_str());
+	_input.open(_path.c_str());
+	_input.open(_path.c_str());
+
 	// std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
