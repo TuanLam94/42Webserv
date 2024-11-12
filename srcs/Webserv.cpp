@@ -137,8 +137,8 @@ int	Request::checkBodySize()
 			// exit (1);
 			// if (static_cast<int>(i) > getMaxBodySize())
 			// {
-			// 	std::cout << i << std::endl;
-			// 	std::cout << getMaxBodySize() << std::endl;
+			// 	// std::cout << i << std::endl;
+			// 	// std::cout << request.getMaxBodySize() << std::endl;
 			// 	std::cerr << "checkBodySize Error 413: Content Too Large.\n";
 			// 	return (413);
 			// }
@@ -262,6 +262,7 @@ void Webserv::eventLoop() {
 	
 	while (true)
 	{
+		std::cout << "test\n";
 		int fd_number = epoll_wait(_epoll_fd, _events.data(), maxEvents, _servers[0].getTimeout());
 		if (fd_number < 0)
 		{
@@ -332,7 +333,7 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			// std::cout << "FOUND EXISTING REQUEST TO READ\n";
+			std::cout << "FOUND EXISTING REQUEST TO READ\n";
 			return &_requests[i];
 		}
 	}
@@ -346,7 +347,7 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			// std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
+			std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
 			return &_requests[i];
 		}
 	}
@@ -409,8 +410,8 @@ int	checkAllSize(Request request)
 			return (414);
 		if (request.checkHeadersSize() == 431)
 			return (431);
-		// if (request.checkBodySize() == 413) // revoir le body size pour avoir le bon
-		// 	return (413);
+		if (request.checkBodySize() == 413) // revoir le body size pour avoir le bon
+			return (413);
 		if (request.checkContentLengthSize() == 413)
 			return (413);
 	}
@@ -423,7 +424,7 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		_my_v.push_back(buffer[i]);
 }
 
-void Webserv::handleClientRequest(int client_fd, Request& request)
+void Webserv::handleClientRequest(int client_fd, Request& request) // chaque requete doit etre faite au fur et a mesure -->> don't block the stream
 {
 	unsigned char buffer[1024] = {'\0'};
 
@@ -445,16 +446,19 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	if (request.getStatusCode() != 0)
 	{
 		sendErrorResponse(client_fd, request.getStatusCode());
+		request.setHere(0);
+		// removeRequest(client_fd);
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return ;
 	}
-	std::cout << "\n";
-	for (size_t i = 0; i < request.getMyV().size(); i++)
-		std::cout << request.getMyV()[i];
-	std::cout << "\n";
+	// std::cout << "\n";
+	// for (size_t i = 0; i < request.getMyV().size(); i++)
+	// 	std::cout << request.getMyV()[i];
+	// std::cout << "\n";
 	if (request.isRequestComplete())
 	{
+		request.setHere(0);
 		request.parsRequest();		// PATH IS HERE
 		request.getClientIPPort(client_fd);
 		Server* correct_server = findAppropriateServer(request);
@@ -463,6 +467,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		{
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);
+			request.setHere(0);
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);
 				return ;
