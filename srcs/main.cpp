@@ -12,7 +12,7 @@ void sigintHandler(int signal)
         globalWebserv->closeAllFD();
         globalWebserv->closeAllSockets();
         globalWebserv->closeAcceptFD();
-        std::cout << "SIGINT received, cleaned up and exiting." << std::endl;
+        std::cout << "\nSIGINT received, cleaned up and exiting." << std::endl;
         globalWebserv->~Webserv();
         exit(0);
     }

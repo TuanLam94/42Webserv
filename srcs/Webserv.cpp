@@ -466,56 +466,52 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 
 Server* Webserv::findAppropriateServer(Request& request)
 {
-	int count = 0;
+	std::cout << "server host = " << _servers[0].getHost() << " request host = " << request.getHost() << std::endl;
+	std::cout << "server Port = " << _servers[0].getPort() << " request Port = " << request.getPort() << std::endl;
+	std::cout << "server ServerName = " << _servers[0].getServerName() << " request ServerName = " << request.getServerName() << std::endl;
 
 
 	for (size_t i = 0; i < _servers.size(); i++) {
 		if (_servers[i].getHost() == request.getHost())
-			count++;
-	}
-
-	if (count == 1) {
-		for (size_t i = 0; i < _servers.size(); i++) {
-			if (_servers[i].getHost() == request.getHost()) {
-				if (_servers[i].getPort() == request.getPort())
-					return &_servers[i];
-				else
-					return (redirectServer(request));
-			}
-		}
-	}
-	else {
-		if (request.getPort() != 0)
-			return findServerByPort(request);
-		else
-			return (findServerByName(request));
-	}
-	return NULL;
-}
-
-Server* Webserv::redirectServer(Request& request)
-{
-	request.setRequestStatusCode(301);
-	return findServerByPort(request);
-}
-
-Server* Webserv::findServerByName(const Request& request)
-{
-	for (size_t i = 0; i < _servers.size(); i++) {
-		if (_servers[i].getServerName() == request.getServerName())
 			return &_servers[i];
 	}
-	return NULL;
-}
 
-Server* Webserv::findServerByPort(const Request& request)
-{
 	for (size_t i = 0; i < _servers.size(); i++) {
 		if (_servers[i].getPort() == request.getPort())
 			return &_servers[i];
 	}
+
+	for (size_t i = 0; i < _servers.size(); i++) {
+		if (_servers[i].getServerName() == request.getServerName())
+			return &_servers[i];
+	}
+	
 	return NULL;
 }
+
+// Server* Webserv::redirectServer(Request& request)
+// {
+// 	request.setRequestStatusCode(301);
+// 	return findServerByPort(request);
+// }
+
+// Server* Webserv::findServerByName(const Request& request)
+// {
+// 	for (size_t i = 0; i < _servers.size(); i++) {
+// 		if (_servers[i].getServerName() == request.getServerName())
+// 			return &_servers[i];
+// 	}
+// 	return NULL;
+// }
+
+// Server* Webserv::findServerByPort(const Request& request)
+// {
+// 	for (size_t i = 0; i < _servers.size(); i++) {
+// 		if (_servers[i].getPort() == request.getPort())
+// 			return &_servers[i];
+// 	}
+// 	return NULL;
+// }
 
 void Webserv::closeAllFD()
 {
@@ -544,18 +540,11 @@ void Webserv::closeAcceptFD()
 
 Webserv::~Webserv()
 {
-	// for (size_t i = 0; i < _servers.size(); i++) {
-	// 	_servers[i].~Server();
-	// }
-
 	for (size_t i = 0; i < _requests.size(); i++) {
 		_requests[i].~Request();
 	}
 
 	close(_epoll_fd);
-	// for (size_t i = 0; i < _servers.size(); i++) {
-	// 	_servers[i].closeServer(); //tocode
-	// }
 }
 
 //-------------------------------------Getters-------------------------------------

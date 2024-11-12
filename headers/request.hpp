@@ -142,6 +142,7 @@ class	Request
 	void	fillVar();
 	int		checkContentType();
 	void	getClientIPPort(int clientfd);
+	std::string parsServerName();
 	bool	parserFormData_help(unsigned long int i);
 	bool	isRequestComplete();
 	bool	isChunkedRequestComplete(size_t pos);
