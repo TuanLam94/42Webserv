@@ -580,10 +580,6 @@ void	Request::setStatusCode(int code)
 	_status_code = code;
 }
 
-void	Request::setHere(int here)
-{
-	_here = here;
-}
 
 void Request::setServer(Server& server)
 {
