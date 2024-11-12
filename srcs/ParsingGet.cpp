@@ -437,7 +437,6 @@ void	Request::fillVar()
 	}
 }
 
-
 void	Request::listing(DIR *dir)
 {
 	struct dirent *line;
@@ -462,6 +461,7 @@ void	Request::listing(DIR *dir)
 	std::cout << _listing << std::endl;
 }
 
+
 void	Request::parsingGET(Server i)
 {
 	size_t	pos = _path.find("?");
@@ -481,23 +481,16 @@ void	Request::parsingGET(Server i)
 	{
 		return ;
 	}
-	std::cout << _path << std::endl;
-
-	DIR	*dir;
-	dir = opendir(_path.c_str());
-	if (dir)
-		listing(dir);
-
 	_input.open(_path.c_str());
 
 	// std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
-		_status_code = 404;
+		_status_code = 400;
 		std::cerr << "Can't open input\n";
 	}
 	std::string	line;
-	while (std::getline(_input, line)) // a rajouter
+	while (std::getline(_input, line))
 	{
 
 		_body += line;
