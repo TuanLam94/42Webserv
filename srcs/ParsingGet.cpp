@@ -437,6 +437,32 @@ void	Request::fillVar()
 	}
 }
 
+void	Request::listing(DIR *dir)
+{
+	struct dirent *line;
+
+	_listing += "<!DOCTYPE html>\n";
+	_listing += "<html>\n";
+	_listing += "<body>\n";
+	_listing += "<h1>AutoIndex</h1>\n";
+	while (true)
+	{
+		line = readdir(dir);
+		if (line)
+		{
+			_listing += "<p>";
+			_listing += line->d_name;
+			_listing += "</p>";
+			_listing += "\n";
+		}
+		else
+			break ;
+	}
+	_listing += "</body>\n";
+	_listing += "</html>\n";
+	std::cout << _listing << std::endl;
+}
+
 void	Request::parsingGET(Server i)
 {
 	size_t	pos = _path.find("?");
@@ -456,26 +482,38 @@ void	Request::parsingGET(Server i)
 	{
 		return ;
 	}
-	_input.open(_path.c_str());
-	_input.open(_path.c_str());
-
-	_input.open(_path.c_str());
-	_input.open(_path.c_str());
-	_input.open(_path.c_str());
-
-	// std::cout << _path << std::endl;
-	if (!_input.is_open())
+	std::cout << _path << std::endl;
+	
+	if (_path == "config/routes/"/* && _autoindex == true*/)
 	{
-		_status_code = 400;
-		std::cerr << "Can't open input\n";
+		DIR	*dir;
+		dir = opendir(_path.c_str());
+		if (dir)
+			listing(dir);
+		_status_code = 0;
+		return ; 
 	}
-	std::string	line;
-	while (std::getline(_input, line))
+	else if (_path == "config/routes/"/* && _autoindex == false*/)
 	{
+		_status_code = 404;
+		return ;	
+	}
+	else
+	{
+		_input.open(_path.c_str());
+		if (!_input.is_open())
+		{
+			_status_code = 404;
+			std::cerr << "Can't open input\n";
+		}
+		std::string	line;
+		while (std::getline(_input, line)) // a rajouter
+		{
 
-		_body += line;
-		_body += "\n";
-		if (line == "  <head>")
-			_body += "    <link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\">\n";
+			_body += line;
+			_body += "\n";
+			if (line == "  <head>")
+				_body += "    <link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\">\n";
+		}
 	}
 }

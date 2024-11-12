@@ -41,6 +41,7 @@ class	Request
 	int		_client_fd;
 	bool	_cgiIsHere;
 	bool	_isRedirect;
+	std::string	_listing;
 	// attributs execution CGI (mandatory + bonus)
 	std::string	_cgiType;
 	std::string	_RequestMethod; // yes
@@ -179,6 +180,7 @@ class	Request
 	int	checkBodySize();
 	int	checkContentLengthSize();
 	int	checkUrlEncoded();
+	void	listing(DIR *dir);
 	// --------- GETTERS -------------
 	std::vector<unsigned char>	getMyBodyV() const;
 	std::string	getBoundary() const;

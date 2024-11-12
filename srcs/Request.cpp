@@ -230,8 +230,6 @@ size_t	fillLength(std::vector<unsigned char> my_v, size_t start)
 bool Request::isRequestComplete()
 {
 	size_t headerEnd = findPositionVec("\r\n\r\n", 0);
-	// if (headerEnd == -1)
-	// 	return (true);
 	if (headerEnd != -1)
 	{
 		size_t chunkedPos = findPositionVec("Transfer-Encoding: chunked", 0);

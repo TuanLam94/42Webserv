@@ -262,7 +262,6 @@ void Webserv::eventLoop() {
 	
 	while (true)
 	{
-		std::cout << "test\n";
 		int fd_number = epoll_wait(_epoll_fd, _events.data(), maxEvents, _servers[0].getTimeout());
 		if (fd_number < 0)
 		{
@@ -333,11 +332,11 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			std::cout << "FOUND EXISTING REQUEST TO READ\n";
+			// std::cout << "FOUND EXISTING REQUEST TO READ\n";
 			return &_requests[i];
 		}
 	}
-	std::cout << "CREATING NEW REQUEST\n";
+	// std::cout << "CREATING NEW REQUEST\n";
     	_requests.push_back(Request());
    	 _requests.back().setClientFD(event_fd);
     	return &_requests.back();
@@ -347,7 +346,7 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
+			// std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
 			return &_requests[i];
 		}
 	}
@@ -410,10 +409,10 @@ int	checkAllSize(Request request)
 			return (414);
 		if (request.checkHeadersSize() == 431)
 			return (431);
-		if (request.checkBodySize() == 413) // revoir le body size pour avoir le bon
-			return (413);
-		if (request.checkContentLengthSize() == 413)
-			return (413);
+		// if (request.checkBodySize() == 413) // revoir le body size pour avoir le bon
+		// 	return (413);
+		// if (request.checkContentLengthSize() == 413)
+		// 	return (413);
 	}
 	return (0);
 }
@@ -429,13 +428,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request) // chaque req
 	unsigned char buffer[1024] = {'\0'};
 
 	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-	if (bytes < 0)
-	{
-		close(client_fd);
-		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-		return ;
-	}
-	if (bytes == 0)
+	if (bytes <= 0)
 	{
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
