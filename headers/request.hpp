@@ -143,6 +143,7 @@ class	Request
 	void	fillVar();
 	int		checkContentType();
 	void	getClientIPPort(int clientfd);
+	std::string parsServerName();
 	bool	parserFormData_help(unsigned long int i);
 	bool	isRequestComplete();
 	bool	isChunkedRequestComplete(size_t pos);
@@ -182,7 +183,6 @@ class	Request
 	int	checkBodySize();
 	int	checkContentLengthSize();
 	int	checkUrlEncoded();
-	void	listing(DIR *dir);
 	// --------- GETTERS -------------
 	std::vector<unsigned char>	getMyBodyV() const;
 	std::string	getBoundary() const;
@@ -226,6 +226,7 @@ class	Request
 	void	setRequestStatusCode(int status_code);
 	void	setClientFD(int fd);
 	void	setStart(long long int time);
+	void	setHere(int here);
 	//Utils
 	void	printRequest() const;
 

@@ -49,9 +49,6 @@ class Webserv
 		void handleClientRequest(int client_fd, Request& request);
 		void handleClientWrite(int event_fd, Request& request);
 		Server* findAppropriateServer(Request& request);
-		Server* findServerByName(const Request& request);
-		Server* findServerByPort(const Request& request);
-		Server* redirectServer(Request& request);
 		Request* findAppropriateRequest(int event_fd);
 		Request* findAppropriateRequestToWrite(int event_fd);
 		void sendErrorResponse(int client_fd, int statusCode);
@@ -61,6 +58,9 @@ class Webserv
 		int getEpollFd();
 		std::vector<Server> getServers();
 		void checkAllRequestTimeouts();
+		void closeAllFD();
+		void closeAllSockets();
+		void closeAcceptFD();
 };
 
 #endif

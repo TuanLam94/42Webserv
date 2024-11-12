@@ -199,10 +199,39 @@ void	Request::getClientIPPort(int clientfd)
 
 	_host = inet_ntoa(local_addr.sin_addr);
 	_port = ntohs(local_addr.sin_port);
+	_serverName = parsServerName();
 
 	std::ostringstream oss;
 	oss << _host << ":" << _port;
 	_host = oss.str();
+}
+
+std::string Request::parsServerName()
+{
+	char buffer[4096];
+
+	for (size_t i = 0; i < _my_v.size(); i++) {
+		buffer[i] = _my_v[i];
+	}
+
+	std::string body(buffer);
+
+	size_t pos = body.find("Host:");
+	if (pos == std::string::npos)
+		return ("");
+
+	pos = body.find_first_not_of(" \t", pos + 5);
+	if (pos == std::string::npos)
+		return ("");
+
+	size_t endPos = body.find(":", pos);
+	if (endPos == std::string::npos) {
+		endPos = body.find("\r\n", pos);
+		if (endPos == std::string::npos)
+			return "";
+	}
+
+	return body.substr(pos, endPos - pos);
 }
 
 size_t	fillLength(std::vector<unsigned char> my_v, size_t start)
@@ -580,6 +609,10 @@ void	Request::setStatusCode(int code)
 	_status_code = code;
 }
 
+void	Request::setHere(int here)
+{
+	_here = here;
+}
 
 void Request::setServer(Server& server)
 {

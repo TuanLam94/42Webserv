@@ -449,6 +449,7 @@ void	Request::listing(DIR *dir)
 	_listing += "</html>\n";
 }
 
+
 void	Request::parsingGET(Server i)
 {
 	size_t	pos = _path.find("?");
@@ -485,6 +486,16 @@ void	Request::parsingGET(Server i)
 		return ;	
 	}
 	else
+	_input.open(_path.c_str());
+
+	// std::cout << _path << std::endl;
+	if (!_input.is_open())
+	{
+		_status_code = 400;
+		std::cerr << "Can't open input\n";
+	}
+	std::string	line;
+	while (std::getline(_input, line))
 	{
 		_input.open(_path.c_str());
 		if (!_input.is_open())
