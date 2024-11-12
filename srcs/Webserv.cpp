@@ -517,8 +517,41 @@ Server* Webserv::findServerByPort(const Request& request)
 	return NULL;
 }
 
+void Webserv::closeAllFD()
+{
+	close(_epoll_fd);
+	for (size_t i = 0; i < _requests.size(); i++) {
+		if (_requests[i].getClientFD() > 0)
+			close(_requests[i].getClientFD());
+	}
+}
+
+void Webserv::closeAllSockets()
+{
+	for (size_t i = 0; i < _servers.size(); i++) {
+		if (_servers[i].getServerFd() > 0)
+			close(_servers[i].getServerFd());
+	}
+}
+
+void Webserv::closeAcceptFD()
+{
+	for (size_t i = 0; i < _servers.size(); i++) {
+		if (_servers[i].getEvent().data.fd > 0)
+			close(_servers[i].getEvent().data.fd);
+	}
+}
+
 Webserv::~Webserv()
 {
+	// for (size_t i = 0; i < _servers.size(); i++) {
+	// 	_servers[i].~Server();
+	// }
+
+	for (size_t i = 0; i < _requests.size(); i++) {
+		_requests[i].~Request();
+	}
+
 	close(_epoll_fd);
 	// for (size_t i = 0; i < _servers.size(); i++) {
 	// 	_servers[i].closeServer(); //tocode

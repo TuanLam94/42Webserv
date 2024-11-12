@@ -61,6 +61,9 @@ class Webserv
 		int getEpollFd();
 		std::vector<Server> getServers();
 		void checkAllRequestTimeouts();
+		void closeAllFD();
+		void closeAllSockets();
+		void closeAcceptFD();
 };
 
 #endif
