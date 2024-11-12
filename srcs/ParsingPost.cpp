@@ -64,7 +64,6 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 	pos_points = findPositionBody(":", pos_start);
 	if (static_cast<int>(pos_points) == -1)
 	{
-		std::cout << "here1" << std::endl;
 		return (-1);
 	}
 	while (pos_start < pos_comma)
@@ -73,7 +72,6 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 		{
 			if (index_pts == 1)
 			{
-				std::cout << "here2" << std::endl;
 				return (-1);
 			}
 			index_pts = 1;
@@ -105,7 +103,6 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 			pos_start = checkIsDigit(pos_start);
 			if (static_cast<int>(pos_start) == -1)
 			{
-				std::cout << "here3" << std::endl;
 				return (-1);
 			}
 			else
@@ -119,15 +116,12 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 			index_pts = 0;
 		}
 		else if (_my_body[pos_start] != 32 && _my_body[pos_start] != '{'
-			&& _my_body[pos_start] != '}' )//&& _my_body[pos_start] != 10 && _my_body[pos_start] != 13)
+			&& _my_body[pos_start] != '}' )
 		{
-			std::cout << "here4" << std::endl;
 			return (-1);
 		}
 		pos_start++;
 	}
-	// std::cout << "key : " << key << std::endl;
-	// std::cout << "value : " << value << std::endl;
 	if (checkMap(key, _jsonParam.begin(), _jsonParam.end()) == false
 		&& key.empty() == false && value.empty() == false)
 		_jsonParam.insert(std::pair<std::string, std::string>(key, value));
@@ -205,8 +199,6 @@ void	Request::parserJson()
 
 void	Request::checkKeyUrl(std::string key)
 {
-	// unsigned long int i = 0;
-
 	key = trim(key);
 	if (key.empty() == true)
 	{
@@ -214,23 +206,6 @@ void	Request::checkKeyUrl(std::string key)
 		std::cerr << "checkKey 1 Error 400: Bad Request\n";
 		throw MyExcep();
 	}
-	// while (i < key.size())
-	// {
-	// 	std::cout << key[i] << std::endl;
-	// 	if ((!(key[i] >= 48 && key[i] <= 57)
-	// 		&& !(key[i] >= 65 && key[i] <= 90)
-	// 		&& !(key[i] >= 97 && key[i] <= 122)
-	// 		&& !(key[i] == 45)
-	// 		&& !(key[i] == 46)
-	// 		&& !(key[i] == 95)
-	// 		&& !(key[i] == 126)))
-	// 	{ 
-	// 		_status_code = 400;
-	// 		std::cerr << "checkKey 2 Error 400: Bad Request\n";
-	// 		throw MyExcep();
-	// 	}
-	// 	i++;
-	// }
 }
 
 void	Request::checkValueUrl(std::string value)
@@ -263,7 +238,7 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 		}
 		if (index == false)
 		{
-			if (new_body[i] == 37) // %
+			if (new_body[i] == 37)
 			{
 				hexa_help += new_body[i + 1];
 				hexa_help += new_body[i + 2];
@@ -272,14 +247,14 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 				key += hexa;
 				i += 2;
 			}
-			else if (new_body[i] == 43) // +
+			else if (new_body[i] == 43)
 				key += 32;
 			else
 				key += new_body[i];
 		}
-		else // index == true
+		else
 		{
-			if (new_body[i] == 37) // %
+			if (new_body[i] == 37)
 			{		
 				hexa_help += new_body[i + 1];
 				hexa_help += new_body[i + 2];
@@ -288,7 +263,7 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 				value += hexa;
 				i += 2;
 			}
-			else if (new_body[i] == 43) // +
+			else if (new_body[i] == 43)
 				value += 32;
 			else
 			{
@@ -297,8 +272,6 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 		}
 		i++;
 	}
-	// std::cout << "key : " << key << std::endl;
-	// std::cout << "value : " << value << std::endl;
 	if (checkStatusCode() == true)
 		checkKeyUrl(key);
 	if (checkStatusCode() == true)
@@ -320,7 +293,6 @@ int	Request::checkUrlEncoded()
 {
 	unsigned long int i = 0;
 	
-	// i = findPositionVec("\r\n\r\n", 0) + 4;
 	while (i < _my_body.size())
 	{
 		if ((!(_my_body[i] >= 48 && _my_body[i] <= 57)
@@ -350,7 +322,7 @@ void	Request::parserUrlencoded()
 		throw MyExcep();
 	while (i < _my_body.size())
 	{
-		if (_my_body[i] == 38) // &
+		if (_my_body[i] == 38)
 		{
 			parserUrlencoded_bis(new_body);
 			new_body.clear();
@@ -398,8 +370,6 @@ void	Request::formDataGetName(size_t pos)
 				pos++;
 			}
 		}
-		// std::cout << "Name key : " << key << std::endl;
-		// std::cout << "Name value : " << value << std::endl;
 		_FormDataName.insert(std::pair<std::string, std::string>(key, value));
 	}
 }
@@ -440,8 +410,6 @@ void	Request::formDataGetFilename(size_t pos)
 				pos++;
 			}
 		}
-		// std::cout << "FileName key : " << key << std::endl;
-		// std::cout << "FileName value : " << value << std::endl;
 		_FormDataFilename.insert(std::pair<std::string, std::string>(key, value));
 	}
 }
@@ -549,7 +517,11 @@ void	Request::constructBody()
 		pos1 += 2;
 	}
 	else
+	{
+		std::cerr << "constructBody1 Error 400 : Bad Request.\n";
+		_status_code = 400;
 		throw MyExcep();
+	}
 	pos2 = pos1;
 	hexa = strtol(str.c_str(), &end, 16);
 	str.clear();
@@ -557,7 +529,7 @@ void	Request::constructBody()
 	if (static_cast<int>(pos3) == -1)
 	{
 		_status_code = 400;
-		std::cout << "constructBody Error 400: Bad Request.\n";
+		std::cout << "constructBody2 Error 400: Bad Request.\n";
 		throw MyExcep();
 	}
 	while (pos2 < pos3)
@@ -578,7 +550,11 @@ void	Request::constructBody()
 			pos1 += 2;
 		}
 		else
+		{
+			std::cerr << "constructBody3 Error 400 : Bad Request.\n";
+			_status_code = 400;
 			throw MyExcep();
+		}
 		hexa = strtol(str.c_str(), &end, 16);
 		if (hexa == 0)
 			break ;
@@ -586,11 +562,9 @@ void	Request::constructBody()
 		pos2 = pos1;
 	}
 	_my_body.clear();
-	std::cout << std::endl;
 	for (size_t i = 0; i < strFinal.size(); i++)
 	{
 		_my_body.push_back(strFinal[i]);
-		// std::cout << _my_body[i];
 	}
 }
 
@@ -632,7 +606,7 @@ void	Request::parsingPOST_v2()
 			if (it1->second == "chunked")
 			{
 				_isChunk = true;
-				constructBody(); // reiquete chunk reconstruire _my_v
+				constructBody();
 			}
 		}
 		it1++;
@@ -643,10 +617,8 @@ void	Request::parsingPOST_v2()
 	{
 		if (it->first == "Content-Type:")
 		{
-			std::cout << it->first << std::endl;
-			std::cout << it->second << std::endl;
 			pos = it->second.std::string::find("multipart/form-data");
-			if (it->second == "application/json") // json utiliser pour la creation de ressource
+			if (it->second == "application/json")
 			{
 				_contentType = it->second;
 				parserJson();
@@ -708,7 +680,6 @@ void	Request::parserTextPlain()
 		_dataBrut += _my_body[i];
 		i++;
 	}
-	// std::cout << _dataBrut << std::endl;
 }
 
 
@@ -737,6 +708,7 @@ void	Request::initContentLength()
 	if (pos == -1)
 	{
 		std::cerr << "InitContentLength4 Error 400: Bad Request.\n";
+		_status_code = 400;
 		throw MyExcep();
 	}
 	else
@@ -758,18 +730,16 @@ void	Request::initContentLength()
 			}
 			std::istringstream ss(it->second); 
 			ss >> _contentLength;
-			// std::cout << _contentLength << std::endl;
-			// std::cout << i << std::endl;
-			if (_contentLength != i)
-			{
-				_status_code = 400;
-				std::cerr << "initContentLength2 Error 400: Bad Request\n";
-				throw MyExcep();
-			}
 			if (static_cast<int>(_contentLength) > _max_client_body_size)
 			{
  				_status_code = 413;
 				std::cerr << "initContentLength3 Error 413 : Content Too Large.\n";
+				throw MyExcep();
+			}
+			if (_contentLength != i)
+			{
+				_status_code = 400;
+				std::cerr << "initContentLength2 Error 400: Bad Request\n";
 				throw MyExcep();
 			}
 		}

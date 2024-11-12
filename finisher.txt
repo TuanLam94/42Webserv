@@ -1,13 +1,1 @@
-- Si repertoire est un dossier : - activer / desactiver le listing des repertoires --> utiliser opendir, readdir and closedir
-	- autoindex --> doit se terminer par / --> ex : config/routes/salam/
-	
-
-- Installation dun timeout si request is not complete (quels sont les fd a close si jamais request naboutit pas ?)
-	(explication sur client_fd et event_fd)
-	
-- passe deux fois dans handleerrorresponse --> dans webserv.cpp l. 394
-
-- getmaxclientbodysize --> est vide partout ? pq il est vide avant de rentrer dans le parsing
-
-
-
+- rajouter un attributs _autoindex ;

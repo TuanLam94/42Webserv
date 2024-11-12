@@ -6,15 +6,15 @@ bool	Request::checkValidChar(char c)
 	if (!(c >= 48 && c <= 57)
 		&& !(c >= 65 && c <= 90)
 		&& !(c >= 97 && c <= 122)
-		&& c != 37 // %
-		&& c != 43 // + 
-		&& c != 47 // /
-		&& c != 46 // .
-		&& c != 45 // - 
-		&& c != 95 // _
-		&& c != 126 // ~
-		&& c != 61 // =
-		&& c != 63) // ?
+		&& c != 37
+		&& c != 43
+		&& c != 47
+		&& c != 46
+		&& c != 45
+		&& c != 95
+		&& c != 126
+		&& c != 61
+		&& c != 63)
 	{
 		_status_code = 400;
 		std::cerr << "checkValidChar Error 400: Bad Request.\n";
@@ -33,7 +33,7 @@ std::string	Request::parsParamPath_bis(std::string str)
 
 	while (i < str.size())
 	{
-		if (str[i] == 37) // %
+		if (str[i] == 37)
 		{
 			hexa_help += str[i + 1];
 			hexa_help += str[i + 2];
@@ -42,7 +42,7 @@ std::string	Request::parsParamPath_bis(std::string str)
 			new_str += hexa;
 			i += 2;
 		}
-		if (str[i] == 43) // +
+		if (str[i] == 43)
 			new_str += 32;
 		else if (checkValidChar(str[i]) == true)
 			new_str += str[i];
@@ -62,7 +62,7 @@ void	Request::parsParamPath(size_t pos)
 	unsigned long int	i = 0;
 	int	index = false;
 
-	while (i < _path.size() && i < pos) // "?"
+	while (i < _path.size() && i < pos)
 	{
 		final_path += _path[i];
 		i++;
@@ -70,18 +70,16 @@ void	Request::parsParamPath(size_t pos)
 	i++;
 	while (i < _path.size())
 	{
-		if (_path[i] == 61) // "="
+		if (_path[i] == 61)
 		{
 			index = true;
 			i++;
 		}
-		if (_path[i] == 38) //"&"
+		if (_path[i] == 38)
 		{
 			index = false;
 			key = parsParamPath_bis(key);
 			value = parsParamPath_bis(value);
-			// std::cout << "key : " << key << std::endl;
-			// std::cout << "value : " << value << std::endl;
 			_queryParameter.insert(std::pair<std::string, std::string>(key, value));
 			key.clear();
 			value.clear();
@@ -95,8 +93,6 @@ void	Request::parsParamPath(size_t pos)
 	}
 	key = parsParamPath_bis(key);
 	value = parsParamPath_bis(value);
-	// std::cout << "key : " << key << std::endl;
-	// std::cout << "value : " << value << std::endl;
 	if (key.empty() == true || value.empty() == true)
 	{
 		_status_code = 400;
@@ -108,14 +104,14 @@ void	Request::parsParamPath(size_t pos)
 	_queryParameter.insert(std::pair<std::string, std::string>(key, value));
 }
 
-void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../" -> dans l'uri 
+void	Request::parsPath(Server obj)
 {
 	std::string	new_path;
-	// std::cout << "PATH BEFORE : " << _path << std::endl;
+
 	if (_method == "GET") {
 		if (_cgiIsHere)
 		{
-			new_path = "config" + _path;		//a revoir pour GET
+			new_path = "config" + _path;
 		}
 		else
 		{
@@ -130,8 +126,6 @@ void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../"
 			}
 			else
 				new_path = obj.getRoutesPath() + _path;
-			// std::cout << _path << std::endl;
-			// std::cout << "NEW PATH : " << new_path << std::endl;
 		}
 	}
 	else if (_method == "POST") {
@@ -144,13 +138,10 @@ void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../"
 		new_path = _path.substr(1);
 	_path.clear();
 	_path = new_path;
-	// std::cout << "PATH AFTER : " << _path << std::endl;
 }
 
 std::string Request::parsRedirectPath(Server& obj)
 {
-	// std::cout << "SERVER REDIRECTION = " << obj.getRedirection() << std::endl;
-
 	size_t pos = _path.find(obj.getRedirection());
 
 	std::string prePath = _path.substr(0, pos);
@@ -158,12 +149,8 @@ std::string Request::parsRedirectPath(Server& obj)
 
 	std::string new_path = obj.getRoutesPath() + prePath + postPath;
 
-	// std::cout << "NEWPATH = " << new_path << std::endl;
 	return new_path;
 }
-
-
-// creer sa fonction findPosition std::string et std::vector
 
 size_t	Request::findPosition(std::string str, const std::string& buff, size_t start)
 {
@@ -299,7 +286,7 @@ void	Request::parsHeaders()
 					while (i < _my_v.size() && _my_v[i] == 32)
 						i++;
 				}
-				if (index == true /*&& checkValidHeaderKey(buff[i]) == true*/)
+				if (index == true)
 					key += _my_v[i];
 				else if (checkValidHeaderValue(_my_v[i]) == true)
 					value += _my_v[i];
@@ -460,7 +447,6 @@ void	Request::listing(DIR *dir)
 	}
 	_listing += "</body>\n";
 	_listing += "</html>\n";
-	std::cout << _listing << std::endl;
 }
 
 void	Request::parsingGET(Server i)
@@ -507,7 +493,7 @@ void	Request::parsingGET(Server i)
 			std::cerr << "Can't open input\n";
 		}
 		std::string	line;
-		while (std::getline(_input, line)) // a rajouter
+		while (std::getline(_input, line))
 		{
 
 			_body += line;

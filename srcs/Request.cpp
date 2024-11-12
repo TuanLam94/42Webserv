@@ -181,10 +181,9 @@ void	Request::parsRequestBis(Server i)
 		if (_cgiIsHere == true)
 			fillCgiPost();
 	}
-	else if (_method == "DELETE") {
-		// std::cout << "Method is delete. Path is " << _path << std::endl;
+	else if (_method == "DELETE")
+	{
 		parsingDELETE(i);
-		// std::cout << "still delete, path is " << _path << std::endl;
 	}
 }
 
@@ -223,10 +222,6 @@ size_t	fillLength(std::vector<unsigned char> my_v, size_t start)
 	return res;
 }
 
-// si content-length pas egal a body --> return error 400 bad request ou 500 internal errror timeout
-// si pas de \r\n\r\n a la fin --> boucle infinie request never complete return error 400 bad request
-
-
 bool Request::isRequestComplete()
 {
 	size_t headerEnd = findPositionVec("\r\n\r\n", 0);
@@ -245,8 +240,6 @@ bool Request::isRequestComplete()
 				size_t j = headerEnd + 4;
 				size_t i = 0;
 				for (; j < _my_v.size(); j++, i++);			
-				// std::cout << i << std::endl;
-				// std::cout << contentLengthStart << std::endl;
 				if (i == contentLengthStart)
 					return (true);
 				else
@@ -282,13 +275,9 @@ bool Request::isChunkedRequestComplete(size_t pos)
 		{
 			for (; pos2 < pos1; pos2++)
 			{
-				// std::cout << _my_v[pos2];
 				chunkSizeStr += _my_v[pos2];
-				// std::cout << "\nchunkdSizeStr : " << chunkSizeStr << std::endl;
 			}
-			// std::cout << "\n";
 			chunkSize = hexStringToInt(chunkSizeStr);
-			// std::cout << "\nhere1 : " << chunkSize << std::endl;
 			if (chunkSize == 0)
 				return (true);
 		}
@@ -304,16 +293,9 @@ bool Request::isChunkedRequestComplete(size_t pos)
 		else
 		{
 			size_t i = 0;
-			// std::cout << "pos1 : " << pos1 << std::endl;
-			// std::cout << "pos2 : " << pos2 << std::endl;
 			for (; pos2 < pos1; pos2++, i++);
-				// std::cout << _my_v[pos2];
-			// std::cout << "\n";
-			// std::cout << "\nhere2 : " << i << std::endl;
 			if (i != chunkSize)
 			{
-				// std::cout << i << std::endl;
-				// std::cout << chunkSize << std::endl;
 				_status_code = 400;
 				std::cout << "IsChunkComplete3 Error 400: Bad Request.\n";
 				return (true);
@@ -330,11 +312,6 @@ bool Request::isBodySizeTooLarge()
 {
 	return _body.size() > static_cast<unsigned long>(_server.getMaxBodySize());
 }
-
-// void	Request::makeClear()
-// {
-// 	_buffer.clear();
-// }
 
 //-----------------------------GETTERS-----------------------------//
 
