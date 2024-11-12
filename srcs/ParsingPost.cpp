@@ -5,9 +5,9 @@ void	Request::checkJsonAccolade()
 {
 	int	count =  0;
 
-	for (size_t i = 0; i < _my_v.size(); i++)
+	for (size_t i = 0; i < _my_body.size(); i++)
 	{
-		if (_my_v[i] == '"')
+		if (_my_body[i] == '"')
 			count++;
 	}
 	if ((count % 2) != 0)
@@ -29,37 +29,17 @@ bool	Request::checkMap(std::string key, std::map<std::string,std::string>::itera
 	return (false);
 }
 
-bool	Request::checkFirstAccolade(size_t pos)
-{
-	if (_buffer[pos] != _body[0])
-		return (false);
-	return (true);
-}
-
-
-bool	Request::checkLastAccolade(size_t pos)
-{
-	size_t pos1 = _body.find("\r\n");
-	if (pos1 != std::string::npos)
-	{
-		std::cout << "ffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiin file \n";
-		exit (1);
-	}
-	if (_buffer[pos] != _body[_body.size() - 1])
-		return (false);
-	return (true);	
-}
 
 int	Request::checkIsDigit(size_t pos_start)
 {
-	while (pos_start < _my_v.size())
+	while (pos_start < _my_body.size())
 	{
-		if (!(_my_v[pos_start] >= 48 && _my_v[pos_start] <= 57)
-			&& _my_v[pos_start] != ','
-			&& _my_v[pos_start] != 32
-			&& _my_v[pos_start] != '}')
+		if (!(_my_body[pos_start] >= 48 && _my_body[pos_start] <= 57)
+			&& _my_body[pos_start] != ','
+			&& _my_body[pos_start] != 32
+			&& _my_body[pos_start] != '}')
 			return (-1);
-		if (_my_v[pos_start] == ',' || _my_v[pos_start] == '}' || _my_v[pos_start] == 32)
+		if (_my_body[pos_start] == ',' || _my_body[pos_start] == '}' || _my_body[pos_start] == 32)
 			break ;
 		pos_start++;
 	}
@@ -81,70 +61,73 @@ int	Request::parserJsonBis(size_t pos_start, size_t pos_comma)
 	int	index_pts = 0;
 	int	index_g = 0;
 
-	pos_points = findPositionVec(":", pos_start);
+	pos_points = findPositionBody(":", pos_start);
 	if (static_cast<int>(pos_points) == -1)
 	{
+		std::cout << "here1" << std::endl;
 		return (-1);
 	}
 	while (pos_start < pos_comma)
 	{
-		if (_my_v[pos_start] == ':')
+		if (_my_body[pos_start] == ':')
 		{
 			if (index_pts == 1)
 			{
+				std::cout << "here2" << std::endl;
 				return (-1);
 			}
 			index_pts = 1;
 		}
-		else if (_my_v[pos_start] == '\"')
+		else if (_my_body[pos_start] == '\"')
 			index_g = 1;
 		else if (index_pts == 0 && index_g == 1)
 		{
-			while (_my_v[pos_start] != '\"')
+			while (_my_body[pos_start] != '\"')
 			{
-				key += _my_v[pos_start];
+				key += _my_body[pos_start];
 				pos_start++;
 			}
 			index_g = 0;
 		}
 		else if (index_pts == 1 && index_g == 1)
 		{
-			while (_my_v[pos_start] != '\"')
+			while (_my_body[pos_start] != '\"')
 			{
-				value += _my_v[pos_start];
+				value += _my_body[pos_start];
 				pos_start++;
 			}
 			index_pts = 0;
 			index_g = 0;
 		}
-		else if (index_pts == 1 && isDigit(_my_v[pos_start]) == true)
+		else if (index_pts == 1 && isDigit(_my_body[pos_start]) == true)
 		{
 			size_t pos = pos_start;
 			pos_start = checkIsDigit(pos_start);
 			if (static_cast<int>(pos_start) == -1)
 			{
+				std::cout << "here3" << std::endl;
 				return (-1);
 			}
 			else
 			{
 				while (pos < pos_start)
 				{
-					value += _my_v[pos];
+					value += _my_body[pos];
 					pos++;
 				}
 			}
 			index_pts = 0;
 		}
-		else if (_my_v[pos_start] != 32 && _my_v[pos_start] != '{'
-			&& _my_v[pos_start] != '}')
+		else if (_my_body[pos_start] != 32 && _my_body[pos_start] != '{'
+			&& _my_body[pos_start] != '}' )//&& _my_body[pos_start] != 10 && _my_body[pos_start] != 13)
 		{
-			std::cout << _my_v[pos_start] << std::endl;
+			std::cout << "here4" << std::endl;
 			return (-1);
 		}
 		pos_start++;
 	}
-	// std::cout << key << std::endl;
-	// std::cout << value << std::endl;
+	// std::cout << "key : " << key << std::endl;
+	// std::cout << "value : " << value << std::endl;
 	if (checkMap(key, _jsonParam.begin(), _jsonParam.end()) == false
 		&& key.empty() == false && value.empty() == false)
 		_jsonParam.insert(std::pair<std::string, std::string>(key, value));
@@ -166,14 +149,14 @@ void	Request::parserJson()
 	checkJsonAccolade();
 	if (checkStatusCode() == false)
 		return ;
-	pos_start = findPositionVec("{", 0);
+	pos_start = findPositionBody("{", 0);
 	if (pos_start != 0)
 	{
 		_status_code = 400;
 		std::cerr << "parserJson4 Error 400: Bad Request.\n";
 		throw MyExcep();
 	}
-	pos_end = findPositionVec("}", 0);
+	pos_end = findPositionBody("}", 0);
 	if (static_cast<int>(pos_end) == -1)
 	{
 		_status_code = 400;
@@ -181,9 +164,9 @@ void	Request::parserJson()
 		throw MyExcep();
 	}
 	size_t pos_tmp = pos_end + 1;
-	while (pos_tmp < _my_v.size())
+	while (pos_tmp < _my_body.size())
 	{
-		if (_my_v[pos_tmp] != '\r' && _my_v[pos_tmp] != '\n' && _my_v[pos_tmp] != 32)
+		if (_my_body[pos_tmp] != '\r' && _my_body[pos_tmp] != '\n' && _my_body[pos_tmp] != 32)
 		{
 			_status_code = 400;
 			std::cerr << "parserJson6 Error 400: Bad Request.\n";
@@ -193,7 +176,7 @@ void	Request::parserJson()
 	}
 	while (pos_start != pos_end)
 	{
-		pos_comma = findPositionVec(",", pos_start);
+		pos_comma = findPositionBody(",", pos_start);
 		if (static_cast<int>(pos_comma) != -1)
 		{
 			pos_start = parserJsonBis(pos_start, pos_comma);
@@ -333,20 +316,21 @@ void	Request::parserUrlencoded_bis(std::string new_body)
 	
 }
 
-int	checkUrlEncoded(std::vector<unsigned char> body)
+int	Request::checkUrlEncoded()
 {
 	unsigned long int i = 0;
-
-	while (i < body.size())
+	
+	// i = findPositionVec("\r\n\r\n", 0) + 4;
+	while (i < _my_body.size())
 	{
-		if ((!(body[i] >= 48 && body[i] <= 57)
-			&& !(body[i] >= 65 && body[i] <= 90)
-			&& !(body[i] >= 97 && body[i] <= 122)
-			&& !(body[i] == 10) && !(body[i] == 13)
-			&& !(body[i] == 37) && !(body[i] == 38)
-			&& !(body[i] == 43) && !(body[i] == 45)
-			&& !(body[i] == 46) && !(body[i] == 61)
-			&& !(body[i] == 95) && !(body[i] == 126)))
+		if ((!(_my_body[i] >= 48 && _my_body[i] <= 57)
+			&& !(_my_body[i] >= 65 && _my_body[i] <= 90)
+			&& !(_my_body[i] >= 97 && _my_body[i] <= 122)
+			&& !(_my_body[i] == 10) && !(_my_body[i] == 13)
+			&& !(_my_body[i] == 37) && !(_my_body[i] == 38)
+			&& !(_my_body[i] == 43) && !(_my_body[i] == 45)
+			&& !(_my_body[i] == 46) && !(_my_body[i] == 61)
+			&& !(_my_body[i] == 95) && !(_my_body[i] == 126)))
 		{
 			std::cerr << "checkUrlencoded Error 400: Bad Request.\n";
 			return (400);
@@ -361,41 +345,21 @@ void	Request::parserUrlencoded()
 	std::string	new_body;
 	unsigned long int	i = 0;
 	
-	_status_code = checkUrlEncoded(_my_v);
+	_status_code = checkUrlEncoded();
 	if (checkStatusCode() == false)
 		throw MyExcep();
-	while (i < _my_v.size())
+	while (i < _my_body.size())
 	{
-		if (_my_v[i] == 38) // &
+		if (_my_body[i] == 38) // &
 		{
 			parserUrlencoded_bis(new_body);
 			new_body.clear();
 		}
 		else
-			new_body += _my_v[i];
+			new_body += _my_body[i];
 		i++;
 	}
 	parserUrlencoded_bis(new_body);
-}
-
-bool	Request::parserFormData_help(size_t i)
-{
-	std::string	new_boundary;
-	std::string	final_boundary;
-	unsigned long int j = 0;
-
-	new_boundary = _boundary + "--";
-	while (j < new_boundary.size() && i < _my_v.size())
-	{
-		final_boundary += _my_v[i];
-		i++;
-		j++;
-	}
-	// std::cout << new_boundary << std::endl;
-	// std::cout << final_boundary << std::endl;
-	if (new_boundary == final_boundary)
-		return (true);	
-	return (false);
 }
 
 void	Request::formDataGetName(size_t pos)
@@ -404,12 +368,12 @@ void	Request::formDataGetName(size_t pos)
 	std::string	value;
 
 	pos = pos + 6;
-	while (_my_v[pos] != '\"')
+	while (_my_body[pos] != '\"')
 	{
-		key += _my_v[pos];
+		key += _my_body[pos];
 		pos++;
 	}
-	pos = findPositionVec("\r\n\r\n", pos);
+	pos = findPositionBody("\r\n\r\n", pos);
 	if (static_cast<int>(pos) == -1)
 	{
 		_status_code = 400;
@@ -419,7 +383,7 @@ void	Request::formDataGetName(size_t pos)
 	if (static_cast<int>(pos) != -1)
 	{
 		pos += 4;
-		size_t pos1 = findPositionVec("\r\n", pos);
+		size_t pos1 = findPositionBody("\r\n", pos);
 		if (static_cast<int>(pos1) == -1)
 		{
 			_status_code = 400;
@@ -428,9 +392,9 @@ void	Request::formDataGetName(size_t pos)
 		}
 		else
 		{
-			while (pos < _my_v.size() && pos < pos1)
+			while (pos < _my_body.size() && pos < pos1)
 			{
-				value += _my_v[pos];
+				value += _my_body[pos];
 				pos++;
 			}
 		}
@@ -446,12 +410,12 @@ void	Request::formDataGetFilename(size_t pos)
 	std::string	value;
 
 	pos = pos + 10;
-	while (_my_v[pos] != '\"')
+	while (_my_body[pos] != '\"')
 	{
-		key += _my_v[pos];
+		key += _my_body[pos];
 		pos++;
 	}
-	pos = findPositionVec("\r\n\r\n", pos);
+	pos = findPositionBody("\r\n\r\n", pos);
 	if (static_cast<int>(pos) == -1)
 	{
 		_status_code = 400;
@@ -461,7 +425,7 @@ void	Request::formDataGetFilename(size_t pos)
 	if (static_cast<int>(pos) != -1)
 	{
 		pos += 4;
-		size_t pos1 = findPositionVec("\r\n", pos);
+		size_t pos1 = findPositionBody("\r\n", pos);
 		if (static_cast<int>(pos1) == -1)
 		{
 			_status_code = 400;
@@ -470,9 +434,9 @@ void	Request::formDataGetFilename(size_t pos)
 		}
 		else
 		{
-			while (pos < _my_v.size() && pos < pos1)
+			while (pos < _my_body.size() && pos < pos1)
 			{
-				value += _my_v[pos];
+				value += _my_body[pos];
 				pos++;
 			}
 		}
@@ -486,7 +450,7 @@ bool	Request::checkIfNext(size_t i)
 {
 	size_t pos;
 
-	pos = findPositionVec(_boundary, i);
+	pos = findPositionBody(_boundary, i);
 	if (static_cast<int>(pos) == -1)
 		return (false);
 	return (true);
@@ -502,7 +466,7 @@ void	Request::parserFormData_bis(size_t pos)
 	boundary = _boundary + "--";
 	while (true)
 	{
-		pos_b = findPositionVec(_boundary, i);
+		pos_b = findPositionBody(_boundary, i);
 		if (static_cast<int>(pos_b) != -1)
 			i = pos_b;
 		else
@@ -510,7 +474,7 @@ void	Request::parserFormData_bis(size_t pos)
 			std::cout << "parserFormData_bis1 Error 400 : Bad Request.\n";
 			throw MyExcep();
 		}
-		pos_info = findPositionVec("Content-Disposition: form-data; ", i);
+		pos_info = findPositionBody("Content-Disposition: form-data; ", i);
 		if (static_cast<int>(pos_info) == -1)
 		{
 			_status_code = 400;
@@ -518,16 +482,16 @@ void	Request::parserFormData_bis(size_t pos)
 			throw MyExcep();
 		}
 		i = pos_info;
-		pos_info = findPositionVec("name=\"", i);
+		pos_info = findPositionBody("name=\"", i);
 		if (static_cast<int>(pos_info) != -1)
 			formDataGetName(pos_info);
-		pos_info = findPositionVec("filename=\"", i);
+		pos_info = findPositionBody("filename=\"", i);
 		if (static_cast<int>(pos_info) != -1)
 			formDataGetFilename(pos_info);
-		pos_info = findPositionVec("\r\n\r\n", i);
+		pos_info = findPositionBody("\r\n\r\n", i);
 		if (static_cast<int>(pos_info) != -1)
 			i = pos_info + 5;
-		pos_info = findPositionVec(_boundary, i);
+		pos_info = findPositionBody(_boundary, i);
 		if (static_cast<int>(pos_info) != -1)
 			i = pos_info + _boundary.size();
 		if (checkIfNext(i) == false)
@@ -544,8 +508,8 @@ void	Request::parserFormData()
 	size_t	j = 0;
 	std::string	boundary = "boundary=";
 
-	pos_b = findPosition(boundary, _buffer, 0);
-	if (pos_b == std::string::npos)
+	pos_b = findPositionVec(boundary, 0);
+	if (pos_b == -1)
 	{
 		_status_code = 400;
 		std::cerr << "parserFormData Error 400: Bad request.\n";
@@ -558,10 +522,10 @@ void	Request::parserFormData()
 		pos_b++;
 	}
 	_boundary += "--";
-	pos_end = findPosition("\r\n", _buffer, pos_b);
-	while (pos_b < _buffer.size() && pos_b < pos_end)
+	pos_end = findPositionVec("\r\n", pos_b);
+	while (pos_b < _my_v.size() && pos_b < pos_end)
 	{
-		_boundary += _buffer[pos_b];
+		_boundary += _my_v[pos_b];
 		pos_b++;
 	}
 	parserFormData_bis(pos_b);
@@ -577,11 +541,11 @@ void	Request::constructBody()
 	char	*end;
 	std::string	strFinal;
 
-	pos1 = findPositionVec("\r\n", pos2);
+	pos1 = findPositionBody("\r\n", pos2);
 	if (static_cast<int>(pos1) != -1)
 	{
 		for (size_t i = 0; i < pos1; i++)
-			str += _my_v[i];
+			str += _my_body[i];
 		pos1 += 2;
 	}
 	else
@@ -589,7 +553,7 @@ void	Request::constructBody()
 	pos2 = pos1;
 	hexa = strtol(str.c_str(), &end, 16);
 	str.clear();
-	pos3 = findPositionVec("0\r\n\r\n", 0);
+	pos3 = findPositionBody("0\r\n\r\n", 0);
 	if (static_cast<int>(pos3) == -1)
 	{
 		_status_code = 400;
@@ -601,16 +565,16 @@ void	Request::constructBody()
 		size_t i = 0;
 		while (i < hexa && pos2 < pos3)
 		{
-			strFinal += _my_v[pos2];
+			strFinal += _my_body[pos2];
 			i++;
 			pos2++;
 		}
 		pos2 += 2;
-		pos1 = findPositionVec("\r\n", pos2);
+		pos1 = findPositionBody("\r\n", pos2);
 		if (static_cast<int>(pos1) != -1)
 		{
 			for (size_t i = pos2; i < pos1; i++)
-				str += _my_v[i];
+				str += _my_body[i];
 			pos1 += 2;
 		}
 		else
@@ -621,9 +585,13 @@ void	Request::constructBody()
 		str.clear();
 		pos2 = pos1;
 	}
-	_my_v.clear();
+	_my_body.clear();
+	std::cout << std::endl;
 	for (size_t i = 0; i < strFinal.size(); i++)
-		_my_v.push_back(strFinal[i]);
+	{
+		_my_body.push_back(strFinal[i]);
+		// std::cout << _my_body[i];
+	}
 }
 
 void	Request::setBoundaryFull()
@@ -631,16 +599,16 @@ void	Request::setBoundaryFull()
 	size_t	pos1;
 	size_t	pos2;
 
-	pos1 = findPosition("Content-Type:", _buffer, 0);
-	if (pos1 != std::string::npos)
+	pos1 = findPositionVec("Content-Type:", 0);
+	if (pos1 != -1)
 	{
-		pos2 = findPosition("\r\n", _buffer, pos1);
-		if (pos2 != std::string::npos)
+		pos2 = findPositionVec("\r\n", pos1);
+		if (pos2 != -1)
 		{
 			size_t i = pos1;
 			while (i < pos2)
 			{
-				_boundary_full += _buffer[i];
+				_boundary_full += _my_v[i];
 				i++;
 			}
 		}
@@ -664,7 +632,7 @@ void	Request::parsingPOST_v2()
 			if (it1->second == "chunked")
 			{
 				_isChunk = true;
-				constructBody(); // reiquete chunk reconstruire body
+				constructBody(); // reiquete chunk reconstruire _my_v
 			}
 		}
 		it1++;
@@ -675,13 +643,12 @@ void	Request::parsingPOST_v2()
 	{
 		if (it->first == "Content-Type:")
 		{
-			
-			pos = it->second.std::string::find("multipart/form-data;");
-			// std::cout << pos << std::endl;
+			std::cout << it->first << std::endl;
+			std::cout << it->second << std::endl;
+			pos = it->second.std::string::find("multipart/form-data");
 			if (it->second == "application/json") // json utiliser pour la creation de ressource
 			{
 				_contentType = it->second;
-				// std::cout << it->second << std::endl;
 				parserJson();
 			}
 			else if (it->second == "application/x-www-form-urlencoded")
@@ -736,12 +703,12 @@ void	Request::parserTextPlain()
 {
 	unsigned long int	i = 0;
 
-	while (i < _contentLength && i < _body.size())
+	while (i < _contentLength && i < _my_body.size())
 	{
-		_dataBrut += _my_v[i];
+		_dataBrut += _my_body[i];
 		i++;
 	}
-	// std::cout << _body.size() << std::endl;
+	// std::cout << _dataBrut << std::endl;
 }
 
 
@@ -764,7 +731,19 @@ void	Request::initContentLength()
 {
 	std::vector<std::pair<std::string, std::string> >::iterator it;
 	std::vector<std::pair<std::string, std::string> >::iterator ite;
+	size_t i = 0;
 
+	size_t pos = findPositionVec("\r\n\r\n", 0);
+	if (pos == -1)
+	{
+		std::cerr << "InitContentLength4 Error 400: Bad Request.\n";
+		throw MyExcep();
+	}
+	else
+	{
+		pos += 4;
+		for (; pos < _my_v.size(); pos++, i++);
+	}
 	it = _headersHttp.begin();
 	ite = _headersHttp.end();
 	while (it != ite)
@@ -779,12 +758,15 @@ void	Request::initContentLength()
 			}
 			std::istringstream ss(it->second); 
 			ss >> _contentLength;
-			if (_contentLength != _my_v.size())
+			// std::cout << _contentLength << std::endl;
+			// std::cout << i << std::endl;
+			if (_contentLength != i)
 			{
 				_status_code = 400;
 				std::cerr << "initContentLength2 Error 400: Bad Request\n";
 				throw MyExcep();
 			}
+			std::cout << "size = " << _max_client_body_size << std::endl;
 			if (static_cast<int>(_contentLength) > _max_client_body_size)
 			{
  				_status_code = 413;

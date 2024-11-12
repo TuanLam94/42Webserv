@@ -41,6 +41,7 @@ class	Request
 	int		_client_fd;
 	bool	_cgiIsHere;
 	bool	_isRedirect;
+	std::string	_listing;
 	// attributs execution CGI (mandatory + bonus)
 	std::string	_cgiType;
 	std::string	_RequestMethod; // yes
@@ -97,10 +98,10 @@ class	Request
 	std::string	_boundary_full;
 	std::string	_dataBrut; // requete POST avec content-type -> text/plain
 	bool	_isChunk; // pour verifier si requete fragmente
-	int	_here;
 	std::vector<unsigned char> _my_v;
-
-	std::string _buffer;
+	std::vector<unsigned char> _my_body;
+	// std::string _buffer;
+	int	_isComplete;
 	public:
 	// std::vector<std::vector<unsigned char> >	_my_v;x
 	Request();
@@ -141,7 +142,7 @@ class	Request
 	void	getClientIPPort(int clientfd);
 	bool	parserFormData_help(unsigned long int i);
 	bool	isRequestComplete();
-	bool	isChunkedRequestComplete();
+	bool	isChunkedRequestComplete(size_t pos);
 	bool	isRequestCompleteBis(unsigned char buffer[1024]);
 	void	checkISS(char c1, char c2);
 	bool	checkValidHeader(char c);
@@ -163,6 +164,7 @@ class	Request
 	void	fillUserAgent();
 	size_t	findPosition(std::string str, const std::string& buff, size_t start);
 	size_t	findPositionVec(std::string str, size_t start);
+	size_t	findPositionBody(std::string str, size_t start);
 	std::string	helpHeaderHost(std::string value, std::string line);
 	void	fillBody();
 	bool	isBodySizeTooLarge();
@@ -172,7 +174,14 @@ class	Request
 	bool	checkIfNext(size_t i);
 	std::string	constructBoundary();
 	void	makeClear();
+	int	checkUriSize();
+	int	checkHeadersSize();
+	int	checkBodySize();
+	int	checkContentLengthSize();
+	int	checkUrlEncoded();
+	void	listing(DIR *dir);
 	// --------- GETTERS -------------
+	std::vector<unsigned char>	getMyBodyV() const;
 	std::string	getBoundary() const;
 	std::string	getMethod() const;
 	std::string	getPath() const;
@@ -184,7 +193,6 @@ class	Request
 	std::string	getServerName() const;
 	std::string	getBuffer() const;
 	bool	getIsChunk() const;
-	int	getHere() const;
 	unsigned long int	getContentLength() const;
 	int getMaxBodySize() const;
 	const Server&	getServer() const;
@@ -204,13 +212,14 @@ class	Request
 	bool	getIsCgiHere()const;
 	bool	getIsRedirect() const;
 	int	getClientFD() const;
+	int	getComplete() const;
 	std::vector<unsigned char>	getMyV() const;
 	//------------SETTERS------------
+	void	setComplete(int complete);
 	void	setStatusCode(int code);
 	void	setServer(Server& server);
 	void	setRequestStatusCode(int status_code);
 	void	setClientFD(int fd);
-	void	setHere(int here);
 	//Utils
 	void	printRequest() const;
 

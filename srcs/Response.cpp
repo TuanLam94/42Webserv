@@ -16,7 +16,7 @@ Response::Response(const Request& request)
     _urlParam = request.getUrlParam();
     _cgi_type = responseSetCgiType();
     _contentLength = request.getContentLength();
-    _bodyVector = request.getMyV();
+    _bodyVector = request.getMyBodyV();
     _request = request;
 	_isRedirect = request.getIsRedirect();
 	_host = request.getHost();
@@ -94,7 +94,7 @@ bool Response::isErrorResponse()
 
 void Response::sendResponse(int fd)
 {
-	std::cout << "full response = " << _response_str << std::endl;
+	// std::cout << "full response = " << _response_str << std::endl;
 
     ssize_t totalSent = 0;
     ssize_t toSend = _response_str.size();

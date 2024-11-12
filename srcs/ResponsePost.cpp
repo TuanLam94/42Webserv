@@ -86,22 +86,20 @@ void Response::handleCGIPost()
     std::string str;
     for (size_t i = 0; i < _bodyVector.size(); i++)
         str += _bodyVector[i];
-    std::cout << str.size();
 
     std::ostringstream oss;
     oss << getContentLength();
     std::string content_length_str = oss.str();
-
     // std::cout << "STR = " << str << std::endl;
 
     std::map<std::string, std::string> tmp = getFormDataFileName();
     std::map<std::string, std::string>::const_iterator it = tmp.begin();
-    std::cout << "CONTENT_LENGTH = " << content_length_str.c_str() << std::endl;
-    std::cout << "CONTENT_TYPE = " << _boundary_full.c_str() << std::endl;
-    std::cout << "QUERY_STRING = " <<  _request.getQueryString().c_str() << std::endl;
-    std::cout << "PATH_INFO = " <<  _request.getPathInfo().c_str() << std::endl;
-	std::cout << "FILE_NAME = " <<  it->first.c_str() << std::endl;
-	std::cout << "FILE_BODY = " <<  it->second.c_str() << std::endl;
+    // std::cout << "CONTENT_LENGTH = " << content_length_str.c_str() << std::endl;
+    // std::cout << "CONTENT_TYPE = " << _boundary_full.c_str() << std::endl;
+    // std::cout << "QUERY_STRING = " <<  _request.getQueryString().c_str() << std::endl;
+    // std::cout << "PATH_INFO = " <<  _request.getPathInfo().c_str() << std::endl;
+	// std::cout << "FILE_NAME = " <<  it->first.c_str() << std::endl;
+	// std::cout << "FILE_BODY = " <<  it->second.c_str() << std::endl;
 
 	
     setenv("REQUEST_METHOD", "POST", 1);
@@ -109,7 +107,7 @@ void Response::handleCGIPost()
     setenv("CONTENT_TYPE", _boundary_full.c_str(), 1);
     setenv("QUERY_STRING", _request.getQueryString().c_str(), 1);
     setenv("PATH_INFO", _request.getPathInfo().c_str(), 1);
-	setenv("FILE_NAME", it->first.c_str(), 1);
+	setenv("FILE_NAME", it->first.c_str(), 1); // vide donc seg fault
 	setenv("FILE_BODY", it->second.c_str(), 1);	//TO CHANGE FOR BINARY ?
 
     int pipefd[2], bodyPipe[2];

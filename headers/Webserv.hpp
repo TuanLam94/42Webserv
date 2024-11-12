@@ -26,6 +26,7 @@
 #include <dirent.h>
 #include <cstring>
 #include <set>
+#include <map>
 
 class Webserv
 {

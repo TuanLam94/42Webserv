@@ -149,7 +149,7 @@ void	Request::parsPath(Server obj) // rajouter le parsPath --> securite "../../"
 
 std::string Request::parsRedirectPath(Server& obj)
 {
-	std::cout << "SERVER REDIRECTION = " << obj.getRedirection() << std::endl;
+	// std::cout << "SERVER REDIRECTION = " << obj.getRedirection() << std::endl;
 
 	size_t pos = _path.find(obj.getRedirection());
 
@@ -158,7 +158,7 @@ std::string Request::parsRedirectPath(Server& obj)
 
 	std::string new_path = obj.getRoutesPath() + prePath + postPath;
 
-	std::cout << "NEWPATH = " << new_path << std::endl;
+	// std::cout << "NEWPATH = " << new_path << std::endl;
 	return new_path;
 }
 
@@ -182,6 +182,22 @@ size_t	Request::findPositionVec(std::string str, size_t start)
 	it = std::search(_my_v.begin() + start, _my_v.end(), seq.begin(), seq.end());
 	if (it != _my_v.end())
 		index = std::distance(_my_v.begin(), it);
+	else
+	{
+		return (-1);
+	}
+	return (index);
+}
+
+size_t	Request::findPositionBody(std::string str, size_t start)
+{
+	std::vector<unsigned char>::iterator	it;
+	std::vector<unsigned char> seq(str.begin(), str.end());
+	size_t	index;
+
+	it = std::search(_my_body.begin() + start, _my_body.end(), seq.begin(), seq.end());
+	if (it != _my_body.end())
+		index = std::distance(_my_body.begin(), it);
 	else
 	{
 		return (-1);
@@ -241,17 +257,19 @@ bool	Request::checkValidHeaderValue(char c)
 
 void	Request::fillBody()
 {
-	size_t	i = 0;
-	// size_t	j;
+	size_t	j;
 
-	while (i < _my_v.size())
+	j = findPositionVec("\r\n\r\n", 0);
+	if (j == -1)
 	{
-		// while (j < _my_v[i].size())
-		// {
-			// j++;
-		// }
-		// std::cout << _my_v[i];
-		i++;
+		std::cerr << "fillBody Error 400: Bad Request.\n" << std::endl;
+		throw MyExcep();
+	}
+	j += 4;
+	while (j < _my_v.size())
+	{
+		_my_body.push_back(_my_v[j]);
+		j++;
 	}
 }
 
@@ -265,26 +283,26 @@ void	Request::parsHeaders()
 	size_t	pos;
 
 	i = _pos;
-	_pos = findPosition("\r\n\r\n", _buffer, i);
-	if (_pos != std::string::npos)
+	_pos = findPositionVec("\r\n\r\n", i);
+	if (_pos != -1)
 	{
-		while (i < _buffer.size() && i < _pos)
+		while (i < _my_v.size() && i < _pos)
 		{
-			pos = findPosition("\r\n", _buffer, i);
-			while (i < _buffer.size() && i < pos)
+			pos = findPositionVec("\r\n", i);
+			while (i < _my_v.size() && i < pos)
 			{
-				if (index == true && _buffer[i] == 58) // :
+				if (index == true && _my_v[i] == 58) // :
 				{
 					index = false;
-					key += _buffer[i];
+					key += _my_v[i];
 					i++;
-					while (i < _buffer.size() && _buffer[i] == 32)
+					while (i < _my_v.size() && _my_v[i] == 32)
 						i++;
 				}
 				if (index == true /*&& checkValidHeaderKey(buff[i]) == true*/)
-					key += _buffer[i];
-				else if (checkValidHeaderValue(_buffer[i]) == true)
-					value += _buffer[i];
+					key += _my_v[i];
+				else if (checkValidHeaderValue(_my_v[i]) == true)
+					value += _my_v[i];
 				else
 				{
 					_status_code = 400;
@@ -419,6 +437,32 @@ void	Request::fillVar()
 	}
 }
 
+
+void	Request::listing(DIR *dir)
+{
+	struct dirent *line;
+
+	_listing += "<!DOTYPE html>\n";
+	_listing += "<html>\n";
+	_listing += "<body>\n";
+	_listing += "<h1>AutoIndex</h1>\n";
+	while (true)
+	{
+		line = readdir(dir);
+		if (line)
+		{
+			_listing += line->d_name;
+			_listing += "\n";
+		}
+		else
+			break ;
+	}
+	_listing += "</body\n";
+	_listing += "</html>\n";
+	std::cout << _listing << std::endl;
+	exit (1);
+}
+
 void	Request::parsingGET(Server i)
 {
 	size_t	pos = _path.find("?");
@@ -429,7 +473,7 @@ void	Request::parsingGET(Server i)
 			parsParamPath(pos);
 		parsPath(i);
 		parsHeaders();
-		fillBody(); // supp fillBody --> deja defini vector
+		fillBody();
 		checkHeaderName();
 		fillVar();
 		initContentLength();
@@ -438,16 +482,30 @@ void	Request::parsingGET(Server i)
 	{
 		return ;
 	}
+	std::cout << _path << std::endl;
+
+	DIR	*dir;
+	dir = opendir(_path.c_str());
+	if (dir)
+		listing(dir);
+
 	_input.open(_path.c_str());
+	_input.open(_path.c_str());
+
+	_input.open(_path.c_str());
+	_input.open(_path.c_str());
+	_input.open(_path.c_str());
+
 	// std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
-		_status_code = 400;
+		_status_code = 404;
 		std::cerr << "Can't open input\n";
 	}
 	std::string	line;
-	while (std::getline(_input, line))
+	while (std::getline(_input, line)) // a rajouter
 	{
+
 		_body += line;
 		_body += "\n";
 		if (line == "  <head>")
