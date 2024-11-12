@@ -766,6 +766,7 @@ void	Request::initContentLength()
 				std::cerr << "initContentLength2 Error 400: Bad Request\n";
 				throw MyExcep();
 			}
+			std::cout << "size = " << _max_client_body_size << std::endl;
 			if (static_cast<int>(_contentLength) > _max_client_body_size)
 			{
  				_status_code = 413;

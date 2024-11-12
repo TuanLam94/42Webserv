@@ -41,6 +41,7 @@ class	Request
 	int		_client_fd;
 	bool	_cgiIsHere;
 	bool	_isRedirect;
+	std::string	_listing;
 	// attributs execution CGI (mandatory + bonus)
 	std::string	_cgiType;
 	std::string	_RequestMethod; // yes
@@ -97,7 +98,6 @@ class	Request
 	std::string	_boundary_full;
 	std::string	_dataBrut; // requete POST avec content-type -> text/plain
 	bool	_isChunk; // pour verifier si requete fragmente
-	int	_here;
 	std::vector<unsigned char> _my_v;
 	std::vector<unsigned char> _my_body;
 	// std::string _buffer;
@@ -179,6 +179,7 @@ class	Request
 	int	checkBodySize();
 	int	checkContentLengthSize();
 	int	checkUrlEncoded();
+	void	listing(DIR *dir);
 	// --------- GETTERS -------------
 	std::vector<unsigned char>	getMyBodyV() const;
 	std::string	getBoundary() const;
@@ -192,7 +193,6 @@ class	Request
 	std::string	getServerName() const;
 	std::string	getBuffer() const;
 	bool	getIsChunk() const;
-	int	getHere() const;
 	unsigned long int	getContentLength() const;
 	int getMaxBodySize() const;
 	const Server&	getServer() const;
@@ -220,7 +220,6 @@ class	Request
 	void	setServer(Server& server);
 	void	setRequestStatusCode(int status_code);
 	void	setClientFD(int fd);
-	void	setHere(int here);
 	//Utils
 	void	printRequest() const;
 

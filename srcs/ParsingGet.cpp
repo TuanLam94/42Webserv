@@ -437,6 +437,32 @@ void	Request::fillVar()
 	}
 }
 
+
+void	Request::listing(DIR *dir)
+{
+	struct dirent *line;
+
+	_listing += "<!DOTYPE html>\n";
+	_listing += "<html>\n";
+	_listing += "<body>\n";
+	_listing += "<h1>AutoIndex</h1>\n";
+	while (true)
+	{
+		line = readdir(dir);
+		if (line)
+		{
+			_listing += line->d_name;
+			_listing += "\n";
+		}
+		else
+			break ;
+	}
+	_listing += "</body\n";
+	_listing += "</html>\n";
+	std::cout << _listing << std::endl;
+	exit (1);
+}
+
 void	Request::parsingGET(Server i)
 {
 	size_t	pos = _path.find("?");
@@ -456,15 +482,22 @@ void	Request::parsingGET(Server i)
 	{
 		return ;
 	}
+	std::cout << _path << std::endl;
+
+	DIR	*dir;
+	dir = opendir(_path.c_str());
+	if (dir)
+		listing(dir);
+
 	_input.open(_path.c_str());
 	// std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
-		_status_code = 400;
+		_status_code = 404;
 		std::cerr << "Can't open input\n";
 	}
 	std::string	line;
-	while (std::getline(_input, line))
+	while (std::getline(_input, line)) // a rajouter
 	{
 
 		_body += line;
