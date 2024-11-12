@@ -60,6 +60,7 @@ class Webserv
 		int getServerFd();
 		int getEpollFd();
 		std::vector<Server> getServers();
+		void checkAllRequestTimeouts();
 };
 
 #endif
