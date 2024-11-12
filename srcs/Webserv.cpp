@@ -262,7 +262,6 @@ void Webserv::eventLoop() {
 	
 	while (true)
 	{
-		std::cout << "test\n";
 		int fd_number = epoll_wait(_epoll_fd, _events.data(), maxEvents, _servers[0].getTimeout());
 		if (fd_number < 0)
 		{
@@ -327,7 +326,7 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			std::cout << "FOUND EXISTING REQUEST TO READ\n";
+			// std::cout << "FOUND EXISTING REQUEST TO READ\n";
 			return &_requests[i];
 		}
 	}
@@ -342,7 +341,7 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
+			// std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
 			return &_requests[i];
 		}
 	}
@@ -405,10 +404,10 @@ int	checkAllSize(Request request)
 			return (414);
 		if (request.checkHeadersSize() == 431)
 			return (431);
-		if (request.checkBodySize() == 413) // revoir le body size pour avoir le bon
-			return (413);
-		if (request.checkContentLengthSize() == 413)
-			return (413);
+		// if (request.checkBodySize() == 413) // revoir le body size pour avoir le bon
+		// 	return (413);
+		// if (request.checkContentLengthSize() == 413)
+		// 	return (413);
 	}
 	return (0);
 }
@@ -436,7 +435,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request) // chaque req
 	if (request.getStatusCode() != 0)
 	{
 		sendErrorResponse(client_fd, request.getStatusCode());
-		request.setHere(0);
 		// removeRequest(client_fd);
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
@@ -449,7 +447,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request) // chaque req
 	// std::cout << "\n";
 	if (request.isRequestComplete())
 	{
-		request.setHere(0);
 		request.parsRequest();		// PATH IS HERE
 		request.getClientIPPort(client_fd);
 		Server* correct_server = findAppropriateServer(request);
@@ -458,7 +455,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request) // chaque req
 		{
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);
-			request.setHere(0);
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);
 				return ;
