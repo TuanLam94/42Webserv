@@ -23,6 +23,7 @@
 // #include "response.hpp"
 #include "../headers/server.hpp"
 #include <sstream>
+#include <ctime>
 
 class Server;
 class Response;
@@ -41,6 +42,7 @@ class	Request
 	int		_client_fd;
 	bool	_cgiIsHere;
 	bool	_isRedirect;
+	long long int _start;
 	std::string	_listing;
 	// attributs execution CGI (mandatory + bonus)
 	std::string	_cgiType;
@@ -138,7 +140,7 @@ class	Request
 	void	formDataGetFilename(size_t pos);
 	void	parserTextPlain();
 	void	fillVar();
-	int	checkContentType();
+	int		checkContentType();
 	void	getClientIPPort(int clientfd);
 	bool	parserFormData_help(unsigned long int i);
 	bool	isRequestComplete();
@@ -214,12 +216,14 @@ class	Request
 	int	getClientFD() const;
 	int	getComplete() const;
 	std::vector<unsigned char>	getMyV() const;
+	long long int getStart() const;
 	//------------SETTERS------------
 	void	setComplete(int complete);
 	void	setStatusCode(int code);
 	void	setServer(Server& server);
 	void	setRequestStatusCode(int status_code);
 	void	setClientFD(int fd);
+	void	setStart(long long int time);
 	//Utils
 	void	printRequest() const;
 

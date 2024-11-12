@@ -577,6 +577,11 @@ std::vector<unsigned char>	Request::getMyBodyV() const
 	return (_my_body);
 }
 
+long long int Request::getStart() const
+{
+	return _start;
+}
+
 // std::string Request::getRemotePort() const
 // {
 // 	return _RemotePort;
@@ -602,6 +607,11 @@ void Request::setServer(Server& server)
 void Request::setRequestStatusCode(int status_code)
 {
 	_status_code = status_code;
+}
+
+void Request::setStart(long long int start)
+{
+	_start = start;
 }
 
 void Request::printRequest() const

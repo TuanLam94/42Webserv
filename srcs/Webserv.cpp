@@ -269,21 +269,10 @@ void Webserv::eventLoop() {
 			exit (-1);
 		}
 
-		// std::cout << "fd = " << fd_number << std::endl;
-		// time_t start_time = time(NULL);
-		// const time_t timeout = 10;
-		// bool timedout = false;
 		for (int i = 0; i < fd_number; i++)
 		{
 			int event_fd = _events[i].data.fd;
 
-			// if (time(NULL) - start_time >= timeout && timedout == false)
-			// {
-			// 	timedout = true;
-			// 	std::cerr << "Time Out\n";
-			// 	exit (1);
-			// }
-			// std::cout << "i = " << i << " event_fd = " << event_fd << std::endl;
 			bool isServerSocket = false;
 			for (size_t j = 0; j < _servers.size(); j++)
 			{
@@ -294,36 +283,41 @@ void Webserv::eventLoop() {
 					break ;
 				}
 			}
-			// std::cout << "_requests size in loop == " << _requests.size() << std::endl;
 			if (!isServerSocket) 
 			{
 				if (_events[i].events & EPOLLIN)
 				{
 					Request* request = findAppropriateRequest(event_fd);
 					handleClientRequest(event_fd, *request);
-					// removeRequest(event_fd);
 				}
 				if (_events[i].events & EPOLLOUT)
 				{
-					// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE\n";
 					Request* request = findAppropriateRequestToWrite(event_fd);
-					// std::cout << request->getBuffer().empty() << std::endl;
-					// std::cout << request->getBuffer() << std::endl;
-					if (request != NULL && !request->getMyV().empty() && request->getIsChunk() == true)
+					if (request != NULL && request->isRequestComplete() && !request->getMyV().empty())
 					{
-						// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE1\n";
-						handleClientWrite(event_fd, *request);
-						removeRequest(event_fd);
-					}
-					else if (request != NULL && request->isRequestComplete() && !request->getMyV().empty())
-					{
-						// std::cout << "\nHEEEEEEEEEEEEEEEEEEERE2\n";
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
 						//add epoll_ctl_del ? 
 					}
 				}
 			}
+		}
+
+		checkAllRequestTimeouts();
+	}
+}
+
+void Webserv::checkAllRequestTimeouts()
+{
+	time_t current_time = time(NULL);
+
+	for (int i = 0; i < _requests.size(); i++) {
+		if (static_cast<long long int>(current_time) - _requests[i].getStart() > 300) {
+			sendErrorResponse(_requests[i].getClientFD(), 500);
+			removeRequest(_requests[i].getClientFD());
+			close(_requests[i].getClientFD());
+			epoll_ctl (_epoll_fd, EPOLL_CTL_DEL, _requests[i].getClientFD(), NULL);
+			std::cout << "TIMEDOUT, REMOVING REQUEST\n";
 		}
 	}
 }
@@ -337,9 +331,10 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 		}
 	}
 	std::cout << "CREATING NEW REQUEST\n";
-    	_requests.push_back(Request());
-   	 _requests.back().setClientFD(event_fd);
-    	return &_requests.back();
+    _requests.push_back(Request());
+   	_requests.back().setClientFD(event_fd);
+	_requests.back().setStart(static_cast<long long int>(time(NULL)));
+    return &_requests.back();
 }
 
 Request* Webserv::findAppropriateRequestToWrite(int event_fd)
@@ -428,18 +423,13 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 	unsigned char buffer[1024] = {'\0'};
 
 	int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-	if (bytes < 0)
+	if (bytes <= 0)
 	{
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return ;
 	}
-	if (bytes == 0)
-	{
-		close(client_fd);
-		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-		return ;
-	}
+
 	request.createData(buffer, bytes);
 	request.setStatusCode(checkAllSize(request));
 	if (request.getStatusCode() != 0)
@@ -448,6 +438,7 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return ;
+		
 	}
 	std::cout << "\n";
 	for (size_t i = 0; i < request.getMyV().size(); i++)

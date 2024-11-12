@@ -106,3 +106,5 @@ password: secretpassword
 username: user
 age: 21
 name: sdad
+age: 0
+name: wupa

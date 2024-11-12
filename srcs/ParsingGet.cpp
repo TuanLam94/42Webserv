@@ -460,7 +460,6 @@ void	Request::listing(DIR *dir)
 	_listing += "</body\n";
 	_listing += "</html>\n";
 	std::cout << _listing << std::endl;
-	exit (1);
 }
 
 void	Request::parsingGET(Server i)
@@ -489,11 +488,6 @@ void	Request::parsingGET(Server i)
 	if (dir)
 		listing(dir);
 
-	_input.open(_path.c_str());
-	_input.open(_path.c_str());
-
-	_input.open(_path.c_str());
-	_input.open(_path.c_str());
 	_input.open(_path.c_str());
 
 	// std::cout << _path << std::endl;
