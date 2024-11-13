@@ -262,7 +262,7 @@ void Webserv::eventLoop() {
 	
 	while (true)
 	{
-		std::cout << "test\n";
+		// std::cout << "test\n";
 		int fd_number = epoll_wait(_epoll_fd, _events.data(), maxEvents, _servers[0].getTimeout());
 		if (fd_number < 0)
 		{
@@ -327,7 +327,7 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			std::cout << "FOUND EXISTING REQUEST TO READ\n";
+			// std::cout << "FOUND EXISTING REQUEST TO READ\n";
 			return &_requests[i];
 		}
 	}
@@ -342,7 +342,7 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
+			// std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
 			return &_requests[i];
 		}
 	}

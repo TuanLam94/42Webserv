@@ -183,6 +183,7 @@ class	Request
 	int	checkBodySize();
 	int	checkContentLengthSize();
 	int	checkUrlEncoded();
+	void	listing(DIR *dir);
 	// --------- GETTERS -------------
 	std::vector<unsigned char>	getMyBodyV() const;
 	std::string	getBoundary() const;
