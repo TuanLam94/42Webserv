@@ -370,6 +370,8 @@ void	Request::formDataGetName(size_t pos)
 				pos++;
 			}
 		}
+		std::cout << "key : " << key << std::endl;
+		std::cout << "value : " << value << std::endl;
 		_FormDataName.insert(std::pair<std::string, std::string>(key, value));
 	}
 }
@@ -418,7 +420,7 @@ bool	Request::checkIfNext(size_t i)
 {
 	size_t pos;
 
-	pos = findPositionBody(_boundary, i);
+	pos = findPositionBody("Content-Disposition: form-data; ", i);
 	if (static_cast<int>(pos) == -1)
 		return (false);
 	return (true);
@@ -459,9 +461,6 @@ void	Request::parserFormData_bis(size_t pos)
 		pos_info = findPositionBody("\r\n\r\n", i);
 		if (static_cast<int>(pos_info) != -1)
 			i = pos_info + 5;
-		pos_info = findPositionBody(_boundary, i);
-		if (static_cast<int>(pos_info) != -1)
-			i = pos_info + _boundary.size();
 		if (checkIfNext(i) == false)
 			break ;
 	}
@@ -776,13 +775,4 @@ void	Request::parsingPOST_v1(Server i)
 	{
 		return ;
 	}
-	// struct stat fileStat;
-	// if (stat(_path.c_str(), &fileStat) == 0)
-	// {	
-	// 	if (S_ISDIR(fileStat.st_mode))
-	// 	{
-	// 		_status_code = 400;
-	// 		return ;
-	// 	}
-	// }
 }

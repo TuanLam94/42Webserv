@@ -367,10 +367,10 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		return ;
 		
 	}
-	// std::cout << "\n";
-	// for (size_t i = 0; i < request.getMyV().size(); i++)
-	// 	std::cout << request.getMyV()[i];
-	// std::cout << "\n";
+	std::cout << "\n";
+	for (size_t i = 0; i < request.getMyV().size(); i++)
+		std::cout << request.getMyV()[i];
+	std::cout << "\n";
 	if (request.isRequestComplete())
 	{
 		request.parsRequest();
