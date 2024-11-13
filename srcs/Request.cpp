@@ -43,24 +43,6 @@ Request::Request()
 	_HttpOrigin = "HTTP_ORIGIN="; // oui
 }
 
-bool	Request::checkValidCharRequest(char c)
-{
-	// if (!(c >= 48 && c <= 57)
-	// 	&& !(c >= 65 && c <= 90)
-	// 	&& !(c >= 97 && c <= 122)
-	// 	&& c != 37 && c != 43 && c != 47 
-	// 	&& c != 46 && c != 45 && c != 95
-	// 	&& c != 126 && c != 61 && c != 63
-	// 	&& c != 38)
-	// {
-	// 	_status_code = 400;
-	// 	std::cerr << "checkValidChar Error 400: Bad Request.\n";
-	// 	return (false);
-	// }
-	(void)c;
-	return (true);
-}
-
 void	Request::parsRequestLine()
 {
 	size_t	i = 0;
@@ -73,21 +55,16 @@ void	Request::parsRequestLine()
 		{
 			if (_my_v[i] == 32)
 				space++;
-			else if (space == 0 && checkValidCharRequest(_my_v[i]) == true)
+			else if (space == 0)
 				_method += _my_v[i];
-			else if (space == 1 && checkValidCharRequest(_my_v[i]) == true)
+			else if (space == 1)
 				_path += _my_v[i];
-			else if (space == 2 && checkValidCharRequest(_my_v[i]) == true)
+			else if (space == 2)
 				_version += _my_v[i];
-			// else if (checkStatusCode() == true)
-			// 	return ;
 			i++;
 		}
 		_pos += 2;
 	}
-	// std::cout << _method << std::endl;
-	// std::cout << _path << std::endl;
-	// std::cout << _version << std::endl;
 	if (space != 2
 		|| _method.empty() == true
 		|| _path.empty() == true
@@ -106,7 +83,9 @@ void	Request::checkMethod()
 		&& _method != "DELETE")
 		{
 			std::cerr << "checkMethod Error 405: Method Not Allowed.\n";
+			// std::cerr << "checkMethod Error 501: Not Impletemented.\n";
 			_status_code = 405;
+			// _status_code = 501;
 			throw MyExcep();
 		}
 }

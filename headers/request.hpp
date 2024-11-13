@@ -151,7 +151,6 @@ class	Request
 	bool	checkValidHeader(char c);
 	bool	checkValidHeaderValue(char c);
 	bool	checkValidChar(char c);
-	bool	checkValidCharRequest(char c);
 	void	checkKey(std::string key);
 	void	checkValue(std::string value);
 	bool	checkContentLength();
