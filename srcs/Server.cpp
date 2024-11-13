@@ -351,6 +351,12 @@ const std::string& Server::getCgiDir()
     return _cgi_dir;
 }
 
+bool Server::getAutoIndex()
+{
+    return _autoindex;
+}
+
+
 //----------------------------------SETTERS--------------------------------
 
 void Server::setEvent(struct epoll_event& event)

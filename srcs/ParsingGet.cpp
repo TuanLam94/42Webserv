@@ -445,33 +445,33 @@ void	Request::listing(DIR *dir)
 {
 	struct dirent *line;
 
-	_listing += "<!DOCTYPE html>\n";
-	_listing += "<html>\n";
-	_listing += "<body>\n";
-	_listing += "<h1>AutoIndex</h1>\n";
+	_body += "<!DOCTYPE html>\n";
+	_body += "<html>\n";
+	_body += "<body>\n";
+	_body += "<h1>AutoIndex</h1>\n";
 	while (true)
 	{
 		line = readdir(dir);
 		if (line)
 		{
-			_listing += "<p>";
-			_listing += line->d_name;
-			_listing += "</p>";
-			_listing += "\n";
+			_body += "<p>";
+			_body += line->d_name;
+			_body += "</p>";
+			_body += "\n";
 		}
 		else
 			break ;
 	}
-	_listing += "</body>\n";
-	_listing += "</html>\n";
-	std::cout << _listing << std::endl;
+	_body += "</body>\n";
+	_body += "</html>\n";
+	std::cout << _body << std::endl;
 }
 
 
 void	Request::parsingGET(Server i)
 {
 	size_t	pos = _path.find("?");
-
+	std::cout << _path << std::endl;
 	try
 	{
 		if (pos != std::string::npos)
@@ -487,18 +487,19 @@ void	Request::parsingGET(Server i)
 	{
 		return ;
 	}
+	std::cout << _path << std::endl;
 
-	
-	if (_path == "config/routes/"/* && _autoindex == true*/)
+	if (_path == "config/routes/" && i.getAutoIndex() == true)
 	{
+		std::cout << "cccccccccccccccc\n";
 		DIR	*dir;
 		dir = opendir(_path.c_str());
 		if (dir)
 			listing(dir);
-		_status_code = 0;
+		_status_code = 600;
 		return ; 
 	}
-	else if (_path == "config/routes/"/* && _autoindex == false*/)
+	else if (_path == "config/routes/" && i.getAutoIndex() == false)
 	{
 		_status_code = 404;
 		return ;	
