@@ -69,6 +69,7 @@ class Server
 		const std::string& getServerName();
 		const std::string& getUploadDir();
 		const std::string& getRedirection();
+        const std::string& getCgiDir();
 		struct epoll_event& getEvent();
 		struct sockaddr_in& getAddress();
 		int	getMaxBodySize();

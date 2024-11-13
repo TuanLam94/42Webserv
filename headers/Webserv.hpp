@@ -39,6 +39,7 @@ class Webserv
 		std::set<int> _client_fds;
 
 		void parseConfigFile(std::ifstream& input);
+		bool checkServer(Server& server);
 		void serversInit();
 		void epollInit();
 		void eventLoop();

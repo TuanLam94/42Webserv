@@ -30,3 +30,11 @@ std::vector<std::string> parseConfigFile(std::ifstream& input)
     return vector;
 }
 
+// bool checkConfig(std::string config)
+// {
+//     std::string line;
+//     std::istringstream stream(config);
+//     while (std::getline(stream, line)) {
+        
+//     }
+// }

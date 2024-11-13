@@ -346,6 +346,11 @@ int Server::getEpollFd() const
     return _epoll_fd;
 }
 
+const std::string& Server::getCgiDir()
+{
+    return _cgi_dir;
+}
+
 //----------------------------------SETTERS--------------------------------
 
 void Server::setEvent(struct epoll_event& event)

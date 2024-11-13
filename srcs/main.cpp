@@ -22,14 +22,16 @@ int main(int argc, char **argv)
 {
     if (argc != 2) {
         std::cout << "Error, launch like this : ./webserv configfile" << std::endl;
-        return -1;
+        return 1;
     }
 
-    signal(SIGPIPE, SIG_IGN);           //ignore sigpipes for the whole program(even new process)
+    signal(SIGPIPE, SIG_IGN);
     
     config = argv[1];
+
 	Webserv Webserv(config);
     globalWebserv = &Webserv;
+
     signal(SIGINT, sigintHandler);
 
 	Webserv.run();

@@ -124,26 +124,38 @@ void Webserv::parseConfigFile(std::ifstream& input)
 	std::vector<std::string> configVec;
 	std::string line;
 
-	    while (std::getline(input, line)) {
+	while (std::getline(input, line)) {
         std::string newConfig;
         if (trim(line) == "server {") {
             while (std::getline(input, line) && trim(line) != "}") {
                 newConfig += line + "\n";
             }
         }
+
         if (!newConfig.empty())
-        configVec.push_back(newConfig);
+        	configVec.push_back(newConfig);
     }
 
 	for (size_t i = 0; i < configVec.size(); i++) {
 		Server server(configVec[i]);
-		_servers.push_back(server);
+		if (checkServer(server))
+			_servers.push_back(server);
 	}
 
 	if (_servers.size() < 1) {
 		std::cerr << "Error, invalid config file.\n";
 		exit (1);
 	}
+}
+
+bool Webserv::checkServer(Server& server)
+{
+	if (server.getHost().empty() || server.getPort() == 0 || server.getTimeout() == 0 
+		|| server.getServerName().empty() || server.getRoutes().size() == 0 || server.getErrors().size() == 0
+		|| server.getMethods().size() == 0 || server.getUploadDir().empty() || server.getRedirection().empty()
+		|| server.getMaxBodySize() == 0 || server.getCgiDir().empty())
+		return false;
+	return true;
 }
 
 void Webserv::serversInit()
