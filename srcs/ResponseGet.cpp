@@ -9,6 +9,9 @@ void Response::handleGetResponse()
         case -2:
             _status_code = "403 Forbidden";
             break;
+        case -3:
+            _status_code = "200 OK";
+            break;
         case 0:
             _status_code = "200 OK";
             break;
@@ -25,6 +28,8 @@ int Response::GET_CheckFile()
         return 1;
     if (access(_path.c_str(), F_OK) != 0)
         return -1; // file does not exist
+    if (fileIsDir())
+        return -3;
     if (!fileIsReg())
         return -2; // file is not a regular file
     if (access(_path.c_str(), R_OK) != 0)
@@ -40,6 +45,18 @@ bool Response::fileIsReg()
             return true;
     }
     return false;
+}
+
+bool Response::fileIsDir()
+{
+    struct stat fileStat;
+
+    if (stat(_path.c_str(), &fileStat) == 0) {
+        if (S_ISDIR(fileStat.st_mode))
+            return true;
+    }
+    return false;
+
 }
 
 void Response::buildGetResponse()
