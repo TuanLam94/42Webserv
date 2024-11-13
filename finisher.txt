@@ -1,6 +1,5 @@
 - rajouter un attributs _autoindex ;
 
-- pourquoi getmaxbodysize is empty
-
 - verifier les methode allowed et arranger en fonction
 
+- text/plain --> pas traite dans la reponse 

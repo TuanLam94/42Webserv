@@ -94,6 +94,7 @@ void Response::handleCGIPost()
 
     std::map<std::string, std::string> tmp = getFormDataFileName();
     std::map<std::string, std::string>::const_iterator it = tmp.begin();
+    std::map<std::string, std::string>::const_iterator ite = tmp.end();
     // std::cout << "CONTENT_LENGTH = " << content_length_str.c_str() << std::endl;
     // std::cout << "CONTENT_TYPE = " << _boundary_full.c_str() << std::endl;
     // std::cout << "QUERY_STRING = " <<  _request.getQueryString().c_str() << std::endl;
@@ -107,9 +108,11 @@ void Response::handleCGIPost()
     setenv("CONTENT_TYPE", _boundary_full.c_str(), 1);
     setenv("QUERY_STRING", _request.getQueryString().c_str(), 1);
     setenv("PATH_INFO", _request.getPathInfo().c_str(), 1);
-	setenv("FILE_NAME", it->first.c_str(), 1); // vide donc seg fault
-	setenv("FILE_BODY", it->second.c_str(), 1);	//TO CHANGE FOR BINARY ?
-
+    if (it != ite)
+    {
+	    setenv("FILE_NAME", it->first.c_str(), 1); // vide donc seg fault
+	    setenv("FILE_BODY", it->second.c_str(), 1);	//TO CHANGE FOR BINARY ?
+    }
     int pipefd[2], bodyPipe[2];
     if (pipe(pipefd) == -1 || pipe(bodyPipe) == -1) {
         std::cerr << "Failed to create pipes.\n";

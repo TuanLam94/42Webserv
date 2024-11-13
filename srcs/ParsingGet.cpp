@@ -135,7 +135,9 @@ void	Request::parsPath(Server obj)
 			new_path = obj.getUploadDir() + _path;
 	}
 	else if (_method == "DELETE")
-		new_path = _path.substr(1);
+	{
+		new_path = "config/" + _path.substr(1);
+	}
 	_path.clear();
 	_path = new_path;
 }

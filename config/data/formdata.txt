@@ -1,2 +1,6 @@
 age: 21
 name: dsad
+cle1: valeur1
+cle2: valeur2
+cle1: valeur1
+cle2: valeur2

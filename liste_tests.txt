@@ -6,8 +6,8 @@ GET :
 
 POST : 
 	curl -X POST -F "clé1=valeur1" -F "clé2=@/chemin/vers/fichier.txt" http://localhost:8080/chemin_du_fichier
-	curl -X POST -d "clé1=valeur1&clé2=valeur2" http://localhost:8080/chemin_du_fichier
-	curl -X POST -H "Content-Type: text/plain" --data "Texte brut envoyé au serveur" http://localhost:8080/chemin_du_fichier
+	curl -X POST -d "cle1=valeur1&cle2=valeur2" http://localhost:8080/index.html
+	curl -X POST -H "Content-Type: text/plain" --data "Texte brut envoyé au serveur" http://localhost:8080/index.html
 	curl -X POST -H "Content-Type: application/json" -d '{"clé1": "valeur1", "clé2": "valeur2"}' http://localhost:8080/chemin_du_fichier
 
 DELETE :
