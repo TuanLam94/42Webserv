@@ -1,15 +1,6 @@
 #include "../headers/request.hpp"
 #include "../headers/utils.hpp"
 
-/*
-	Revoir que thom a dit sur le traitement du chemin
-		- pas a moi de faire les verifs ni de traiter les erreurs --> se focus sur les erreurs de parsing
-*/
-
-// est ce que le path de len tete de la requete est un chemin absolu --> quel chemin absolu prendre
-// 
-
-
 Request::Request()
 {
 	_cgiIsHere = false;
@@ -177,45 +168,9 @@ void	Request::getClientIPPort(int clientfd)
 
 	_host = inet_ntoa(local_addr.sin_addr);
 	_port = ntohs(local_addr.sin_port);
-	// _serverName = parsServerName();
 	std::ostringstream oss;
 	oss << _host << ":" << _port;
 	_host = oss.str();
-}
-
-std::string Request::parsServerName()
-{
-	char buffer[4096];
-
-	for (size_t i = 0; i < _my_v.size(); i++) {
-		buffer[i] = _my_v[i];
-	}
-	std::string body(buffer);
-	std::cout << body << std::endl;
-	size_t pos = body.find("Host:");
-	if (pos == std::string::npos)
-		return ("");
-	pos += 5;
-	
-	size_t	pos1 = body.find("\r\n", pos);
-	for (; pos < pos1; pos++)
-		std::cout << body[pos];
-	
-	// pos = body.find_first_not_of(" \t", pos + 5);
-	// if (pos == std::string::npos)
-	// 	return ("");
-
-	size_t endPos = body.find(":", pos);
-	std::cout << pos << std::endl;
-	std::cout << endPos - pos << std::endl;
-	exit (1);
-	// if (endPos == std::string::npos)
-	// {
-	// 	endPos = body.find("\r\n", pos);
-	// 	if (endPos == std::string::npos)
-	// 		return "";
-	// }
-	return body.substr(pos, endPos - pos);
 }
 
 size_t	fillLength(std::vector<unsigned char> my_v, size_t start)
@@ -330,62 +285,58 @@ bool Request::isBodySizeTooLarge()
 
 Request::Request(const Request& copy) 
 {
-    _client_fd = copy._client_fd;
-    _cgiIsHere = copy._cgiIsHere;
-    _cgiType = copy._cgiType;
-	_isRedirect = copy._isRedirect;
-    _RequestMethod = copy._RequestMethod;
-    _ContentLength = copy._ContentLength;
-    _ContentType = copy._ContentType;
-    _QueryString = copy._QueryString;
-    _ScriptName = copy._ScriptName;
-    _ServerName = copy._ServerName;
-    _ServerPort = copy._ServerPort;
-    _ServerProtocol = copy._ServerProtocol;
-    _GatewayInterface = copy._GatewayInterface;
-    _PathInfo = copy._PathInfo;
-    _RemoteAddr = copy._RemoteAddr;
-    _RemoteHost = copy._RemoteHost;
-    _HttpHost = copy._HttpHost;
-    _HttpUserAgent = copy._HttpUserAgent;
-    _HttpAccept = copy._HttpAccept;
-    _HttpAcceptLanguage = copy._HttpAcceptLanguage;
-    _HttpAcceptEncoding = copy._HttpAcceptEncoding;
-    _HttpReferer = copy._HttpReferer;
-    _HttpConnection = copy._HttpConnection;
-    _RemoteUser = copy._RemoteUser;
-    _AuthType = copy._AuthType;
-    _RedirectStatus = copy._RedirectStatus;
-    _HttpOrigin = copy._HttpOrigin;
-    _HttpCookie = copy._HttpCookie;
-    _method = copy._method;
-    _path = copy._path;
-    _version = copy._version;
-    _response = copy._response;
-    _body = copy._body;
-    _contentType = copy._contentType;
-    _host = copy._host;
-    _serverName = copy._serverName;
-    _port = copy._port;
-    _server = copy._server;  // Assuming Server has a copy constructor
-	// _input = copy._input;  // Caution: This may not behave as expected
-    _status_code = copy._status_code;
-    _contentLength = copy._contentLength;
-    _max_client_body_size = copy._max_client_body_size;
-    _pos = copy._pos;
-    _headersHttp = copy._headersHttp;
-    _queryParameter = copy._queryParameter;
-    _FormDataName = copy._FormDataName;
-    _FormDataFilename = copy._FormDataFilename;
-    _jsonParam = copy._jsonParam;
-    _urlParam = copy._urlParam;
-    _boundary = copy._boundary;
-    _dataBrut = copy._dataBrut;
-    _isChunk = copy._isChunk;
-//     _my_v = copy._my_v;
-//     _buffer = copy._buffer;
-    // _my_v = copy._my_v;
-	// std::cout << "myv size = " << copy._my_v.size() << std::endl;
+	_client_fd = copy._client_fd;
+	_cgiIsHere = copy._cgiIsHere;
+	_cgiType = copy._cgiType;
+		_isRedirect = copy._isRedirect;
+	_RequestMethod = copy._RequestMethod;
+	_ContentLength = copy._ContentLength;
+	_ContentType = copy._ContentType;
+	_QueryString = copy._QueryString;
+	_ScriptName = copy._ScriptName;
+	_ServerName = copy._ServerName;
+	_ServerPort = copy._ServerPort;
+	_ServerProtocol = copy._ServerProtocol;
+	_GatewayInterface = copy._GatewayInterface;
+	_PathInfo = copy._PathInfo;
+	_RemoteAddr = copy._RemoteAddr;
+	_RemoteHost = copy._RemoteHost;
+	_HttpHost = copy._HttpHost;
+	_HttpUserAgent = copy._HttpUserAgent;
+	_HttpAccept = copy._HttpAccept;
+	_HttpAcceptLanguage = copy._HttpAcceptLanguage;
+	_HttpAcceptEncoding = copy._HttpAcceptEncoding;
+	_HttpReferer = copy._HttpReferer;
+	_HttpConnection = copy._HttpConnection;
+	_RemoteUser = copy._RemoteUser;
+	_AuthType = copy._AuthType;
+	_RedirectStatus = copy._RedirectStatus;
+	_HttpOrigin = copy._HttpOrigin;
+	_HttpCookie = copy._HttpCookie;
+	_method = copy._method;
+	_path = copy._path;
+	_version = copy._version;
+	_response = copy._response;
+	_body = copy._body;
+	_contentType = copy._contentType;
+	_host = copy._host;
+	_serverName = copy._serverName;
+	_port = copy._port;
+	_server = copy._server;  // Assuming Server has a copy constructor
+		// _input = copy._input;  // Caution: This may not behave as expected
+	_status_code = copy._status_code;
+	_contentLength = copy._contentLength;
+	_max_client_body_size = copy._max_client_body_size;
+	_pos = copy._pos;
+	_headersHttp = copy._headersHttp;
+	_queryParameter = copy._queryParameter;
+	_FormDataName = copy._FormDataName;
+	_FormDataFilename = copy._FormDataFilename;
+	_jsonParam = copy._jsonParam;
+	_urlParam = copy._urlParam;
+	_boundary = copy._boundary;
+	_dataBrut = copy._dataBrut;
+	_isChunk = copy._isChunk;
 	_my_v.resize(copy._my_v.size());
 	for (size_t i = 0; i < copy._my_v.size(); i++)
 		_my_v[i] = copy._my_v[i];	
@@ -404,11 +355,6 @@ Request& Request::operator=(const Request& other)
 	}
 	return *this;
 }
-
-// std::string	Request::getBuffer() const
-// {
-// 	return (_buffer);
-// }
 
 std::string	Request::getBoundary() const
 {
