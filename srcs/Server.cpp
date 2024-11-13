@@ -40,6 +40,14 @@ Server::Server(const std::string input)
 			_max_client_body_size = std::atoi(line.substr(pos).c_str());
 		else if (line.substr(0, pos) == "cgi_dir")
 			_cgi_dir = trim(line.substr(pos));
+        else if (line.substr(0, pos) == "autoindex") {
+			if (trim(line.substr(pos)) == "true")
+                _autoindex = true;
+            else if (trim(line.substr(pos)) == "false")
+                _autoindex = false;
+            else
+                _autoindex = true;
+        }
     }
 	std::ostringstream oss;
 	oss << _host << ":" << _port;

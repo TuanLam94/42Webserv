@@ -409,6 +409,21 @@ int	checkPort(std::string port)
 	return (0);
 }
 
+std::string	Request::setServerName(std::string name)
+{
+	std::string	str;
+
+	size_t pos = name.find(":");
+	if (pos == std::string::npos)
+		return (name);
+	else
+	{
+		for (size_t i = 0; i < pos; i++)
+			str += name[i];	
+	}
+	return (str);
+}
+
 void	Request::fillVar()
 {
 	std::vector<std::pair<std::string, std::string> >::iterator	it;
@@ -419,7 +434,7 @@ void	Request::fillVar()
 	while (it != ite)
 	{
 		if (it->first == "host:" || it->first == "Host:" || it->first == "HOST:")
-			_serverName = it->second;
+			_serverName = setServerName(it->second);
 		it++;
 	}
 }

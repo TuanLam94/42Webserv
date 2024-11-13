@@ -22,6 +22,7 @@
 class Server
 {
     private:
+        bool _autoindex;
         int _server_fd;
         int _epoll_fd;
         struct sockaddr_in _address;

@@ -185,6 +185,7 @@ class	Request
 	int	checkContentLengthSize();
 	int	checkUrlEncoded();
 	void	listing(DIR *dir);
+	std::string	setServerName(std::string name);
 	// --------- GETTERS -------------
 	std::vector<unsigned char>	getMyBodyV() const;
 	std::string	getBoundary() const;

@@ -11,6 +11,7 @@ server {
     redirection			    redirect/
     max_client_body_size    1048576
     cgi_dir                 config/cgi
+    autoindex               true
 }
 
 server {
@@ -26,6 +27,7 @@ server {
     redirection			    redirect/
     max_client_body_size    1048576
     cgi_dir                 config/cgi
+    autoindex               true
 }
 
 server {
@@ -41,4 +43,5 @@ server {
     redirection			    redirect/
     max_client_body_size    1048576
     cgi_dir                 config/cgi
+    autoindex               true
 }
