@@ -374,8 +374,12 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 				return ;
 			}
 		}
-		else
-			std::cout << "500 Internal Server Error\n";
+		else {
+			sendErrorResponse(client_fd, 500);
+			close(client_fd);
+			epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+			return ;
+		}
 	}
 }
 
