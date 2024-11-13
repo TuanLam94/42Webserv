@@ -74,9 +74,7 @@ void	Request::checkMethod()
 		&& _method != "DELETE")
 		{
 			std::cerr << "checkMethod Error 405: Method Not Allowed.\n";
-			// std::cerr << "checkMethod Error 501: Not Impletemented.\n";
 			_status_code = 405;
-			// _status_code = 501;
 			throw MyExcep();
 		}
 }

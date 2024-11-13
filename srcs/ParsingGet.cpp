@@ -108,6 +108,8 @@ void	Request::parsPath(Server obj)
 {
 	std::string	new_path;
 
+	std::cout << "PATH = " << _path << std::endl;
+
 	if (_method == "GET") {
 		if (_cgiIsHere)
 		{
@@ -136,7 +138,9 @@ void	Request::parsPath(Server obj)
 	}
 	else if (_method == "DELETE")
 	{
-		new_path = "config/" + _path.substr(1);
+		new_path = "config/" + _path.substr(1); // a faire
+		//if new_path != toDelete
+		//403 Forbidden
 	}
 	_path.clear();
 	_path = new_path;
