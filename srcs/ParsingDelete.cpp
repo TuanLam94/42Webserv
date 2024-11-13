@@ -43,5 +43,4 @@ void	Request::parsingDELETE(Server i)
 	{
 		return ;
 	}
-	std::cout << _path << std::endl;
 }
