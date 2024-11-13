@@ -784,4 +784,13 @@ void	Request::parsingPOST_v1(Server i)
 	{
 		return ;
 	}
+	// struct stat fileStat;
+	// if (stat(_path.c_str(), &fileStat) == 0)
+	// {	
+	// 	if (S_ISDIR(fileStat.st_mode))
+	// 	{
+	// 		_status_code = 400;
+	// 		return ;
+	// 	}
+	// }
 }

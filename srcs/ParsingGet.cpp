@@ -492,7 +492,7 @@ void	Request::parsingGET(Server i)
 	std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
-		_status_code = 400;
+		_status_code = 403;
 		std::cerr << "Can't open input\n";
 	}
 	std::string	line;

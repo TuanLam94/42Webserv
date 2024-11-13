@@ -470,9 +470,9 @@ void Webserv::handleClientRequest(int client_fd, Request& request) // chaque req
 
 Server* Webserv::findAppropriateServer(Request& request)
 {
-	std::cout << "server host = " << _servers[0].getHost() << " request host = " << request.getHost() << std::endl;
-	std::cout << "server Port = " << _servers[0].getPort() << " request Port = " << request.getPort() << std::endl;
-	std::cout << "server ServerName = " << _servers[0].getServerName() << " request ServerName = " << request.getServerName() << std::endl;
+	// std::cout << "server host = " << _servers[0].getHost() << " request host = " << request.getHost() << std::endl;
+	// std::cout << "server Port = " << _servers[0].getPort() << " request Port = " << request.getPort() << std::endl;
+	// std::cout << "server ServerName = " << _servers[0].getServerName() << " request ServerName = " << request.getServerName() << std::endl;
 
 
 	for (size_t i = 0; i < _servers.size(); i++) {

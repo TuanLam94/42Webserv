@@ -541,7 +541,7 @@ _ASBOX
 #
 AMDEP_TRUE="" ac_aux_dir="utils"
  prefix=/home/shelal/programmes/siege sysconfdir=${prefix}/etc localstatedir=${prefix}/var platform=pc-x86_64-linux-gnu
- VERSION=4.1.6 DATE="November-11-2024" PROGRAM="siege" AUTHOR="Jeffrey Fulmer, et al." EMAIL="jeff@joedog.org"
+ VERSION=4.1.6 DATE="November-13-2024" PROGRAM="siege" AUTHOR="Jeffrey Fulmer, et al." EMAIL="jeff@joedog.org"
  bindir=${prefix}${exec_prefix}/bin sh=/bin/sh
  bindir=${prefix}${exec_prefix}/bin sh=/bin/sh
  bindir=${prefix}${exec_prefix}/bin LREP=/usr/bin/perl
@@ -691,7 +691,7 @@ S["PLATFORM"]="pc-x86_64-linux-gnu"
 S["EMAIL"]="jeff@joedog.org"
 S["AUTHOR"]="Jeffrey Fulmer, et al."
 S["PROGRAM"]="siege"
-S["DATE"]="November-11-2024"
+S["DATE"]="November-13-2024"
 S["host_os"]="linux-gnu"
 S["host_vendor"]="pc"
 S["host_cpu"]="x86_64"

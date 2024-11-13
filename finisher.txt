@@ -1,1 +1,4 @@
 - rajouter un attributs _autoindex ;
+
+- quest ce qui se passe si on essaye de upload un directory ? --> puis ctrl-C -> errror double free
+- 
