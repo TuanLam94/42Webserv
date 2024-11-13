@@ -2,7 +2,6 @@
 
 void Response::handleDeleteResponse()
 {
-	// std::cout << "path = " << _path << std::endl;
     switch(DEL_CheckFile()) {
         case -1:
             _status_code = "404 Not Found";
@@ -22,6 +21,8 @@ void Response::handleDeleteResponse()
                 _status_code = "415 Unsupported Media Type";
             else if (status == -4) // file does not exist. Not sure if really needed
                 _status_code = "404 Not Found";
+            else if (status == -5)
+                _status_code = "403 Forbidden";
             break;
     }
 }
@@ -38,6 +39,9 @@ int Response::DEL_CheckFile()
 
 int Response::DeleteFile()
 {
+    if (_path.find("config/toDelete/") == std::string::npos)
+        return -5;
+
     struct stat fileStat;
     if (stat(_path.c_str(), &fileStat) == 0) {
         if (S_ISREG(fileStat.st_mode)) {
