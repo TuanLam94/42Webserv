@@ -262,7 +262,6 @@ void Webserv::eventLoop() {
 	
 	while (true)
 	{
-		// std::cout << "test\n";
 		int fd_number = epoll_wait(_epoll_fd, _events.data(), maxEvents, _servers[0].getTimeout());
 		if (fd_number < 0)
 		{
@@ -389,7 +388,7 @@ void Webserv::sendErrorResponse(int client_fd, int statusCode)
 
 	response.handleErrorResponse(); // passe deux fois dans handleErrorResponse;
 	response.buildResponse();
-	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
+	std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(client_fd);
 	removeRequest(client_fd);
 }

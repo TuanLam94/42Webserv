@@ -447,6 +447,7 @@ void	Request::listing(DIR *dir)
 	}
 	_listing += "</body>\n";
 	_listing += "</html>\n";
+	std::cout << _listing << std::endl;
 }
 
 
@@ -469,7 +470,7 @@ void	Request::parsingGET(Server i)
 	{
 		return ;
 	}
-	std::cout << _path << std::endl;
+
 	
 	if (_path == "config/routes/"/* && _autoindex == true*/)
 	{
@@ -486,9 +487,9 @@ void	Request::parsingGET(Server i)
 		return ;	
 	}
 	else
-	_input.open(_path.c_str());
+		_input.open(_path.c_str());
 
-	// std::cout << _path << std::endl;
+	std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
 		_status_code = 400;
@@ -497,20 +498,10 @@ void	Request::parsingGET(Server i)
 	std::string	line;
 	while (std::getline(_input, line))
 	{
-		_input.open(_path.c_str());
-		if (!_input.is_open())
-		{
-			_status_code = 404;
-			std::cerr << "Can't open input\n";
-		}
-		std::string	line;
-		while (std::getline(_input, line))
-		{
 
-			_body += line;
-			_body += "\n";
-			if (line == "  <head>")
-				_body += "    <link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\">\n";
-		}
+		_body += line;
+		_body += "\n";
+		if (line == "  <head>")
+			_body += "    <link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\">\n";
 	}
 }
