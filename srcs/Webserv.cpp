@@ -54,18 +54,6 @@ int	Request::checkHeadersSize()
 				pos2 = findPositionVec("\r\n", pos1);
 				if (pos2 == -1)
 					return (0);
-				// {
-				// 	int k = 0;
-				// 	for (size_t j = pos; j < pos2; j++, k++)
-				// 	{
-				// 		std::cout << buff[k];
-				// 		if (k > 2048)
-				// 		{
-				// 			std::cerr << "checkHeadersSize1 Error 431: Header Fields Too Large.\n";
-				// 			return (431);
-				// 		}
-				// 	}
-				// }
 				else
 				{
 					int i = 0;
@@ -113,75 +101,6 @@ int	Request::checkHeadersSize()
 				}
 				pos2 += 2;
 				pos = pos2;
-			}
-		}
-	}
-	return (0);
-}
-
-int	Request::checkBodySize()
-{
-	size_t	pos;
-	std::string	buff;
-
-	// buff = request.getBuffer();
-	pos = findPositionVec("\r\n\r\n", 0);
-	if (pos == -1)
-		return (0);
-	else
-	{
-		pos += 4;
-		for (size_t i = pos; i < _my_v.size(); i++)
-		{
-			// std::cout << "SIZE : " << getMaxBodySize() << std::endl;
-			// exit (1);
-			// if (static_cast<int>(i) > getMaxBodySize())
-			// {
-			// 	// std::cout << i << std::endl;
-			// 	// std::cout << request.getMaxBodySize() << std::endl;
-			// 	std::cerr << "checkBodySize Error 413: Content Too Large.\n";
-			// 	return (413);
-			// }
-		}
-	}
-	return (0);
-}
-
-int	Request::checkContentLengthSize()
-{
-	size_t	pos;
-	std::string	content = "Content-Length: ";
-	std::string	nbr;
-
-	pos = findPositionVec(content, 0);
-	if (pos == -1)
-		return (0);
-	else
-	{
-		pos += content.size();
-		size_t	pos1 = findPositionVec("\r\n", pos);
-		if (pos1 == -1)
-			return (0);
-		else
-		{
-			for (size_t i = pos; i < pos1; i++)
-			{
-				if (_my_v[i] >= 48 && _my_v[i] <= 57)
-				{
-					nbr += _my_v[i];
-				}
-			}
-			if (nbr.empty() == false)
-			{
-				unsigned int	integer;
-				std::stringstream	ss(nbr);
-				ss >> integer;
-
-				if (integer > 10485760)
-				{
-					std::cerr << "checkContentLengthSize Error 413: Content Too Large.\n";
-					return (413);
-				}
 			}
 		}
 	}
@@ -386,7 +305,7 @@ void Webserv::sendErrorResponse(int client_fd, int statusCode)
 	else if (statusCode == 400)
 		response.setCode("400 Bad Request");
 
-	response.handleErrorResponse(); // passe deux fois dans handleErrorResponse;
+	response.handleErrorResponse();
 	response.buildResponse();
 	std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(client_fd);
@@ -404,10 +323,6 @@ int	checkAllSize(Request request)
 			return (414);
 		if (request.checkHeadersSize() == 431)
 			return (431);
-		if (request.checkBodySize() == 413) // revoir le body size pour avoir le bon
-			return (413);
-		if (request.checkContentLengthSize() == 413)
-			return (413);
 	}
 	return (0);
 }
@@ -418,7 +333,7 @@ void	Request::createData(unsigned char buffer[1024], int bytes)
 		_my_v.push_back(buffer[i]);
 }
 
-void Webserv::handleClientRequest(int client_fd, Request& request) // chaque requete doit etre faite au fur et a mesure -->> don't block the stream
+void Webserv::handleClientRequest(int client_fd, Request& request)
 {
 	unsigned char buffer[1024] = {'\0'};
 
@@ -435,21 +350,18 @@ void Webserv::handleClientRequest(int client_fd, Request& request) // chaque req
 	if (request.getStatusCode() != 0)
 	{
 		sendErrorResponse(client_fd, request.getStatusCode());
-		request.setHere(0);
-		// removeRequest(client_fd);
 		close(client_fd);
 		epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
 		return ;
 		
 	}
-	std::cout << "\n";
-	for (size_t i = 0; i < request.getMyV().size(); i++)
-		std::cout << request.getMyV()[i];
-	std::cout << "\n";
+	// std::cout << "\n";
+	// for (size_t i = 0; i < request.getMyV().size(); i++)
+	// 	std::cout << request.getMyV()[i];
+	// std::cout << "\n";
 	if (request.isRequestComplete())
 	{
-		request.setHere(0);
-		request.parsRequest();		// PATH IS HERE
+		request.parsRequest();
 		request.getClientIPPort(client_fd);
 		Server* correct_server = findAppropriateServer(request);
 
@@ -457,7 +369,6 @@ void Webserv::handleClientRequest(int client_fd, Request& request) // chaque req
 		{
 			request.setServer(*correct_server);
 			request.parsRequestBis(*correct_server);
-			request.setHere(0);
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);
 				return ;

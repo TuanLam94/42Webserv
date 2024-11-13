@@ -1,1 +1,3 @@
 - rajouter un attributs _autoindex ;
+
+- pourquoi getmaxbodysize is empty

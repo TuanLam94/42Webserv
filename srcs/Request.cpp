@@ -17,7 +17,6 @@ Request::Request()
 	_isRedirect = false;
 	_status_code = 0;
 	_pos = 0;
-	_here = 0;
 	_isComplete = 0;
 	_RequestMethod = "REQUEST_METHOD="; // methode utilise oui
 	_ContentType = "CONTENT_TYPE="; // type de contenu de la requete oui
@@ -563,11 +562,6 @@ unsigned long int	Request::getContentLength() const
 	return (_contentLength);
 }
 
-int	Request::getHere() const
-{
-	return (_here);
-}
-
 std::vector<unsigned char>	Request::getMyV() const
 {
 	return (_my_v);
@@ -613,11 +607,6 @@ void	Request::setComplete(int complete)
 void	Request::setStatusCode(int code)
 {
 	_status_code = code;
-}
-
-void	Request::setHere(int here)
-{
-	_here = here;
 }
 
 void Request::setServer(Server& server)

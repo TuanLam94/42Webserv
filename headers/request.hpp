@@ -20,7 +20,6 @@
 #include <unistd.h>
 #include <algorithm>
 #include <iterator>
-// #include "response.hpp"
 #include "../headers/server.hpp"
 #include <sstream>
 #include <ctime>
@@ -101,7 +100,6 @@ class	Request
 	std::string	_boundary_full;
 	std::string	_dataBrut; // requete POST avec content-type -> text/plain
 	bool	_isChunk; // pour verifier si requete fragmente
-	int	_here;
 	std::vector<unsigned char> _my_v;
 	std::vector<unsigned char> _my_body;
 	// std::string _buffer;
@@ -199,7 +197,6 @@ class	Request
 	std::string	getServerName() const;
 	std::string	getBuffer() const;
 	bool	getIsChunk() const;
-	int	getHere() const;
 	unsigned long int	getContentLength() const;
 	int getMaxBodySize() const;
 	const Server&	getServer() const;
@@ -229,7 +226,6 @@ class	Request
 	void	setRequestStatusCode(int status_code);
 	void	setClientFD(int fd);
 	void	setStart(long long int time);
-	void	setHere(int here);
 	//Utils
 	void	printRequest() const;
 

@@ -730,14 +730,6 @@ void	Request::initContentLength()
 			}
 			std::istringstream ss(it->second); 
 			ss >> _contentLength;
-			// std::cout << _contentLength << std::endl;
-			// std::cout << i << std::endl;
-			if (_contentLength != i)
-			{
-				_status_code = 400;
-				std::cerr << "initContentLength2 Error 400: Bad Request\n";
-				throw MyExcep();
-			}
 			if (static_cast<int>(_contentLength) > _max_client_body_size)
 			{
  				_status_code = 413;

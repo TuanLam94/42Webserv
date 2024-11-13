@@ -9,7 +9,7 @@ server {
     methods                 GET POST DELETE
     upload_dir			    config/uploads
     redirection			    redirect/
-    max_client_body_size    1048576
+    max_client_body_size    104800
     cgi_dir                 config/cgi
     autoindex               true
 }
@@ -25,7 +25,7 @@ server {
     methods                 GET POST DELETE
     upload_dir			    config/uploads
     redirection			    redirect/
-    max_client_body_size    1048576
+    max_client_body_size    104800
     cgi_dir                 config/cgi
     autoindex               true
 }
@@ -41,7 +41,7 @@ server {
     methods                 GET POST DELETE
     upload_dir			    config/uploads
     redirection			    redirect/
-    max_client_body_size    1048576
+    max_client_body_size    104800
     cgi_dir                 config/cgi
     autoindex               true
 }
