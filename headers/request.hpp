@@ -24,6 +24,7 @@
 #include "../headers/server.hpp"
 #include <sstream>
 #include <ctime>
+#include <sys/stat.h>
 
 class Server;
 class Response;

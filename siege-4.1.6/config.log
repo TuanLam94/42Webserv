@@ -2435,7 +2435,7 @@ configure:21164: $? = 0
 configure:21164: result: yes
 configure:21175: checking for getipnodebyname
 configure:21175: gcc -o conftest -g -O2 -I/include/zlib -I/include  conftest.c  >&5
-/usr/bin/ld: /tmp/ccs8Z1OS.o: in function `main':
+/usr/bin/ld: /tmp/cc2Tz6xr.o: in function `main':
 /home/shelal/Desktop/webserv/siege-4.1.6/conftest.c:106: undefined reference to `getipnodebyname'
 collect2: error: ld returned 1 exit status
 configure:21175: $? = 1
@@ -2552,7 +2552,7 @@ configure: failed program was:
 configure:21175: result: no
 configure:21186: checking for freehostent
 configure:21186: gcc -o conftest -g -O2 -I/include/zlib -I/include  conftest.c  >&5
-/usr/bin/ld: /tmp/cc7J2IT6.o: in function `main':
+/usr/bin/ld: /tmp/ccS7f6OT.o: in function `main':
 /home/shelal/Desktop/webserv/siege-4.1.6/conftest.c:106: undefined reference to `freehostent'
 collect2: error: ld returned 1 exit status
 configure:21186: $? = 1
@@ -3004,7 +3004,7 @@ CXXCPP='g++ -E'
 CXXDEPMODE='depmode=none'
 CXXFLAGS='-g -O2'
 CYGPATH_W='echo'
-DATE='November-11-2024'
+DATE='November-13-2024'
 DEFS='-DHAVE_CONFIG_H'
 DEPDIR='.deps'
 ECHO='echo'

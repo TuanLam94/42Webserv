@@ -1,0 +1,27 @@
+1 -Catch sigpipes et les ignorer (Quand tu veux ecrire a un client mais que le pipe est ferme = sigpipe) //OK
+
+2 - Close EpollFD in Child //OK
+
+3 - CGI : Ajouter un Timeout au cas ou il tourne a l'infini //OK
+
+4 - Ajouter Max Client Body size //OK
+
+5 - Regarder si getBody.size() renvoie bien la bonne valeur dans la bonne unite //OK
+
+6 - CGI Setenv REMOTE PORT ? 
+
+7 - Clean CGI ? + ADD _cgi_type in parsing
+
+8 - Clean All response build and send
+
+9 - End Response Post, getBody
+
+10 - Make Website functional
+
+11 - Test all
+
+12 - Check if body < contentLength
+
+13 - Handle DELETE already deleted better //OK
+
+Tester send Json Data avec le site = 400 bad request, parserJson6 ! A regarder quand t'as un moment 🙂

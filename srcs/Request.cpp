@@ -199,8 +199,7 @@ void	Request::getClientIPPort(int clientfd)
 
 	_host = inet_ntoa(local_addr.sin_addr);
 	_port = ntohs(local_addr.sin_port);
-	_serverName = parsServerName();
-
+	// _serverName = parsServerName();
 	std::ostringstream oss;
 	oss << _host << ":" << _port;
 	_host = oss.str();
@@ -213,24 +212,31 @@ std::string Request::parsServerName()
 	for (size_t i = 0; i < _my_v.size(); i++) {
 		buffer[i] = _my_v[i];
 	}
-
 	std::string body(buffer);
-
+	std::cout << body << std::endl;
 	size_t pos = body.find("Host:");
 	if (pos == std::string::npos)
 		return ("");
-
-	pos = body.find_first_not_of(" \t", pos + 5);
-	if (pos == std::string::npos)
-		return ("");
+	pos += 5;
+	
+	size_t	pos1 = body.find("\r\n", pos);
+	for (; pos < pos1; pos++)
+		std::cout << body[pos];
+	
+	// pos = body.find_first_not_of(" \t", pos + 5);
+	// if (pos == std::string::npos)
+	// 	return ("");
 
 	size_t endPos = body.find(":", pos);
-	if (endPos == std::string::npos) {
-		endPos = body.find("\r\n", pos);
-		if (endPos == std::string::npos)
-			return "";
-	}
-
+	std::cout << pos << std::endl;
+	std::cout << endPos - pos << std::endl;
+	exit (1);
+	// if (endPos == std::string::npos)
+	// {
+	// 	endPos = body.find("\r\n", pos);
+	// 	if (endPos == std::string::npos)
+	// 		return "";
+	// }
 	return body.substr(pos, endPos - pos);
 }
 
