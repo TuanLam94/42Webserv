@@ -65,6 +65,7 @@ class Response
 		void	handleGetResponse();
 		int		GET_CheckFile();
 		bool	fileIsReg();
+		bool	fileIsDir();
 		void	buildGetResponse();
 		void	buildRedirectResponse();
 			//post
