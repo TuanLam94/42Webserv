@@ -538,12 +538,14 @@ void	Request::constructBody()
 			i++;
 			pos2++;
 		}
+		// std::cerr << "strFinal = " << strFinal << std::endl;
 		pos2 += 2;
 		pos1 = findPositionBody("\r\n", pos2);
 		if (static_cast<int>(pos1) != -1)
 		{
 			for (size_t i = pos2; i < pos1; i++)
 				str += _my_body[i];
+			// std::cerr << "str = " << str << std::endl;
 			pos1 += 2;
 		}
 		else
@@ -563,6 +565,11 @@ void	Request::constructBody()
 	{
 		_my_body.push_back(strFinal[i]);
 	}
+	for (size_t i = 0; i < strFinal.size(); i++)
+	{
+		std::cout << _my_body[i];
+	}
+	std::cout << std::endl;
 }
 
 void	Request::setBoundaryFull()

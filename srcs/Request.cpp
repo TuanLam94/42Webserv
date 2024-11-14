@@ -222,13 +222,17 @@ bool Request::isRequestComplete()
 
 bool Request::isChunkedRequestComplete(size_t pos)
 {
+	size_t	pos_test;
 	size_t	pos1 = 0;
 	size_t	pos2 = pos + 4;
 	size_t	pos3 = 0;
 	std::string	chunkSizeStr;
 	int chunkSize = 0;
 
-	while (true) 
+	pos_test = findPositionVec("0\r\n\r\n", 0);
+	if (pos_test == -1)
+		return false;
+	while (pos2 < pos_test) 
 	{
 		pos1 = findPositionVec("\r\n", pos2);
 		if (pos1 == -1)
@@ -246,32 +250,47 @@ bool Request::isChunkedRequestComplete(size_t pos)
 			chunkSize = hexStringToInt(chunkSizeStr);
 			if (chunkSize == 0)
 				return (true);
+			pos2 += 3;
 		}
-		pos1 += 2;
-		pos2 = pos1;
-		pos1 = findPositionVec("\r\n", pos2);
-		if (pos1 == -1)
+		pos1 = pos2;
+		int i = 0;
+		size_t pos_check = findPositionVec("\r\n", pos1 + chunkSize - 1);
+		if (pos_check == -1)
 		{
 			_status_code = 400;
-			std::cout << "IsChunkComplete2 Error 400: Bad Request.\n";
+			std::cout << "IsChunkComplete5 Error 400: Bad Request.\n";
 			return (true);
 		}
-		else
+		while (pos1 < pos2 + chunkSize - 1)
 		{
-			size_t i = 0;
-			for (; pos2 < pos1; pos2++, i++);
-			if (i != chunkSize)
-			{
-				_status_code = 400;
-				std::cout << "IsChunkComplete3 Error 400: Bad Request.\n";
-				return (true);
-			}
+			pos1++;
+			i++;
+		}
+		// std::cout << "pos1 = " << pos1 << std::endl;
+		// std::cout << "pos_check = " << pos_check << std::endl;
+		if (pos1 != pos_check)
+		{
+			_status_code = 400;
+			std::cout << "IsChunkComplete6 Error 400: Bad Request.\n";
+			return (true);
+		}
+		// std::cout << "i = " << i << std::endl;
+		// std::cout << "chunkSize = " << chunkSize << std::endl;
+		// std::cout << "pos_check = " << pos_check << std::endl;
+		// std::cout << "pos1 = " << pos1 << std::endl;
+		if (i + 1 != chunkSize)
+		{
+			_status_code = 400;
+			std::cout << "IsChunkComplete3 Error 400: Bad Request.\n";
+			return (true);
 		}
 		pos1 += 2;
 		pos2 = pos1;
+		// std::cout << "pos2 = " << pos2 << std::endl;
+		// std::cout << "pos_test = " << pos_test << std::endl;
 		chunkSizeStr.clear();
 	}
-	return (false);
+	return (true);
 }
 
 bool Request::isBodySizeTooLarge()

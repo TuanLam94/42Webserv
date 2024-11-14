@@ -72,7 +72,7 @@ conn.endheaders()
 body_chunks = [
     "4\r\nWiki\r\n",   # Un morceau de 4 octets (Wiki)
     "6\r\npedia \r\n", # Un autre morceau de 6 octets (pedia )
-    "e\r\nin\r\n\r\nchunks.\r\n",  # Un autre de 14 octets (in\r\nchunks.\n)
+    "6\r\npedia \r\n\n",  # Un autre de 14 octets (in\r\nchunks.\n)
     "0\r\n\r\n"        # Chunk final (0 pour indiquer la fin des chunks)
 ]
 
