@@ -1,4 +1,0 @@
-- text/plain --> pas traite dans la reponse 
-
-- Setup a list of methods accepted for a certain route (e.g., try to delete something with and without permission).
-- todelete -> a faire 
