@@ -319,7 +319,7 @@ void Webserv::sendErrorResponse(int client_fd, int statusCode)
 
 	response.handleErrorResponse();
 	response.buildResponse();
-	std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
+	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(client_fd);
 	removeRequest(client_fd);
 }
@@ -367,10 +367,10 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		return ;
 		
 	}
-	std::cout << "\n";
-	for (size_t i = 0; i < request.getMyV().size(); i++)
-		std::cout << request.getMyV()[i];
-	std::cout << "\n";
+	// std::cout << "\n";
+	// for (size_t i = 0; i < request.getMyV().size(); i++)
+	// 	std::cout << request.getMyV()[i];
+	// std::cout << "\n";
 	if (request.isRequestComplete())
 	{
 		request.parsRequest();
@@ -414,11 +414,6 @@ bool	Request::checkValidMethod(Server server)
 
 Server* Webserv::findAppropriateServer(Request& request)
 {
-	// std::cout << "server host = " << _servers[0].getHost() << " request host = " << request.getHost() << std::endl;
-	// std::cout << "server Port = " << _servers[0].getPort() << " request Port = " << request.getPort() << std::endl;
-	// std::cout << "server ServerName = " << _servers[0].getServerName() << " request ServerName = " << request.getServerName() << std::endl;
-
-
 	for (size_t i = 0; i < _servers.size(); i++) {
 		if (_servers[i].getHost() == request.getHost())
 			return &_servers[i];
@@ -436,30 +431,6 @@ Server* Webserv::findAppropriateServer(Request& request)
 	
 	return NULL;
 }
-
-// Server* Webserv::redirectServer(Request& request)
-// {
-// 	request.setRequestStatusCode(301);
-// 	return findServerByPort(request);
-// }
-
-// Server* Webserv::findServerByName(const Request& request)
-// {
-// 	for (size_t i = 0; i < _servers.size(); i++) {
-// 		if (_servers[i].getServerName() == request.getServerName())
-// 			return &_servers[i];
-// 	}
-// 	return NULL;
-// }
-
-// Server* Webserv::findServerByPort(const Request& request)
-// {
-// 	for (size_t i = 0; i < _servers.size(); i++) {
-// 		if (_servers[i].getPort() == request.getPort())
-// 			return &_servers[i];
-// 	}
-// 	return NULL;
-// }
 
 void Webserv::closeAllFD()
 {

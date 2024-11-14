@@ -370,8 +370,6 @@ void	Request::formDataGetName(size_t pos)
 				pos++;
 			}
 		}
-		std::cout << "key : " << key << std::endl;
-		std::cout << "value : " << value << std::endl;
 		_FormDataName.insert(std::pair<std::string, std::string>(key, value));
 	}
 }
@@ -634,11 +632,11 @@ void	Request::parsingPOST_v2()
 				setBoundaryFull();
 				parserFormData();
 			}
-			else if (it->second == "text/plain")
-			{
-				_contentType = it->second;
-				parserTextPlain();
-			}
+			// else if (it->second == "text/plain")
+			// {
+			// 	_contentType = it->second;
+			// 	parserTextPlain();
+			// }
 			else
 			{
 				if (_cgiIsHere == false)
@@ -670,16 +668,16 @@ int	Request::checkContentType()
 	return (0);
 }
 
-void	Request::parserTextPlain()
-{
-	unsigned long int	i = 0;
+// void	Request::parserTextPlain()
+// {
+// 	unsigned long int	i = 0;
 
-	while (i < _contentLength && i < _my_body.size())
-	{
-		_dataBrut += _my_body[i];
-		i++;
-	}
-}
+// 	while (i < _contentLength && i < _my_body.size())
+// 	{
+// 		_dataBrut += _my_body[i];
+// 		i++;
+// 	}
+// }
 
 
 bool	checkLength(std::string len)

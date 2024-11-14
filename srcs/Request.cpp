@@ -515,11 +515,6 @@ long long int Request::getStart() const
 	return _start;
 }
 
-// std::string Request::getRemotePort() const
-// {
-// 	return _RemotePort;
-// }
-
 //-----------------------------------------------------SETTERS--------------------------------------
 
 void	Request::setComplete(int complete)
