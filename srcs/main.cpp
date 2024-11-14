@@ -28,13 +28,19 @@ int main(int argc, char **argv)
     signal(SIGPIPE, SIG_IGN);
     
     config = argv[1];
+    try 
+    {
+	    Webserv Webserv(config);
+        globalWebserv = &Webserv;
+        signal(SIGINT, sigintHandler);
+	    Webserv.run();
+    }
+    catch(...)
+    {
+        return (1);
+    }
 
-	Webserv Webserv(config);
-    globalWebserv = &Webserv;
 
-    signal(SIGINT, sigintHandler);
-
-	Webserv.run();
 
     return 0;
 }

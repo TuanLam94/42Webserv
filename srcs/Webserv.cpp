@@ -109,14 +109,20 @@ int	Request::checkHeadersSize()
 
 Webserv::Webserv(std::string config)
 {
+	_epoll_fd = -1;
 	std::ifstream input(config.c_str());
 	if (!input.is_open()) {
 		std::cerr << "Can't open " << config << std::endl;
 		exit (-1);
 	}
 
-	parseConfigFile(input);
-	serversInit();
+	try {
+		parseConfigFile(input);
+		serversInit();
+	} catch (...) {
+		// std::cerr << "Initialization error: " << e.what() << std::endl;
+		throw ; // Rethrow to propagate error to the caller
+	}
 }
 
 void Webserv::parseConfigFile(std::ifstream& input)
@@ -134,7 +140,7 @@ void Webserv::parseConfigFile(std::ifstream& input)
 
         if (!newConfig.empty())
         	configVec.push_back(newConfig);
-    }
+    	}
 
 	for (size_t i = 0; i < configVec.size(); i++) {
 		Server server(configVec[i]);
@@ -142,9 +148,9 @@ void Webserv::parseConfigFile(std::ifstream& input)
 			_servers.push_back(server);
 	}
 
-	if (_servers.size() < 1) {
-		std::cerr << "Error, invalid config file.\n";
-		exit (1);
+	if (_servers.empty()) {
+		input.close();
+		throw std::runtime_error("Error: invalid config file.");
 	}
 }
 
@@ -435,7 +441,8 @@ Server* Webserv::findAppropriateServer(Request& request)
 
 void Webserv::closeAllFD()
 {
-	close(_epoll_fd);
+	if (_epoll_fd > 0)
+		close(_epoll_fd);
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() > 0)
 			close(_requests[i].getClientFD());
@@ -460,11 +467,9 @@ void Webserv::closeAcceptFD()
 
 Webserv::~Webserv()
 {
-	// for (size_t i = 0; i < _requests.size(); i++) {
-	// 	_requests[i].~Request();
-	// }
-	if (_epoll_fd > 0)
-		close(_epoll_fd);
+    closeAllFD();
+    closeAllSockets();
+    closeAcceptFD();
 }
 
 //-------------------------------------Getters-------------------------------------
