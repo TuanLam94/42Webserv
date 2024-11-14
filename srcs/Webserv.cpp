@@ -380,6 +380,11 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		if (correct_server != NULL)
 		{
 			request.setServer(*correct_server);
+			if (request.getStatusCode()== 0 && request.checkValidMethod(*correct_server) == false)
+			{
+				request.setStatusCode(405);
+				return ;
+			}
 			request.parsRequestBis(*correct_server);
 			if (request.isBodySizeTooLarge()) {
 				request.setRequestStatusCode(413);
@@ -393,6 +398,18 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 			return ;
 		}
 	}
+}
+
+bool	Request::checkValidMethod(Server server)
+{
+	std::string str = getMethod();
+	
+	for (size_t i = 0; i < server.getMethods().size(); i++)
+	{
+		if (str == server.getMethods()[i])
+			return (true);
+	}
+	return (false);
 }
 
 Server* Webserv::findAppropriateServer(Request& request)

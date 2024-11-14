@@ -20,8 +20,11 @@ std::string trim(std::string str)
 size_t findWhiteSpace(std::string line)
 {
 	int i = 0;
-	while (!isspace(line[i])) {
-		i++;
+	if (line.size() > 0)
+	{
+		while (i < line.size() && !isspace(line[i])) {
+			i++;
+		}
 	}
 	return i;
 }
