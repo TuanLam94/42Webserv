@@ -28,6 +28,14 @@
 #include <set>
 #include <map>
 
+class MyExcep1 : public std::exception
+{
+	const char *what()const throw()
+	{
+		return("Error Invalid Config File.");
+	}
+};
+
 class Webserv
 {
 	private:

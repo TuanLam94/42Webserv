@@ -14,7 +14,7 @@ int	Request::checkUriSize()
 		{
 			if (i > 2048)
 			{
-				std::cerr << "checkUriSize Error 414: Uri too long.\n";
+				// std::cerr << "checkUriSize Error 414: Uri too long.\n";
 				return (414);
 			}
 		}
@@ -25,7 +25,7 @@ int	Request::checkUriSize()
 		{
 			if (i > 2048)
 			{
-				std::cerr << "checkUriSize Error 414: Uri too long.\n";
+				// std::cerr << "checkUriSize Error 414: Uri too long.\n";
 				return (414);
 			}
 		}
@@ -61,14 +61,14 @@ int	Request::checkHeadersSize()
 					{
 						if (i > 2048)
 						{
-							std::cerr << "checkHeadersSize2 Error 431: Header Fields Too Large.\n";
+							// std::cerr << "checkHeadersSize2 Error 431: Header Fields Too Large.\n";
 							return (431);
 						}
 					}
 				}
 				if (i > 8192)
 				{
-					std::cerr << "checkHeadersSize3 Error 431: Header Fields Too Large.\n";
+					// std::cerr << "checkHeadersSize3 Error 431: Header Fields Too Large.\n";
 					return (431);
 				}
 				pos2 += 2;
@@ -89,14 +89,14 @@ int	Request::checkHeadersSize()
 					{
 						if (i > 2048)
 						{
-							std::cerr << "checkHeadersSize4 Error 431: Header Fields Too Large.\n";
+							// std::cerr << "checkHeadersSize4 Error 431: Header Fields Too Large.\n";
 							return (431);
 						}
 					}
 				}
 				if (i > 8192)
 				{
-					std::cerr << "checkHeadersSize5 Error 431: Header Fields Too Large.\n";
+					// std::cerr << "checkHeadersSize5 Error 431: Header Fields Too Large.\n";
 					return (431);
 				}
 				pos2 += 2;
@@ -120,8 +120,7 @@ Webserv::Webserv(std::string config)
 		parseConfigFile(input);
 		serversInit();
 	} catch (...) {
-		// std::cerr << "Initialization error: " << e.what() << std::endl;
-		throw ; // Rethrow to propagate error to the caller
+		throw MyExcep1();
 	}
 }
 
@@ -194,7 +193,7 @@ void Webserv::epollInit()
 }
 
 void Webserv::eventLoop() {
-	int maxEvents = 10;// originally 10
+	int maxEvents = 10;
 	_events.resize(maxEvents);
 	
 	while (true)
@@ -234,7 +233,6 @@ void Webserv::eventLoop() {
 					{
 						handleClientWrite(event_fd, *request);
 						removeRequest(event_fd);
-						//add epoll_ctl_del ? 
 					}
 				}
 			}
@@ -249,12 +247,11 @@ void Webserv::checkAllRequestTimeouts()
 	time_t current_time = time(NULL);
 
 	for (int i = 0; i < _requests.size(); i++) {
-		if (static_cast<long long int>(current_time) - _requests[i].getStart() > 300) {
+		if (static_cast<long long int>(current_time) - _requests[i].getStart() > 20) {
 			sendErrorResponse(_requests[i].getClientFD(), 500);
 			removeRequest(_requests[i].getClientFD());
 			close(_requests[i].getClientFD());
 			epoll_ctl (_epoll_fd, EPOLL_CTL_DEL, _requests[i].getClientFD(), NULL);
-			std::cout << "TIMEDOUT, REMOVING REQUEST\n";
 		}
 	}
 }
@@ -263,11 +260,9 @@ Request* Webserv::findAppropriateRequest(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			// std::cout << "FOUND EXISTING REQUEST TO READ\n";
 			return &_requests[i];
 		}
 	}
-	std::cout << "CREATING NEW REQUEST\n";
     _requests.push_back(Request());
    	_requests.back().setClientFD(event_fd);
 	_requests.back().setStart(static_cast<long long int>(time(NULL)));
@@ -278,7 +273,6 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 {
 	for (size_t i = 0; i < _requests.size(); i++) {
 		if (_requests[i].getClientFD() == event_fd) {
-			// std::cout << "FOUND EXISTING REQUEST TO WRITE\n";
 			return &_requests[i];
 		}
 	}
@@ -287,13 +281,10 @@ Request* Webserv::findAppropriateRequestToWrite(int event_fd)
 
 void Webserv::handleClientWrite(int event_fd, Request& request)
 {
-	// std::cout << "HANDLE CLIENT WRITE\n";
 	Response response(request);
 	response.handleRequest();
 	response.buildResponse();
-	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(event_fd);
-	// request.makeClear();
 }
 
 void Webserv::removeRequest(int event_fd)
@@ -302,7 +293,6 @@ void Webserv::removeRequest(int event_fd)
         if (it->getClientFD() == event_fd) {
 		close (event_fd);
             _requests.erase(it);
-			std::cout << "REMOVED REQUEST\n";
             break;
         }
     }
@@ -325,7 +315,6 @@ void Webserv::sendErrorResponse(int client_fd, int statusCode)
 
 	response.handleErrorResponse();
 	response.buildResponse();
-	// std::cout << "\nFULL RESPONSE = " << response.getResponseStr() << std::endl;
 	response.sendResponse(client_fd);
 	removeRequest(client_fd);
 }
@@ -373,13 +362,12 @@ void Webserv::handleClientRequest(int client_fd, Request& request)
 		return ;
 		
 	}
-	std::cout << "\n";
-	for (size_t i = 0; i < request.getMyV().size(); i++)
-		std::cout << request.getMyV()[i];
-	std::cout << "\n";
+	// std::cout << "\n";
+	// for (size_t i = 0; i < request.getMyV().size(); i++)
+	// 	std::cout << request.getMyV()[i];
+	// std::cout << "\n";
 	if (request.isRequestComplete())
 	{
-		std::cout << "tttttttttttttt\n";
 		request.parsRequest();
 		request.getClientIPPort(client_fd);
 		Server* correct_server = findAppropriateServer(request);

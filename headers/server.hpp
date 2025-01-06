@@ -41,7 +41,6 @@ class Server
 		int	_max_client_body_size;
         std::string _cgi_dir;
 		std::vector<std::string> _methods;
-        // std::vector<int>    fds;
         void parseRoutes(std::string path);
         void parseErrors(std::string path);
 		void parseMethods(std::string input);

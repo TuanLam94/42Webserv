@@ -62,7 +62,7 @@ void	Request::parsRequestLine()
 		|| _version.empty() == true)
 	{
 		_status_code = 400;
-		std::cerr << "parsRequestLine Error 400: Bad Request.\n";
+		// std::cerr << "parsRequestLine Error 400: Bad Request.\n";
 		throw MyExcep();
 	}
 }
@@ -73,7 +73,7 @@ void	Request::checkMethod()
 		&& _method != "POST"
 		&& _method != "DELETE")
 		{
-			std::cerr << "checkMethod Error 405: Method Not Allowed.\n";
+			// std::cerr << "checkMethod Error 405: Method Not Allowed.\n";
 			_status_code = 405;
 			throw MyExcep();
 		}
@@ -83,7 +83,7 @@ void	Request::checkVersion()
 {
 	if (_version != "HTTP/1.1")
 	{
-		std::cerr << "checkVersion Error 505: Version Not Supported.\n";
+		// std::cerr << "checkVersion Error 505: Version Not Supported.\n";
 		_status_code = 505;
 		throw MyExcep();
 	}
@@ -102,7 +102,7 @@ void	Request::checkUri()
 {
 	if (_path.size() > 2048)
 	{
-		std::cerr << "checkUri Error 414: Uri Too Long.\n";
+		// std::cerr << "checkUri Error 414: Uri Too Long.\n";
 		_status_code = 414;
 		throw MyExcep();
 	}
@@ -238,7 +238,7 @@ bool Request::isChunkedRequestComplete(size_t pos)
 		if (pos1 == -1)
 		{
 			_status_code = 400;
-			std::cout << "IsChunkComplete1 Error 400: Bad Request.\n";
+			// std::cout << "IsChunkComplete1 Error 400: Bad Request.\n";
 			return (true);
 		}
 		else
@@ -258,7 +258,7 @@ bool Request::isChunkedRequestComplete(size_t pos)
 		if (pos_check == -1)
 		{
 			_status_code = 400;
-			std::cout << "IsChunkComplete5 Error 400: Bad Request.\n";
+			// std::cout << "IsChunkComplete5 Error 400: Bad Request.\n";
 			return (true);
 		}
 		while (pos1 < pos2 + chunkSize - 1)
@@ -266,28 +266,20 @@ bool Request::isChunkedRequestComplete(size_t pos)
 			pos1++;
 			i++;
 		}
-		// std::cout << "pos1 = " << pos1 << std::endl;
-		// std::cout << "pos_check = " << pos_check << std::endl;
 		if (pos1 != pos_check)
 		{
 			_status_code = 400;
-			std::cout << "IsChunkComplete6 Error 400: Bad Request.\n";
+			// std::cout << "IsChunkComplete6 Error 400: Bad Request.\n";
 			return (true);
 		}
-		// std::cout << "i = " << i << std::endl;
-		// std::cout << "chunkSize = " << chunkSize << std::endl;
-		// std::cout << "pos_check = " << pos_check << std::endl;
-		// std::cout << "pos1 = " << pos1 << std::endl;
 		if (i + 1 != chunkSize)
 		{
 			_status_code = 400;
-			std::cout << "IsChunkComplete3 Error 400: Bad Request.\n";
+			// std::cout << "IsChunkComplete3 Error 400: Bad Request.\n";
 			return (true);
 		}
 		pos1 += 2;
 		pos2 = pos1;
-		// std::cout << "pos2 = " << pos2 << std::endl;
-		// std::cout << "pos_test = " << pos_test << std::endl;
 		chunkSizeStr.clear();
 	}
 	return (true);
@@ -339,8 +331,7 @@ Request::Request(const Request& copy)
 	_host = copy._host;
 	_serverName = copy._serverName;
 	_port = copy._port;
-	_server = copy._server;  // Assuming Server has a copy constructor
-		// _input = copy._input;  // Caution: This may not behave as expected
+	_server = copy._server;
 	_status_code = copy._status_code;
 	_contentLength = copy._contentLength;
 	_max_client_body_size = copy._max_client_body_size;
@@ -352,7 +343,6 @@ Request::Request(const Request& copy)
 	_jsonParam = copy._jsonParam;
 	_urlParam = copy._urlParam;
 	_boundary = copy._boundary;
-	_dataBrut = copy._dataBrut;
 	_isChunk = copy._isChunk;
 	_my_v.resize(copy._my_v.size());
 	for (size_t i = 0; i < copy._my_v.size(); i++)

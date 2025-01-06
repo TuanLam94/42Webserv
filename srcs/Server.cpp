@@ -197,7 +197,7 @@ void	Server::handleNewConnection()
 		close(client_fd);
 	}
 
-	std::cout << "New client connected\n";
+	// std::cout << "New client connected\n";
 }
 
 //----------------------------------UTILS------------------------------//

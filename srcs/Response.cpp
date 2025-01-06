@@ -3,7 +3,6 @@
 
 Response::Response(const Request& request)
 {
-    std::cout << "CREATING RESPONSE\n";
     _method = request.getMethod();
     _path = request.getPath();
     _version = request.getVersion();
@@ -94,13 +93,12 @@ bool Response::isErrorResponse()
 
 void Response::sendResponse(int fd)
 {
-	// std::cout << "full response = " << _response_str << std::endl;
 
     ssize_t totalSent = 0;
     ssize_t toSend = _response_str.size();
     while (totalSent < toSend) {
         ssize_t sent = write(fd, _response_str.c_str() + totalSent, toSend - totalSent);
-        std::cout << "SENT = " << sent << std::endl;
+        // std::cout << "SENT = " << sent << std::endl;
         if (sent < 0) {
             perror("Error writing response");
             break;
@@ -144,7 +142,6 @@ void Response::buildResponse()
     _response.str("");
     _response.clear();
 
-    // _response << "HTTP/1.1 " << _status_code << "/r/n";
     if (isErrorCode())
         handleErrorResponse();
 	else if (getIsRedirect())
@@ -159,7 +156,6 @@ void Response::buildResponse()
 
 bool Response::isErrorCode()
 {
-	// std::cout << "STATUS CODE = " << _status_code << std::endl;
 
     if (_status_code == "404 Not Found" || _status_code == "415 Unsupported Media Type" || _status_code == "409 Conflict"
         || _status_code == "403 Forbidden" || _status_code == "504 Gateway Timeout" || _status_code == "400 Bad Request"
@@ -179,7 +175,6 @@ void Response::buildRedirectResponse()
 	_response << "Location: http://localhost:8080" << endURL << std::endl;
 	_responseBody = _request.getBody();
 	_response << "Content-Type: " << _request.getContentType() << "\r\n";
-	// _response << "Content-Type: text/html" << "\r\n";
     _response << "Content-Length: " << _responseBody.size() << "\r\n";
     _response << "Connection: keep-alive\r\n";
     _response << "\r\n";

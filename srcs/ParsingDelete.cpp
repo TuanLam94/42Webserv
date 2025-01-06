@@ -14,7 +14,7 @@ bool	Request::checkContentLength()
 			if (it->second != "0")
 			{
 				_status_code = 400;
-				std::cerr << "checkContentLength Error 400: Bad Request\n";
+				// std::cerr << "checkContentLength Error 400: Bad Request\n";
 				return (true);
 			}
 		}
@@ -27,7 +27,7 @@ bool	Request::checkContentLength()
 void	Request::parsingDELETE(Server i)
 {
 	size_t	pos = _path.find("?");
-
+	std::cout << "path = " << _path << std::endl;
 	try
 	{
 		if (pos != std::string::npos)

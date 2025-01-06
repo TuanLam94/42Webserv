@@ -77,8 +77,8 @@ class	Request
 	std::string	_response;
 	std::string	_body;
 	std::string	_contentType;
-	std::string	_host; // initailsier avec recuperationd des headers --> host == localhost remplacer par adresse ip correspondante
-	std::string	_serverName; // same
+	std::string	_host;
+	std::string	_serverName;
 	int	_port;
 	Server		_server;
 	int _status_code;
@@ -98,14 +98,12 @@ class	Request
 	std::map<std::string, std::string>	_urlParam; // application/x-www-form-urlencoded
 	std::string	_boundary;
 	std::string	_boundary_full;
-	std::string	_dataBrut; // requete POST avec content-type -> text/plain
-	bool	_isChunk; // pour verifier si requete fragmente
+	bool	_isChunk;
 	std::vector<unsigned char> _my_v;
 	std::vector<unsigned char> _my_body;
 	// std::string _buffer;
 	int	_isComplete;
 	public:
-	// std::vector<std::vector<unsigned char> >	_my_v;x
 	Request();
 	Request(const Request& copy);
 	Request& operator=(const Request& other);
@@ -236,8 +234,6 @@ class	Request
 
 bool	isDigit(char str);
 bool	checkValidChar(char c);
-// void	checkISS(char c1, char c2);
-// bool	checkValidHeader(char c);
 void	checkKey(std::string key);
 void	checkValue(std::string value);
 int	checkUrlEncoded(std::string body);

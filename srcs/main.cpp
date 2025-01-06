@@ -35,12 +35,10 @@ int main(int argc, char **argv)
         signal(SIGINT, sigintHandler);
 	    Webserv.run();
     }
-    catch(...)
+    catch(std::exception &ex)
     {
+        std::cout << ex.what() << std::endl;
         return (1);
     }
-
-
-
     return 0;
 }

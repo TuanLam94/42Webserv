@@ -17,7 +17,7 @@ bool	Request::checkValidChar(char c)
 		&& c != 63)
 	{
 		_status_code = 400;
-		std::cerr << "checkValidChar Error 400: Bad Request.\n";
+		// std::cerr << "checkValidChar Error 400: Bad Request.\n";
 		return (false);
 	}
 	return (true);
@@ -96,7 +96,7 @@ void	Request::parsParamPath(size_t pos)
 	if (key.empty() == true || value.empty() == true)
 	{
 		_status_code = 400;
-		std::cout << "parsParamPath Error 400: Bad Request\n";
+		// std::cout << "parsParamPath Error 400: Bad Request\n";
 		throw MyExcep();
 	}
 	_path.clear();
@@ -107,8 +107,6 @@ void	Request::parsParamPath(size_t pos)
 void	Request::parsPath(Server obj)
 {
 	std::string	new_path;
-
-	std::cout << "PATH = " << _path << std::endl;
 
 	if (_method == "GET") {
 		if (_cgiIsHere)
@@ -137,11 +135,7 @@ void	Request::parsPath(Server obj)
 			new_path = obj.getUploadDir() + _path;
 	}
 	else if (_method == "DELETE")
-	{
-		new_path = "config/" + _path.substr(1); // a faire
-		//if new_path != toDelete
-		//403 Forbidden
-	}
+		new_path = _path.substr(1);
 	_path.clear();
 	_path = new_path;
 }
@@ -192,9 +186,7 @@ size_t	Request::findPositionBody(std::string str, size_t start)
 	if (it != _my_body.end())
 		index = std::distance(_my_body.begin(), it);
 	else
-	{
 		return (-1);
-	}
 	return (index);
 }
 
@@ -242,7 +234,7 @@ bool	Request::checkValidHeaderValue(char c)
 		&& c != '?' && c != '\"')
 	{
 		_status_code = 400;
-		std::cerr << "checkValidHeader1 Error 400: Bad Request.\n";
+		// std::cerr << "checkValidHeader1 Error 400: Bad Request.\n";
 		return (false);
 	}
 	return (true);
@@ -255,7 +247,8 @@ void	Request::fillBody()
 	j = findPositionVec("\r\n\r\n", 0);
 	if (j == -1)
 	{
-		std::cerr << "fillBody Error 400: Bad Request.\n" << std::endl;
+		_status_code = 400;
+		// std::cerr << "fillBody Error 400: Bad Request.\n" << std::endl;
 		throw MyExcep();
 	}
 	j += 4;
@@ -284,7 +277,7 @@ void	Request::parsHeaders()
 			pos = findPositionVec("\r\n", i);
 			while (i < _my_v.size() && i < pos)
 			{
-				if (index == true && _my_v[i] == 58) // :
+				if (index == true && _my_v[i] == 58)
 				{
 					index = false;
 					key += _my_v[i];
@@ -299,7 +292,7 @@ void	Request::parsHeaders()
 				else
 				{
 					_status_code = 400;
-					std::cerr << "parsHeaders1 Error 400: Bad Request\n";
+					// std::cerr << "parsHeaders1 Error 400: Bad Request\n";
 					throw MyExcep();
 				}
 				i++;
@@ -316,7 +309,7 @@ void	Request::parsHeaders()
 	else
 	{
 		_status_code = 400;
-		std::cerr << "parsHeaders2 Error 400: Bad Request\n";
+		// std::cerr << "parsHeaders2 Error 400: Bad Request\n";
 		throw MyExcep();
 	}
 }
@@ -329,7 +322,7 @@ void	Request::checkKey(std::string key)
 	if (key.empty() == true || key.size () == 1)
 	{
 		_status_code = 400;
-		std::cerr << "checkKey 1 Error 400: Bad Request\n";
+		// std::cerr << "checkKey 1 Error 400: Bad Request\n";
 		throw MyExcep();
 	}
 	while (i < key.size())
@@ -341,7 +334,7 @@ void	Request::checkKey(std::string key)
 			&& !(key[i] == 58)))
 		{ 
 			_status_code = 400;
-			std::cerr << "checkKey 2 Error 400: Bad Request\n";
+			// std::cerr << "checkKey 2 Error 400: Bad Request\n";
 			throw MyExcep();
 		}
 		i++;
@@ -352,7 +345,7 @@ void	Request::checkKey(std::string key)
 	else
 	{
 		_status_code = 400;
-		std::cerr << "checkKey 3 Error 400: Bad Request\n";
+		// std::cerr << "checkKey 3 Error 400: Bad Request\n";
 		throw MyExcep();
 	}
 }
@@ -362,7 +355,7 @@ void	Request::checkValue(std::string value)
 	if (value.empty() == true)
 	{
 		_status_code = 400;
-		std::cerr << "checkValue Error 400: Bad Request.\n";
+		// std::cerr << "checkValue Error 400: Bad Request.\n";
 		throw MyExcep();
 	}
 }
@@ -378,7 +371,7 @@ void	Request::checkHeaderName()
 	if (it == ite)
 	{
 		_status_code = 400;
-		std::cerr << "checkHeaderName1 Error 400: Bad Request.\n";
+		// std::cerr << "checkHeaderName1 Error 400: Bad Request.\n";
 		throw MyExcep();
 	}
 	while (it != ite)
@@ -397,7 +390,7 @@ void	Request::checkHeaderName()
 	if (host != 1)
 	{
 		_status_code = 400;
-		std::cerr << "checkHeaderName2 Error 400: Bad Request\n";
+		// std::cerr << "checkHeaderName2 Error 400: Bad Request\n";
 		throw MyExcep();
 	}
 }
@@ -468,14 +461,14 @@ void	Request::listing(DIR *dir)
 	}
 	_body += "</body>\n";
 	_body += "</html>\n";
-	std::cout << _body << std::endl;
+	// std::cout << _body << std::endl;
 }
 
 
 void	Request::parsingGET(Server i)
 {
 	size_t	pos = _path.find("?");
-	std::cout << _path << std::endl;
+
 	try
 	{
 		if (pos != std::string::npos)
@@ -491,11 +484,8 @@ void	Request::parsingGET(Server i)
 	{
 		return ;
 	}
-	std::cout << _path << std::endl;
-
 	if (_path == "config/routes/" && i.getAutoIndex() == true)
 	{
-		std::cout << "cccccccccccccccc\n";
 		DIR	*dir;
 		dir = opendir(_path.c_str());
 		if (dir)
@@ -511,11 +501,12 @@ void	Request::parsingGET(Server i)
 	else
 		_input.open(_path.c_str());
 
-	std::cout << _path << std::endl;
 	if (!_input.is_open())
 	{
-		_status_code = 403;
-		std::cerr << "Can't open input\n";
+		if (access(_path.c_str(), F_OK) != 0)
+			_status_code = 404;
+		else if (access(_path.c_str(), R_OK) != 0)
+			_status_code = 403;
 	}
 	std::string	line;
 	while (std::getline(_input, line))
